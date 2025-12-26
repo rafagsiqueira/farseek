@@ -1,0 +1,4 @@
+.terraform
+.farseek.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
