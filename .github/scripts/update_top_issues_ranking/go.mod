@@ -1,4 +1,4 @@
-module github.com/rafagsiqueira/farfetch/.github/scripts/update_top_issues_ranking
+module github.com/rafagsiqueira/farseek/.github/scripts/update_top_issues_ranking
 
 go 1.22.1
 

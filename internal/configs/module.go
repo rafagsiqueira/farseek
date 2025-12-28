@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -887,7 +887,7 @@ func (m *Module) CheckCoreVersionRequirements(path addrs.Module, sourceAddr addr
 					Severity: hcl.DiagError,
 					Summary:  "Invalid required_version constraint",
 					Detail: fmt.Sprintf(
-						"Prerelease version constraints are not supported: %s. Remove the prerelease information from the constraint. Prerelease versions of OpenTofu will match constraints using their version core only.",
+						"Prerelease version constraints are not supported: %s. Remove the prerelease information from the constraint. Prerelease versions of Farseek will match constraints using their version core only.",
 						required.String()),
 					Subject: constraint.DeclRange.Ptr(),
 				})
@@ -906,9 +906,9 @@ func (m *Module) CheckCoreVersionRequirements(path addrs.Module, sourceAddr addr
 			case len(path) == 0:
 				diags = diags.Append(&hcl.Diagnostic{
 					Severity: hcl.DiagError,
-					Summary:  "Unsupported OpenTofu Core version",
+					Summary:  "Unsupported Farseek Core version",
 					Detail: fmt.Sprintf(
-						"This configuration does not support OpenTofu version %s. To proceed, either choose another supported OpenTofu version or update this version constraint. Version constraints are normally set for good reason, so updating the constraint may lead to other errors or unexpected behavior.",
+						"This configuration does not support Farseek version %s. To proceed, either choose another supported Farseek version or update this version constraint. Version constraints are normally set for good reason, so updating the constraint may lead to other errors or unexpected behavior.",
 						tfversion.String(),
 					),
 					Subject: constraint.DeclRange.Ptr(),
@@ -916,9 +916,9 @@ func (m *Module) CheckCoreVersionRequirements(path addrs.Module, sourceAddr addr
 			default:
 				diags = diags.Append(&hcl.Diagnostic{
 					Severity: hcl.DiagError,
-					Summary:  "Unsupported OpenTofu Core version",
+					Summary:  "Unsupported Farseek Core version",
 					Detail: fmt.Sprintf(
-						"Module %s (from %s) does not support OpenTofu version %s. To proceed, either choose another supported OpenTofu version or update this version constraint. Version constraints are normally set for good reason, so updating the constraint may lead to other errors or unexpected behavior.",
+						"Module %s (from %s) does not support Farseek version %s. To proceed, either choose another supported Farseek version or update this version constraint. Version constraints are normally set for good reason, so updating the constraint may lead to other errors or unexpected behavior.",
 						path, sourceAddr, tfversion.String(),
 					),
 					Subject: constraint.DeclRange.Ptr(),

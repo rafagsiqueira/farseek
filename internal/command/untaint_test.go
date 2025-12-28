@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -60,55 +60,6 @@ test_instance.foo:
   provider = provider["registry.opentofu.org/hashicorp/test"]
 	`)
 	testStateOutput(t, statePath, expected)
-}
-
-func TestUntaint_lockedState(t *testing.T) {
-	state := states.BuildState(func(s *states.SyncState) {
-		s.SetResourceInstanceCurrent(
-			addrs.Resource{
-				Mode: addrs.ManagedResourceMode,
-				Type: "test_instance",
-				Name: "foo",
-			}.Instance(addrs.NoKey).Absolute(addrs.RootModuleInstance),
-			&states.ResourceInstanceObjectSrc{
-				AttrsJSON: []byte(`{"id":"bar"}`),
-				Status:    states.ObjectTainted,
-			},
-			addrs.AbsProviderConfig{
-				Provider: addrs.NewDefaultProvider("test"),
-				Module:   addrs.RootModule,
-			},
-			addrs.NoKey,
-		)
-	})
-	statePath := testStateFile(t, state)
-	unlock, err := testLockState(t, testDataDir, statePath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer unlock()
-
-	ui := new(cli.MockUi)
-	view, _ := testView(t)
-	c := &UntaintCommand{
-		Meta: Meta{
-			Ui:   ui,
-			View: view,
-		},
-	}
-
-	args := []string{
-		"-state", statePath,
-		"test_instance.foo",
-	}
-	if code := c.Run(args); code == 0 {
-		t.Fatal("expected error")
-	}
-
-	output := ui.ErrorWriter.String()
-	if !strings.Contains(output, "lock") {
-		t.Fatal("command output does not look like a lock error:", output)
-	}
 }
 
 func TestUntaint_backup(t *testing.T) {

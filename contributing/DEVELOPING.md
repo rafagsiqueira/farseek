@@ -1,11 +1,11 @@
-## Writing code for OpenTofu
+## Writing code for Farseek
 
 Eager to get started on coding? Here's the short version:
 
 1. Set up a Go development environment with Git.
 2. Pay attention to copyright: [please read the DCO](https://developercertificate.org/), write the code yourself, avoid copy/paste. Disable your AI coding assistant.
 3. Run the tests with `go test` in the package you are working on.
-4. Build OpenTofu by running `go build ./cmd/tofu`.
+4. Build Farseek by running `go build ./cmd/farseek`.
 5. Update [the changelog](../CHANGELOG.md).
 6. When you commit, use `git commit -s` to sign off your commits for the DCO.
 7. Submit a PR and complete the checklist included in the template.
@@ -15,21 +15,21 @@ Eager to get started on coding? Here's the short version:
 
 ### Setting up your development environment
 
-You can develop OpenTofu on any platform you like. However, we recommend either a Linux (including WSL on Windows) or a macOS build environment. You will need [Go](https://golang.org/) and [Git](https://git-scm.com/) installed, and we recommend an IDE to help you with code completion and code quality warnings. (We recommend installing the Go version documented in the [.go-version](../.go-version) file.)
+You can develop Farseek on any platform you like. However, we recommend either a Linux (including WSL on Windows) or a macOS build environment. You will need [Go](https://golang.org/) and [Git](https://git-scm.com/) installed, and we recommend an IDE to help you with code completion and code quality warnings. (We recommend installing the Go version documented in the [.go-version](../.go-version) file.)
 
-Alternatively, if you use Visual Studio Code or Goland/IntelliJ and have Docker or Podman installed, you can also use a [devcontainer](../.devcontainer.json). In Visual Studio Code, you can install the [Remote Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers), then reopen the project to get a prompt about activating the devcontainer. In Goland/Intellij, open the `.devcontainers.json` file and click the purple cube icon that appears next to the line numbers to activate the dev container. At this point, you can proceed as if you were [building natively](#building-opentofu) on Linux.
+Alternatively, if you use Visual Studio Code or Goland/IntelliJ and have Docker or Podman installed, you can also use a [devcontainer](../.devcontainer.json). In Visual Studio Code, you can install the [Remote Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers), then reopen the project to get a prompt about activating the devcontainer. In Goland/Intellij, open the `.devcontainers.json` file and click the purple cube icon that appears next to the line numbers to activate the dev container. At this point, you can proceed as if you were [building natively](#building-farseek) on Linux.
 
 ---
 
-### Building OpenTofu
+### Building Farseek
 
-To build OpenTofu, you will need to install Go in the environment you are running in. You can then run the `go build` command from your OpenTofu source directory as follows:
+To build Farseek, you will need to install Go in the environment you are running in. You can then run the `go build` command from your Farseek source directory as follows:
 
 ```sh
-go build ./cmd/tofu
+go build ./cmd/farseek
 ```
 
-This command will produce a `tofu` binary in your current directory, which you can test by running `./tofu --version`.
+This command will produce a `farseek` binary in your current directory, which you can test by running `./farseek --version`.
 
 > [!TIP]
 > Add the `GOOS` and `GOARCH` values with your target platform if you wish to cross-compile. You can find more information in the [Go documentation](https://pkg.go.dev/cmd/go#hdr-Compile_and_run_Go_program).
@@ -38,7 +38,7 @@ This command will produce a `tofu` binary in your current directory, which you c
 
 ### Running tests
 
-Similar to builds, you can use the `go test` command to run tests. To run the entire test suite, please run the following command in your OpenTofu source directory:
+Similar to builds, you can use the `go test` command to run tests. To run the entire test suite, please run the following command in your Farseek source directory:
 
 ```sh
 go test ./...
@@ -56,9 +56,9 @@ go test ./internal/addrs
 
 ---
 
-### Debugging OpenTofu
+### Debugging Farseek
 
-We recommend using an interactive debugger for finding issues quickly. Most IDE's have a built-in option for this, but you can also set up [dlv](https://github.com/go-delve/delve) on a remote machine for debugging. You can use the [`debug-opentofu`](../scripts/debug-opentofu) script to run OpenTofu in debug mode. You can then connect to the remote machine on port 2345 for debugging.
+We recommend using an interactive debugger for finding issues quickly. Most IDE's have a built-in option for this, but you can also set up [dlv](https://github.com/go-delve/delve) on a remote machine for debugging. You can use the [`debug-farseek`](../scripts/debug-farseek) script to run Farseek in debug mode. You can then connect to the remote machine on port 2345 for debugging.
 
 For VSCode, add the following setting to `.vscode/launch.json` for easy debugging:
 

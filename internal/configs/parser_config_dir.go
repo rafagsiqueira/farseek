@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -22,14 +22,14 @@ const (
 )
 
 const (
-	tfExt           = ".tf"
-	tofuExt         = ".tofu"
-	tfJSONExt       = ".tf.json"
-	tofuJSONExt     = ".tofu.json"
-	tfTestExt       = ".tftest.hcl"
-	tofuTestExt     = ".tofutest.hcl"
-	tfTestJSONExt   = ".tftest.json"
-	tofuTestJSONExt = ".tofutest.json"
+	tfExt              = ".tf"
+	farseekExt         = ".farseek"
+	tfJSONExt          = ".tf.json"
+	farseekJSONExt     = ".farseek.json"
+	tfTestExt          = ".tftest.hcl"
+	farseekTestExt     = ".farseektest.hcl"
+	tfTestJSONExt      = ".tftest.json"
+	farseekTestJSONExt = ".farseektest.json"
 )
 
 // LoadConfigDir reads the .tf and .tf.json files in the given directory
@@ -133,7 +133,7 @@ func (p Parser) ConfigDirFilesWithTests(dir string, testDirectory string) (prima
 }
 
 // IsConfigDir determines whether the given path refers to a directory that
-// exists and contains at least one OpenTofu config file (with a .tf or
+// exists and contains at least one Farseek config file (with a .tf or
 // .tf.json extension.). Note, we explicitly exclude checking for tests here
 // as tests must live alongside actual .tf config files.
 func (p *Parser) IsConfigDir(path string) bool {
@@ -162,10 +162,10 @@ func (p *Parser) loadFiles(paths []string, override bool) ([]*File, hcl.Diagnost
 	return files, diags
 }
 
-// dirFiles finds OpenTofu configuration files within dir, splitting them into
+// dirFiles finds Farseek configuration files within dir, splitting them into
 // primary and override files based on the filename.
 //
-// If testsDir is not empty, dirFiles will also retrieve OpenTofu testing files
+// If testsDir is not empty, dirFiles will also retrieve Farseek testing files
 // both directly within dir and within testsDir as a subdirectory of dir. In
 // this way, testsDir acts both as a direction to retrieve test files within the
 // main direction and as the location for additional test files.
@@ -235,7 +235,7 @@ func (p *Parser) dirFiles(dir string, testsDir string) (primary, override, tests
 
 	for _, info := range infos {
 		if info.IsDir() {
-			// We only care about tofu configuration files.
+			// We only care about farseek configuration files.
 			continue
 		}
 
@@ -263,15 +263,15 @@ func (p *Parser) dirFiles(dir string, testsDir string) (primary, override, tests
 		}
 	}
 
-	return filterTfPathsWithTofuAlternatives(primary), filterTfPathsWithTofuAlternatives(override), filterTfPathsWithTofuAlternatives(tests), diags
+	return filterTfPathsWithFarseekAlternatives(primary), filterTfPathsWithFarseekAlternatives(override), filterTfPathsWithFarseekAlternatives(tests), diags
 }
 
-// filterTfPathsWithTofuAlternatives filters out .tf files if they have an
-// alternative .tofu file with the same name.
+// filterTfPathsWithFarseekAlternatives filters out .tf files if they have an
+// alternative .farseek file with the same name.
 // For example, if there are both 'resources.tf.json' and
-// 'resources.tofu.json' files, the 'resources.tf.json' file will be ignored,
-// and only the 'resources.tofu.json' file will be returned as a relevant path.
-func filterTfPathsWithTofuAlternatives(paths []string) []string {
+// 'resources.farseek.json' files, the 'resources.tf.json' file will be ignored,
+// and only the 'resources.farseek.json' file will be returned as a relevant path.
+func filterTfPathsWithFarseekAlternatives(paths []string) []string {
 	var ignoredPaths []string
 	var relevantPaths []string
 
@@ -283,13 +283,13 @@ func filterTfPathsWithTofuAlternatives(paths []string) []string {
 			continue
 		}
 
-		parallelTofuExt := strings.ReplaceAll(ext, ".tf", ".tofu")
+		parallelFarseekExt := strings.ReplaceAll(ext, ".tf", ".farseek")
 		pathWithoutExt, _ := strings.CutSuffix(p, ext)
-		parallelTofuPath := pathWithoutExt + parallelTofuExt
+		parallelFarseekPath := pathWithoutExt + parallelFarseekExt
 
-		// If the .tf file has a parallel .tofu file in the directory,
-		// we'll ignore the .tf file and only use the .tofu file
-		if slices.Contains(paths, parallelTofuPath) {
+		// If the .tf file has a parallel .farseek file in the directory,
+		// we'll ignore the .tf file and only use the .farseek file
+		if slices.Contains(paths, parallelFarseekPath) {
 			ignoredPaths = append(ignoredPaths, p)
 		} else {
 			relevantPaths = append(relevantPaths, p)
@@ -297,7 +297,7 @@ func filterTfPathsWithTofuAlternatives(paths []string) []string {
 	}
 
 	if len(ignoredPaths) > 0 {
-		log.Printf("[INFO] filterTfPathsWithTofuAlternatives: Ignored the following .tf files because a .tofu file alternative exists: %q", ignoredPaths)
+		log.Printf("[INFO] filterTfPathsWithFarseekAlternatives: Ignored the following .tf files because a .farseek file alternative exists: %q", ignoredPaths)
 	}
 
 	return relevantPaths
@@ -318,7 +318,7 @@ func (p *Parser) loadTestFiles(basePath string, paths []string) (map[string]*Tes
 				diags = append(diags, &hcl.Diagnostic{
 					Severity: hcl.DiagWarning,
 					Summary:  "Failed to calculate relative path",
-					Detail:   fmt.Sprintf("OpenTofu could not calculate the relative path for test file %s and it has been skipped: %s", path, err),
+					Detail:   fmt.Sprintf("Farseek could not calculate the relative path for test file %s and it has been skipped: %s", path, err),
 				})
 				continue
 			}
@@ -329,19 +329,19 @@ func (p *Parser) loadTestFiles(basePath string, paths []string) (map[string]*Tes
 	return tfs, diags
 }
 
-// fileExt returns the OpenTofu configuration extension of the given
+// fileExt returns the Farseek configuration extension of the given
 // path, or a blank string if it is not a recognized extension.
 func fileExt(path string) string {
 	extension := tfFileExt(path)
 
 	if extension == "" {
-		extension = tofuFileExt(path)
+		extension = farseekFileExt(path)
 	}
 
 	return extension
 }
 
-// tfFileExt returns the OpenTofu .tf configuration extension of the given
+// tfFileExt returns the Farseek .tf configuration extension of the given
 // path, or a blank string if it is not a recognized .tf extension.
 func tfFileExt(path string) string {
 	switch {
@@ -358,25 +358,25 @@ func tfFileExt(path string) string {
 	}
 }
 
-// tofuFileExt returns the OpenTofu .tofu configuration extension of the given
-// path, or a blank string if it is not a recognized .tofu extension.
-func tofuFileExt(path string) string {
+// farseekFileExt returns the Farseek .farseek configuration extension of the given
+// path, or a blank string if it is not a recognized .farseek extension.
+func farseekFileExt(path string) string {
 	switch {
-	case strings.HasSuffix(path, tofuExt):
-		return tofuExt
-	case strings.HasSuffix(path, tofuJSONExt):
-		return tofuJSONExt
-	case strings.HasSuffix(path, tofuTestExt):
-		return tofuTestExt
-	case strings.HasSuffix(path, tofuTestJSONExt):
-		return tofuTestJSONExt
+	case strings.HasSuffix(path, farseekExt):
+		return farseekExt
+	case strings.HasSuffix(path, farseekJSONExt):
+		return farseekJSONExt
+	case strings.HasSuffix(path, farseekTestExt):
+		return farseekTestExt
+	case strings.HasSuffix(path, farseekTestJSONExt):
+		return farseekTestJSONExt
 	}
 
 	return ""
 }
 
 func isTestFileExt(ext string) bool {
-	return ext == tfTestExt || ext == tfTestJSONExt || ext == tofuTestExt || ext == tofuTestJSONExt
+	return ext == tfTestExt || ext == tfTestJSONExt || ext == farseekTestExt || ext == farseekTestJSONExt
 }
 
 // IsIgnoredFile returns true if the given filename (which must not have a
@@ -387,7 +387,7 @@ func IsIgnoredFile(name string) bool {
 		strings.HasPrefix(name, "#") && strings.HasSuffix(name, "#") // emacs
 }
 
-// IsEmptyDir returns true if the given filesystem path contains no OpenTofu
+// IsEmptyDir returns true if the given filesystem path contains no Farseek
 // configuration files.
 //
 // Unlike the methods of the Parser type, this function always consults the

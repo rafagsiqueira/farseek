@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -14,10 +14,10 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/e2e"
 )
 
-func TestOpenTofuProviderData(t *testing.T) {
+func TestFarseekProviderData(t *testing.T) {
 
-	fixturePath := filepath.Join("testdata", "tofu-managed-data")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	fixturePath := filepath.Join("testdata", "farseek-managed-data")
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	_, stderr, err := tf.Run("init", "-input=false")
 	if err != nil {

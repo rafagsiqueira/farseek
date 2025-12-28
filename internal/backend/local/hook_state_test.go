@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -15,12 +15,12 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/addrs"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/zclconf/go-cty/cty"
 )
 
 func TestStateHook_impl(t *testing.T) {
-	var _ tofu.Hook = new(StateHook)
+	var _ farseek.Hook = new(StateHook)
 }
 
 func stateHookExpected() *states.State {
@@ -34,7 +34,7 @@ func stateHookMutator(state *states.SyncState) {
 
 func TestStateHook(t *testing.T) {
 	is := statemgr.NewTransientInMemory(nil)
-	var hook tofu.Hook = &StateHook{
+	var hook farseek.Hook = &StateHook{
 		StateMgr: is,
 	}
 
@@ -42,7 +42,7 @@ func TestStateHook(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}
-	if action != tofu.HookActionContinue {
+	if action != farseek.HookActionContinue {
 		t.Fatalf("bad: %v", action)
 	}
 
@@ -55,7 +55,7 @@ func TestStateHookStopping(t *testing.T) {
 	is := &testPersistentState{}
 	hook := &StateHook{
 		StateMgr:        is,
-		Schemas:         &tofu.Schemas{},
+		Schemas:         &farseek.Schemas{},
 		PersistInterval: 4 * time.Hour,
 		intermediatePersist: IntermediateStatePersistInfo{
 			LastPersist: time.Now(),
@@ -67,7 +67,7 @@ func TestStateHookStopping(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error from PostStateUpdate: %s", err)
 	}
-	if got, want := action, tofu.HookActionContinue; got != want {
+	if got, want := action, farseek.HookActionContinue; got != want {
 		t.Fatalf("wrong hookaction %#v; want %#v", got, want)
 	}
 	if is.Written == nil || !is.Written.Equal(s) {
@@ -166,7 +166,7 @@ func TestStateHookCustomPersistRule(t *testing.T) {
 	is := &testPersistentStateThatRefusesToPersist{}
 	hook := &StateHook{
 		StateMgr:        is,
-		Schemas:         &tofu.Schemas{},
+		Schemas:         &farseek.Schemas{},
 		PersistInterval: 4 * time.Hour,
 		intermediatePersist: IntermediateStatePersistInfo{
 			LastPersist: time.Now(),
@@ -178,7 +178,7 @@ func TestStateHookCustomPersistRule(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error from PostStateUpdate: %s", err)
 	}
-	if got, want := action, tofu.HookActionContinue; got != want {
+	if got, want := action, farseek.HookActionContinue; got != want {
 		t.Fatalf("wrong hookaction %#v; want %#v", got, want)
 	}
 	if is.Written == nil || !is.Written.Equal(s) {
@@ -301,7 +301,7 @@ func (sm *testPersistentState) MutateState(fn func(*states.State) *states.State)
 	return nil
 }
 
-func (sm *testPersistentState) PersistState(_ context.Context, schemas *tofu.Schemas) error {
+func (sm *testPersistentState) PersistState(_ context.Context, schemas *farseek.Schemas) error {
 	if schemas == nil {
 		return fmt.Errorf("no schemas")
 	}
@@ -333,7 +333,7 @@ func (sm *testPersistentStateThatRefusesToPersist) MutateState(fn func(*states.S
 	return nil
 }
 
-func (sm *testPersistentStateThatRefusesToPersist) PersistState(_ context.Context, schemas *tofu.Schemas) error {
+func (sm *testPersistentStateThatRefusesToPersist) PersistState(_ context.Context, schemas *farseek.Schemas) error {
 	if schemas == nil {
 		return fmt.Errorf("no schemas")
 	}

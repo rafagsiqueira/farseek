@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -20,7 +20,7 @@ import (
 // RegisterTemp adds a new entry to the table of backends and returns a
 // function that will deregister it once called.
 //
-// This is essentially a workaround for the fact that the OpenTofu CLI
+// This is essentially a workaround for the fact that the Farseek CLI
 // layer expects backends to always come from a centrally-maintained table
 // and doesn't have any way to directly pass an anonymous backend
 // implementation.
@@ -99,7 +99,7 @@ func RegisterTemp(name string, f backend.InitFn) func() {
 // This implementation intentionally covers only the basic [Backend] interface,
 // and not any extension interfaces like [CLI] and [Enhanced]. Consider embedding
 // this into another type if you need to mock extension interfaces too, since
-// OpenTofu backend init uses type assertions to check for extension interfaces
+// Farseek backend init uses type assertions to check for extension interfaces
 // and so having this type implement them would prevent its use in testing
 // situations that occur with non-extended backend implementations.
 type MockBackend struct {

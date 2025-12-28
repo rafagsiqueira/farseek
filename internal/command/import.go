@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -21,11 +21,11 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/command/views"
 	"github.com/rafagsiqueira/farseek/internal/configs"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // ImportCommand is a cli.Command implementation that imports resources
-// into the OpenTofu state.
+// into the Farseek state.
 type ImportCommand struct {
 	Meta
 }
@@ -44,7 +44,7 @@ func (c *ImportCommand) Run(args []string) int {
 	args = c.Meta.process(args)
 
 	cmdFlags := c.Meta.extendedFlagSet("import")
-	cmdFlags.BoolVar(&c.ignoreRemoteVersion, "ignore-remote-version", false, "continue even if remote and local OpenTofu versions are incompatible")
+	cmdFlags.BoolVar(&c.ignoreRemoteVersion, "ignore-remote-version", false, "continue even if remote and local Farseek versions are incompatible")
 	cmdFlags.IntVar(&c.Meta.parallelism, "parallelism", DefaultParallelism, "parallelism")
 	cmdFlags.StringVar(&c.Meta.statePath, "state", "", "path")
 	cmdFlags.StringVar(&c.Meta.stateOutPath, "state-out", "", "path")
@@ -103,9 +103,9 @@ func (c *ImportCommand) Run(args []string) int {
 	if !c.dirIsConfigPath(configPath) {
 		diags = diags.Append(&hcl.Diagnostic{
 			Severity: hcl.DiagError,
-			Summary:  "No OpenTofu configuration files",
+			Summary:  "No Farseek configuration files",
 			Detail: fmt.Sprintf(
-				"The directory %s does not contain any OpenTofu configuration files (.tf or .tf.json). To specify a different configuration directory, use the -config=\"...\" command line option.",
+				"The directory %s does not contain any Farseek configuration files (.tf or .tf.json). To specify a different configuration directory, use the -config=\"...\" command line option.",
 				configPath,
 			),
 		})
@@ -132,7 +132,7 @@ func (c *ImportCommand) Run(args []string) int {
 
 	// Verify that the given address points to something that exists in config.
 	// This is to reduce the risk that a typo in the resource address will
-	// import something that OpenTofu will want to immediately destroy on
+	// import something that Farseek will want to immediately destroy on
 	// the next plan, and generally acts as a reassurance of user intent.
 	targetConfig := config.DescendentForInstance(addr.Module)
 	if targetConfig == nil {
@@ -214,7 +214,7 @@ func (c *ImportCommand) Run(args []string) int {
 		c.showDiagnostics(diags)
 		return 1
 	}
-	opReq.Hooks = []tofu.Hook{c.uiHook()}
+	opReq.Hooks = []farseek.Hook{c.uiHook()}
 	{
 		// Setup required variables/call for operation (usually done in Meta.RunOperation)
 		var moreDiags, callDiags tfdiags.Diagnostics
@@ -227,14 +227,6 @@ func (c *ImportCommand) Run(args []string) int {
 		}
 	}
 	opReq.View = views.NewOperation(arguments.ViewHuman, c.RunningInAutomation, c.View)
-
-	// Check remote OpenTofu version is compatible
-	remoteVersionDiags := c.remoteVersionCheck(b, opReq.Workspace)
-	diags = diags.Append(remoteVersionDiags)
-	c.showDiagnostics(diags)
-	if diags.HasErrors() {
-		return 1
-	}
 
 	// Get the context
 	lr, state, ctxDiags := local.LocalRun(ctx, opReq)
@@ -255,10 +247,10 @@ func (c *ImportCommand) Run(args []string) int {
 	// Perform the import. Note that as you can see it is possible for this
 	// API to import more than one resource at once. For now, we only allow
 	// one while we stabilize this feature.
-	newState, importDiags := lr.Core.Import(ctx, lr.Config, lr.InputState, &tofu.ImportOpts{
-		Targets: []*tofu.ImportTarget{
+	newState, importDiags := lr.Core.Import(ctx, lr.Config, lr.InputState, &farseek.ImportOpts{
+		Targets: []*farseek.ImportTarget{
 			{
-				CommandLineImportTarget: &tofu.CommandLineImportTarget{
+				CommandLineImportTarget: &farseek.CommandLineImportTarget{
 					Addr: addr,
 					ID:   args[1],
 				},
@@ -277,12 +269,7 @@ func (c *ImportCommand) Run(args []string) int {
 	}
 
 	// Get schemas, if possible, before writing state
-	var schemas *tofu.Schemas
-	if isCloudMode(b) {
-		var schemaDiags tfdiags.Diagnostics
-		schemas, schemaDiags = c.MaybeGetSchemas(ctx, newState, nil)
-		diags = diags.Append(schemaDiags)
-	}
+	var schemas *farseek.Schemas
 
 	// Persist the final state
 	log.Printf("[INFO] Writing state output to: %s", c.Meta.StateOutPath())
@@ -307,13 +294,13 @@ func (c *ImportCommand) Run(args []string) int {
 
 func (c *ImportCommand) Help() string {
 	helpText := `
-Usage: tofu [global options] import [options] ADDR ID
+Usage: farseek [global options] import [options] ADDR ID
 
-  Import existing infrastructure into your OpenTofu state.
+  Import existing infrastructure into your Farseek state.
 
-  This will find and import the specified resource into your OpenTofu
-  state, allowing existing infrastructure to come under OpenTofu
-  management without having to be initially created by OpenTofu.
+  This will find and import the specified resource into your Farseek
+  state, allowing existing infrastructure to come under Farseek
+  management without having to be initially created by Farseek.
 
   The ADDR specified is the address to import the resource to. Please
   see the documentation online for resource addresses. The ID is a
@@ -328,19 +315,19 @@ Usage: tofu [global options] import [options] ADDR ID
 
 Options:
 
-  -compact-warnings       If OpenTofu produces any warnings that are not
+  -compact-warnings       If Farseek produces any warnings that are not
                           accompanied by errors, show them in a more compact
                           form that includes only the summary messages.
 
-  -consolidate-warnings   If OpenTofu produces any warnings, no consolidation
+  -consolidate-warnings   If Farseek produces any warnings, no consolidation
                           will be performed. All locations, for all warnings
                           will be listed. Enabled by default.
 
-  -consolidate-errors     If OpenTofu produces any errors, no consolidation
+  -consolidate-errors     If Farseek produces any errors, no consolidation
                           will be performed. All locations, for all errors
                           will be listed. Disabled by default
 
-  -config=path            Path to a directory of OpenTofu configuration files
+  -config=path            Path to a directory of Farseek configuration files
                           to use to configure the provider. Defaults to pwd.
                           If no config files are present, they must be provided
                           via the input prompts or env vars.
@@ -355,11 +342,11 @@ Options:
 
   -no-color               If specified, output won't contain any color.
 
-  -var 'foo=bar'          Set a variable in the OpenTofu configuration. This
+  -var 'foo=bar'          Set a variable in the Farseek configuration. This
                           flag can be set multiple times. This is only useful
                           with the "-config" flag.
 
-  -var-file=foo           Set variables in the OpenTofu configuration from
+  -var-file=foo           Set variables in the Farseek configuration from
                           a file. If "terraform.tfvars" or any ".auto.tfvars"
                           files are present, they will be automatically loaded.
 
@@ -392,5 +379,5 @@ resource %q %q {
 const importCommandSuccessMsg = `Import successful!
 
 The resources that were imported are shown above. These resources are now in
-your OpenTofu state and will henceforth be managed by OpenTofu.
+your Farseek state and will henceforth be managed by Farseek.
 `

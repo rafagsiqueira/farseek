@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -28,7 +28,7 @@ type ModuleInstance struct {
 	// what might have been declared inside the module instance. The
 	// relationships between child objects and their containing module
 	// instance are represented in the "compiler" packages, such as
-	// package tofu2024, to allow the details to vary between language
+	// package farseek2024, to allow the details to vary between language
 	// editions as long as somehow the module instance is able to return
 	// a set of output values.
 
@@ -44,8 +44,8 @@ type ModuleInstance struct {
 	// results.
 	//
 	// This is left as nil for module instances that are created implicitly,
-	// such as a root module which is being "called" directly from OpenTofu CLI
-	// in a command like "tofu plan".
+	// such as a root module which is being "called" directly from Farseek CLI
+	// in a command like "farseek plan".
 	CallDeclRange *tfdiags.SourceRange
 }
 

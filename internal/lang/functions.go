@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -32,10 +32,10 @@ func (s *Scope) Functions() map[string]function.Function {
 	if s.funcs == nil {
 		s.funcs = makeBaseFunctionTable(s.BaseDir)
 		if s.ConsoleMode {
-			// The type function is only available in OpenTofu console.
+			// The type function is only available in Farseek console.
 			s.funcs["type"] = funcs.TypeFunc
 		} else {
-			// The plantimestamp function doesn't make sense in the OpenTofu
+			// The plantimestamp function doesn't make sense in the Farseek
 			// console.
 			s.funcs["plantimestamp"] = funcs.MakeStaticTimestampFunc(s.PlanTimestamp)
 		}

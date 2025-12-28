@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -23,7 +23,7 @@ func (c *MetadataCommand) Run(args []string) int {
 
 func (c *MetadataCommand) Help() string {
 	helpText := `
-Usage: tofu [global options] metadata <subcommand> [options] [args]
+Usage: farseek [global options] metadata <subcommand> [options] [args]
 
   This command has subcommands for metadata related purposes.
 

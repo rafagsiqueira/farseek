@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -32,7 +32,7 @@ func compileModuleInstanceProviderConfigs(
 	validateProviderConfig func(context.Context, addrs.Provider, cty.Value) tfdiags.Diagnostics,
 ) map[addrs.LocalProviderConfig]*configgraph.ProviderConfig {
 	// FIXME: The following is just enough to make simple examples work, but
-	// doesn't closely match the rather complicated way that OpenTofu has
+	// doesn't closely match the rather complicated way that Farseek has
 	// traditionally dealt with provider configurations inheriting between
 	// modules, etc. If we decide to move forward with this then we should
 	// study this and the old behavior carefully and make sure they achieve

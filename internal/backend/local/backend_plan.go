@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -13,7 +13,7 @@ import (
 
 	"github.com/rafagsiqueira/farseek/internal/addrs"
 	"github.com/rafagsiqueira/farseek/internal/backend"
-	"github.com/rafagsiqueira/farseek/internal/farseek"
+
 	"github.com/rafagsiqueira/farseek/internal/genconfig"
 	"github.com/rafagsiqueira/farseek/internal/logging"
 	"github.com/rafagsiqueira/farseek/internal/plans"
@@ -22,7 +22,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func (b *Local) opPlan(
@@ -70,7 +70,7 @@ func (b *Local) opPlan(
 			"Plan requires configuration to be present. Planning without a configuration would "+
 				"mark everything for destruction, which is normally not what is desired. If you "+
 				"would like to destroy everything, run plan with the -destroy option. Otherwise, "+
-				"create a OpenTofu configuration file (.tf file) and try again.",
+				"create a Farseek configuration file (.tf file) and try again.",
 		))
 		op.ReportResult(runningOp, diags)
 		return
@@ -94,7 +94,7 @@ func (b *Local) opPlan(
 	}
 
 	if b.ContextOpts == nil {
-		b.ContextOpts = new(tofu.ContextOpts)
+		b.ContextOpts = new(farseek.ContextOpts)
 	}
 
 	// Get our context
@@ -121,67 +121,57 @@ func (b *Local) opPlan(
 	// In FarseekMode, we want to try and import any targeted resources that already exist,
 	// so that the plan reflects the real-world state rather than assuming creation.
 	if op.FarseekMode {
-		log.Printf("[DEBUG] backend/local: Farseek stateless mode enabled. Targets: %d", len(op.Targets))
+		log.Printf("[DEBUG] backend/local: Farseek stateless mode enabled. Discovered: %d", len(op.DiscoveredResources))
 		// We explicitly ignore the local state to ensure it's truly stateless.
 		lr.InputState = states.NewState()
 
-		// Inject deleted resources into InputState to force a Destroy plan
-		if op.FarseekBaseSHA != "" {
-			for _, dr := range op.DiscoveredResources {
-				// If Config is nil, it means it's deleted (missing from HEAD)
-				if dr.Config == nil {
-					log.Printf("[DEBUG] Farseek: Injecting deleted resource %s into state", dr.Address)
+		// Inject relevant discovered resources into the state.
+		for _, dr := range op.DiscoveredResources {
+			if dr.IsNew {
+				// Truly new resources should NOT be in the state, so Farseek plans to create them.
+				log.Printf("[DEBUG] backend/local: Farseek skipping injection for new resource %s", dr.Address)
+				continue
+			}
 
-					// 1. Get Attributes from SHA
-					// We try to get "name" (common) and "id" (less common in config, usually computed)
-					nameVal, _ := farseek.Discovery.GetResourceAttributeFromSHA(op.ConfigDir, op.FarseekBaseSHA, dr.Filename, dr.Address, "name")
-					idVal, _ := farseek.Discovery.GetResourceAttributeFromSHA(op.ConfigDir, op.FarseekBaseSHA, dr.Filename, dr.Address, "id")
+			// For resources that existed in history, we inject them into state so Farseek refreshes/destroys them.
+			addr, diags := addrs.ParseAbsResourceInstanceStr(dr.Address)
+			if diags.HasErrors() {
+				log.Printf("[WARN] backend/local: Farseek failed to parse address %s: %s", dr.Address, diags.Err())
+				continue
+			}
 
-					if nameVal == "" && idVal == "" {
-						log.Printf("[WARN] Farseek: Could not recover 'name' or 'id' for deleted resource %s. Skipping destruction.", dr.Address)
-						continue
-					}
+			log.Printf("[DEBUG] backend/local: Farseek injecting resource %s into input state", addr)
+			mod := lr.InputState.EnsureModule(addr.Module)
+			providerAddr := addrs.AbsProviderConfig{
+				Module:   addr.Module.Module(),
+				Provider: addrs.ImpliedProviderForUnqualifiedType(addr.Resource.Resource.ImpliedProvider()),
+			}
 
-					// Determine ID for the state key
-					id := idVal
-					if id == "" {
-						id = nameVal
-					}
+			// Try to recover attributes (id/name) from history to help the provider identify the resource.
+			jsonAttrs := "{}"
+			if op.FarseekBaseSHA != "" {
+				nameVal, _ := farseek.Discovery.GetResourceAttributeFromSHA(op.ConfigDir, op.FarseekBaseSHA, dr.Filename, dr.Address, "name")
+				idVal, _ := farseek.Discovery.GetResourceAttributeFromSHA(op.ConfigDir, op.FarseekBaseSHA, dr.Filename, dr.Address, "id")
 
-					// 2. Add to state
-					addr, diags := addrs.ParseAbsResourceInstanceStr(dr.Address)
-					if diags.HasErrors() {
-						log.Printf("[WARN] Farseek: Invalid address format for %s: %s", dr.Address, diags.Err())
-						continue
-					}
+				id := idVal
+				if id == "" {
+					id = nameVal
+				}
 
-					// 3. Create Object Src
-					// We construct JSON attributes including "name" if present, as some providers (like Google)
-					// require the "name" attribute in the state to function correctly during refresh/read.
-					jsonAttrs := fmt.Sprintf(`{"id":%q}`, id)
+				if id != "" {
 					if nameVal != "" {
 						jsonAttrs = fmt.Sprintf(`{"id":%q, "name":%q}`, id, nameVal)
+					} else {
+						jsonAttrs = fmt.Sprintf(`{"id":%q}`, id)
 					}
-
-					src := &states.ResourceInstanceObjectSrc{
-						Status:    states.ObjectReady,
-						AttrsJSON: []byte(jsonAttrs),
-					}
-
-					// 4. Set in state
-					// We need to ensure the module exists in the state
-					mod := lr.InputState.EnsureModule(addr.Module)
-
-					// Construct provider config address
-					// We assume the provider is in the same module as the resource
-					providerAddr := addrs.AbsProviderConfig{
-						Module:   addr.Module.Module(),
-						Provider: addrs.ImpliedProviderForUnqualifiedType(addr.Resource.Resource.ImpliedProvider()),
-					}
-
-					mod.SetResourceInstanceCurrent(addr.Resource, src, providerAddr, addrs.NoKey)
 				}
 			}
+
+			src := &states.ResourceInstanceObjectSrc{
+				Status:    states.ObjectReady,
+				AttrsJSON: []byte(jsonAttrs),
+			}
+			mod.SetResourceInstanceCurrent(addr.Resource, src, providerAddr, addrs.NoKey)
 		}
 
 		runningOp.State = lr.InputState
@@ -233,7 +223,7 @@ func (b *Local) opPlan(
 			// This is always a bug in the operation caller; it's not valid
 			// to set PlanOutPath without also setting PlanOutBackend.
 			diags = diags.Append(fmt.Errorf(
-				"PlanOutPath set without also setting PlanOutBackend (this is a bug in OpenTofu)"),
+				"PlanOutPath set without also setting PlanOutBackend (this is a bug in Farseek)"),
 			)
 			op.ReportResult(runningOp, diags)
 			return
@@ -251,7 +241,7 @@ func (b *Local) opPlan(
 		// there) and so we just use a stub state file header in this case.
 		// NOTE: This won't be exactly identical to the latest state snapshot
 		// in the backend because it's still been subject to state upgrading
-		// to make it consumable by the current OpenTofu version, and
+		// to make it consumable by the current Farseek version, and
 		// intentionally doesn't preserve the header info.
 		prevStateFile := &statefile.File{
 			State: plan.PrevRunState,
@@ -298,7 +288,7 @@ func (b *Local) opPlan(
 	// If we've accumulated any diagnostics along the way then we'll show them
 	// here just before we show the summary and next steps. This can potentially
 	// include errors, because we intentionally try to show a partial plan
-	// above even if OpenTofu Core encountered an error partway through
+	// above even if Farseek Core encountered an error partway through
 	// creating it.
 	op.ReportResult(runningOp, diags)
 

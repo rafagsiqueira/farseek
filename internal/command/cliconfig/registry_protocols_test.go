@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -207,7 +207,7 @@ func TestLoadConfig_registryProtocols(t *testing.T) {
 		},
 		"invalid-syntax-env-both": {
 			// The environment variable settings still work even when the
-			// config file is invalid, because OpenTofu still makes a best
+			// config file is invalid, because Farseek still makes a best
 			// effort to proceed even when the CLI configuration has errors.
 			"registry-protocols-invalid-syntax",
 			map[string]string{

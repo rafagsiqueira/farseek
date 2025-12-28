@@ -63,9 +63,6 @@ additional options for routine work.
 
 The remaining sections on this page describe the various options:
 
-* **[Planning Modes](#planning-modes)**: There are some special alternative
-  planning modes that you can use for some special situations where your goal
-  is not just to change the remote system to match your configuration.
 * **[Planning Options](#planning-options)**: Alongside the special planning
   modes, there are also some options you can set in order to customize the
   planning process for unusual needs.
@@ -75,42 +72,15 @@ The remaining sections on this page describe the various options:
 * **[Other Options](#other-options)**: These change the behavior of the planning
   command itself, rather than customizing the content of the generated plan.
 
-## Planning Modes
-
-The previous section describes OpenTofu's default planning behavior, which
-changes the remote system to match the changes you make to
-your configuration. OpenTofu has two alternative planning modes, each of which creates a plan with a different intended outcome. These options are available for  both `tofu plan` and [`tofu apply`](../../cli/commands/apply.mdx).
-
-* **Destroy mode:** creates a plan whose goal is to destroy all remote objects
-  that currently exist, leaving an empty OpenTofu state. It is the same as running [`tofu destroy`](../../cli/commands/destroy.mdx). Destroy mode can be useful for situations like transient development environments, where the managed objects cease to be useful once the development task is complete.
-
-  Activate destroy mode using the `-destroy` command line option.
-
-* **Refresh-only mode:** creates a plan whose goal is only to update the
-  OpenTofu state and any root module output values to match changes made to
-  remote objects outside of OpenTofu. This can be useful if you've
-  intentionally changed one or more remote objects outside of the usual
-  workflow (e.g. while responding to an incident) and you now need to reconcile
-  OpenTofu's records with those changes.
-
-  Activate refresh-only mode using the `-refresh-only` command line option.
-
-In situations where we need to discuss the default planning mode that OpenTofu
-uses when none of the alternative modes are selected, we refer to it as
-"Normal mode". Because these alternative modes are for specialized situations
-only, some other OpenTofu documentation only discusses the normal planning
-mode.
-
-The planning modes are all mutually-exclusive, so activating any non-default
-planning mode disables the "normal" planning mode, and you can't use more than
-one alternative mode at the same time.
 
 ## Planning Options
 
-In addition to alternate [planning modes](#planning-modes), there are several options that can modify planning behavior. These options are available for  both `tofu plan` and [`tofu apply`](../../cli/commands/apply.mdx).
+There are several options that can modify planning behavior. These options are available for  both `tofu plan` and [`tofu apply`](../../cli/commands/apply.mdx).
 
 - `-refresh=false` - Disables the default behavior of synchronizing the
-  OpenTofu state with remote objects before checking for configuration changes. This can make the planning operation faster by reducing the number of remote API requests. However, setting `refresh=false` causes OpenTofu to ignore external changes, which could result in an incomplete or incorrect plan. You cannot use `refresh=false` in refresh-only planning mode because it would effectively disable the entirety of the planning operation.
+  OpenTofu state with remote objects before checking for configuration changes. This can make the planning operation faster by reducing the number of remote API requests. However, setting `refresh=false` causes OpenTofu to ignore external changes, which could result in an incomplete or incorrect plan.
+
+- `-uncommitted` - Includes unstaged and uncommitted local changes in the drift calculation. By default, Farseek calculates drift by comparing the last applied SHA against `HEAD`. This flag changes the comparison to be against the working directory, including any local modifications that haven't been committed yet.
 
 - `-replace=ADDRESS` - Instructs OpenTofu to plan to replace the
   resource instance with the given address. This is helpful when one or more remote objects have become degraded, and you can use replacement objects with the same configuration to align with immutable infrastructure patterns. OpenTofu will use a "replace" action if the specified resource would normally cause an "update" action or no action at all. Include this option multiple times to replace several objects at once. You cannot use `-replace` with the `-destroy` option.

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -102,7 +102,7 @@ func (f *PackageFetcher) FetchPackage(ctx context.Context, instDir string, packa
 
 // PackageFetcherEnvironment is an interface used with [NewPackageFetcher]
 // to allow the caller to define how the package fetcher should interact
-// with the rest of OpenTofu and with OpenTofu's execution environment.
+// with the rest of Farseek and with Farseek's execution environment.
 //
 // This interface may grow to include new methods if we learn of new
 // requirements, so implementations of this interface should all be

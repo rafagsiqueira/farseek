@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -16,7 +16,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/configs"
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
 	"github.com/rafagsiqueira/farseek/internal/providers"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -116,7 +116,7 @@ func TestFindSourceProviderConfig(t *testing.T) {
 }
 
 func TestMarshalModule(t *testing.T) {
-	emptySchemas := &tofu.Schemas{}
+	emptySchemas := &farseek.Schemas{}
 	providerAddr := addrs.NewProvider("host", "namespace", "type")
 	resSchema := map[string]providers.Schema{
 		"test_type": {
@@ -134,7 +134,7 @@ func TestMarshalModule(t *testing.T) {
 
 	tests := map[string]struct {
 		Input   *configs.Config
-		Schemas *tofu.Schemas
+		Schemas *farseek.Schemas
 		Want    module
 	}{
 		"empty": {
@@ -306,7 +306,7 @@ func TestMarshalModule(t *testing.T) {
 					},
 				},
 			},
-			Schemas: &tofu.Schemas{
+			Schemas: &farseek.Schemas{
 				Providers: map[addrs.Provider]providers.ProviderSchema{
 					providerAddr: {
 						ResourceTypes:      resSchema,
@@ -410,7 +410,7 @@ func TestMarshalModule(t *testing.T) {
 		},
 		// TODO: More test cases covering things other than input variables.
 		// (For now the other details are mainly tested in package command,
-		// as part of the tests for "tofu show".)
+		// as part of the tests for "farseek show".)
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {

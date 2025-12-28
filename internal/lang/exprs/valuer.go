@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -56,7 +56,7 @@ type Valuer interface {
 	// once the value has been finalized.
 	//
 	// This function should only return errors that should not be interceptable
-	// by the "try" or "can" functions in the OpenTofu language.
+	// by the "try" or "can" functions in the Farseek language.
 	StaticCheckTraversal(traversal hcl.Traversal) tfdiags.Diagnostics
 
 	// ValueSourceRange returns an optional source range where this value (or an

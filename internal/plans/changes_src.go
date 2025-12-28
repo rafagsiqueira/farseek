@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -71,7 +71,7 @@ type ResourceInstanceChangeSrc struct {
 	RequiredReplace cty.PathSet
 
 	// Private allows a provider to stash any extra data that is opaque to
-	// OpenTofu that relates to this change. OpenTofu will save this
+	// Farseek that relates to this change. Farseek will save this
 	// byte-for-byte and return it to the provider in the apply call.
 	Private []byte
 }

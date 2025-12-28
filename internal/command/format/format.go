@@ -1,13 +1,13 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-// Package format contains helpers for formatting various OpenTofu
+// Package format contains helpers for formatting various Farseek
 // structures for human-readable output.
 //
-// This package is used by the official OpenTofu CLI in formatting any
+// This package is used by the official Farseek CLI in formatting any
 // output and is exported to encourage non-official frontends to mimic the
-// output formatting as much as possible so that text formats of OpenTofu
+// output formatting as much as possible so that text formats of Farseek
 // structures have a consistent look and feel.
 package format

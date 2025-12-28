@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -20,7 +20,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // TestLocal returns a configured Local struct with temporary paths and
@@ -40,7 +40,7 @@ func TestLocal(t *testing.T) *Local {
 	local.StateOutPath = filepath.Join(tempDir, "state.tfstate")
 	local.StateBackupPath = filepath.Join(tempDir, "state.tfstate.bak")
 	local.StateWorkspaceDir = filepath.Join(tempDir, "state.tfstate.d")
-	local.ContextOpts = &tofu.ContextOpts{}
+	local.ContextOpts = &farseek.ContextOpts{}
 
 	t.Cleanup(func() {
 		// Force garbage collection to help release any remaining
@@ -54,9 +54,9 @@ func TestLocal(t *testing.T) *Local {
 
 // TestLocalProvider modifies the ContextOpts of the *Local parameter to
 // have a provider with the given name.
-func TestLocalProvider(t *testing.T, b *Local, name string, schema providers.ProviderSchema) *tofu.MockProvider {
+func TestLocalProvider(t *testing.T, b *Local, name string, schema providers.ProviderSchema) *farseek.MockProvider {
 	// Build a mock resource provider for in-memory operations
-	p := new(tofu.MockProvider)
+	p := new(farseek.MockProvider)
 
 	p.GetProviderSchemaResponse = &schema
 
@@ -101,7 +101,7 @@ func TestLocalProvider(t *testing.T, b *Local, name string, schema providers.Pro
 
 	// Initialize the opts
 	if b.ContextOpts == nil {
-		b.ContextOpts = &tofu.ContextOpts{}
+		b.ContextOpts = &farseek.ContextOpts{}
 	}
 
 	// Set up our provider

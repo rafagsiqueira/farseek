@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -19,7 +19,7 @@ func TestFilterControlChars(t *testing.T) {
 		"Hello world\x00": "Hello world␀",
 
 		// Filter various ways that someone might try to hide or replace earlier
-		// output from OpenTofu.
+		// output from Farseek.
 		"Hello\x7f\x7f\x7f\x7f\x7fGoodbye, world!": "Hello␡␡␡␡␡Goodbye, world!",
 		"Hello\x08\x08\x08\x08\x08Goodbye, world!": "Hello␈␈␈␈␈Goodbye, world!",
 		"\x1b[1m": "␛[1m", // "Set Graphic Rendition" (SGR) control sequence

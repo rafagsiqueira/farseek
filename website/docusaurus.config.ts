@@ -1,0 +1,299 @@
+import { themes as prismThemes } from "prism-react-renderer";
+import type { Config } from "@docusaurus/types";
+import type * as Preset from "@docusaurus/preset-classic";
+import tailwind from "tailwindcss";
+import autoprefixer from "autoprefixer";
+
+const config: Config = {
+  title: "Farseek",
+  url: "https://farseek.dev",
+
+  headTags: [
+    {
+      tagName: "link",
+      attributes: {
+        rel: "apple-touch-icon",
+        type: "image/png",
+        sizes: "180x180",
+        href: "/favicons/apple-touch-icon.png",
+      },
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "icon",
+        type: "image/svg+xml",
+        href: "/favicons/favicon.svg",
+      },
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "icon",
+        type: "image/png",
+        sizes: "16x16",
+        href: "/favicons/favicon-16x16.png",
+      },
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "icon",
+        type: "image/png",
+        sizes: "32x32",
+        href: "/favicons/favicon-32x32.png",
+      },
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "icon",
+        type: "image/png",
+        sizes: "48x48",
+        href: "/favicons/favicon-48x48.png",
+      },
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "icon",
+        type: "image/png",
+        sizes: "192x192",
+        href: "/favicons/android-chrome-192x192.png",
+      },
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "icon",
+        type: "image/png",
+        sizes: "512x512",
+        href: "/favicons/android-chrome-512x512.png",
+      },
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "manifest",
+        href: "/favicons/site.webmanifest",
+      },
+    },
+  ],
+
+  baseUrl: "/",
+  // For GitHub Pages, this value must be defined.
+  trailingSlash: true,
+  onBrokenLinks: "warn",
+
+
+
+  i18n: {
+    defaultLocale: "en",
+    locales: ["en"],
+  },
+
+  presets: [
+    [
+      "classic",
+      {
+        theme: {
+          customCss: [require.resolve("./src/css/custom.css")],
+        },
+        docs: {
+          includeCurrentVersion: true,
+          docVersionRootComponent: "@theme/DocVersionRoot",
+
+          routeBasePath: "/docs",
+          editUrl: ({ version, docPath }) => {
+            // Remove the edit link from the documentation index page
+            // TODO: remove after moving the page to the main OpenTofu repo
+            if (docPath === "index.mdx") {
+              return `https://github.com/opentofu/opentofu.org/edit/${version}/docs/${docPath}`;
+            }
+
+            return `https://github.com/rafagsiqueira/farseek/edit/main/website/docs/${docPath}`;
+          },
+        },
+      } satisfies Preset.Options,
+    ],
+  ],
+
+  plugins: [
+    function tailwindPlugin() {
+      return {
+        name: "tailwindcss",
+        configurePostCss(postcssOptions) {
+          postcssOptions.plugins.push(tailwind);
+          postcssOptions.plugins.push(autoprefixer);
+          return postcssOptions;
+        },
+      };
+    },
+    [
+      "@docusaurus/plugin-client-redirects",
+      {
+        redirects: [
+          {
+            to: "/blog/opentofu-announces-fork-of-terraform",
+            from: "/announcement",
+          },
+          {
+            to: "/blog/the-opentofu-fork-is-now-available",
+            from: "/fork",
+          },
+          {
+            from: "/docs/cli/install/apt",
+            to: "/docs/intro/install/deb",
+          },
+          {
+            from: "/docs/cli/install/yum",
+            to: "/docs/intro/install/rpm",
+          },
+        ],
+      },
+    ],
+    function () {
+      return {
+        name: "follow-symlinks",
+        configureWebpack() {
+          return {
+            resolve: {
+              // Yes, leave this on false to support symlinks.
+              symlinks: false,
+            },
+          };
+        },
+      };
+    },
+  ],
+
+  themeConfig: {
+    colorMode: {
+      defaultMode: "dark",
+      respectPrefersColorScheme: false,
+    },
+    docs: {
+      versionPersistence: "none",
+      sidebar: {
+        autoCollapseCategories: true,
+      },
+    },
+    announcementBar: {
+      id: "farseek-launch",
+      content:
+      '<div class="announcement-bar-content">🎉 Welcome to Farseek! The Stateless IaC.</div>',
+      backgroundColor: "#1e1e2e",
+      isCloseable: false,
+    },
+    // algolia: {
+    //   appId: "0AUNALFPJF",
+    //   apiKey: "5a83e1af5126db1360bdc84bfefb20b8",
+    //   indexName: "farseek",
+    // },
+    footer: {
+      links: [
+        {
+          label: "FAQs",
+          href: "/faq",
+        },
+        {
+          label: "Blog",
+          href: "/blog",
+        },
+        {
+          label: "Docs",
+          href: "/docs",
+        },
+      ],
+    },
+    navbar: {
+      hideOnScroll: true,
+      logo: {
+        alt: "Farseek Logo",
+        src: "img/farseek_white.png",
+        srcDark: "img/farseek_black.png",
+      },
+      items: [
+        {
+          to: "/faq",
+          label: "FAQs",
+          position: "left",
+        },
+        {
+          to: "/blog",
+          label: "Blog",
+          position: "left",
+        },
+        {
+          label: "Registry",
+          href: "https://search.opentofu.org",
+          position: "left",
+        },
+        {
+          label: "Roadmap",
+          href: "https://github.com/opentofu/opentofu/milestones",
+          position: "left",
+        },
+        {
+          type: "dropdown",
+          to: "/docs",
+          label: "Docs",
+          position: "left",
+          items: [
+            {
+              label: "Docs",
+              href: "/docs",
+            },
+          ],
+        },
+        // TODO: This link is important but there's no design for it yet
+        // {
+        //   type: "dropdown",
+        //   label: "Community",
+        //   position: "right",
+        //   items: [
+        //     {
+        //       label: "GitHub Discussions",
+        //       href: "https://github.com/orgs/opentofu/discussions",
+        //     },
+        //   ],
+        // },
+        {
+          type: "custom-github-stars-navbar-item",
+          position: "right",
+          ghRepoUrl: "https://github.com/rafagsiqueira/farseek",
+          buttonLabel: "Star",
+        },
+        {
+          type: "custom-social-icon-link-navbar-item",
+          href: "https://youtube.com",
+          position: "right",
+          name: "youtube",
+          label: "Go to the Farseek's Youtube page",
+        },
+        {
+          type: "custom-social-icon-link-navbar-item",
+          href: "https://x.com/farseekdev",
+          position: "right",
+          name: "x",
+          label: "Follow us on X",
+        },
+        {
+          type: "custom-social-icon-link-navbar-item",
+          href: "/slack/",
+          position: "right",
+          name: "slack",
+          label: "Join us on Slack",
+        },
+      ],
+    },
+    prism: {
+      theme: prismThemes.oneLight,
+      darkTheme: prismThemes.oneDark,
+      additionalLanguages: ["hcl", "powershell", "bash"],
+    },
+    image: "/img/og.png",
+  } satisfies Preset.ThemeConfig,
+};
+
+export default config;

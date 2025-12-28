@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -46,7 +46,7 @@ func (c *ProvidersSchemaCommand) Run(args []string) int {
 
 	if !jsonOutput {
 		c.Ui.Error(
-			"The `tofu providers schema` command requires the `-json` flag.\n")
+			"The `farseek providers schema` command requires the `-json` flag.\n")
 		cmdFlags.Usage()
 		return 1
 	}
@@ -84,7 +84,6 @@ func (c *ProvidersSchemaCommand) Run(args []string) int {
 	}
 
 	// This is a read-only command
-	c.ignoreRemoteVersionConflict(b)
 
 	// we expect that the config dir is the cwd
 	cwd, err := os.Getwd()
@@ -138,7 +137,7 @@ func (c *ProvidersSchemaCommand) Run(args []string) int {
 }
 
 const providersSchemaCommandHelp = `
-Usage: tofu [global options] providers schema [options] -json
+Usage: farseek [global options] providers schema [options] -json
 
   Prints out a json representation of the schemas for all providers used 
   in the current configuration.

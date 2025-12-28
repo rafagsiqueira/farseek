@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -16,7 +16,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/command/arguments"
 	"github.com/rafagsiqueira/farseek/internal/repl"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 
 	"github.com/mitchellh/cli"
 )
@@ -88,7 +88,6 @@ func (c *ConsoleCommand) Run(args []string) int {
 	}
 
 	// This is a read-only command
-	c.ignoreRemoteVersionConflict(b)
 
 	// Build the operation
 	opReq := c.Operation(ctx, b, arguments.ViewHuman, enc)
@@ -135,7 +134,7 @@ func (c *ConsoleCommand) Run(args []string) int {
 		ErrorWriter: os.Stderr,
 	}
 
-	evalOpts := &tofu.EvalOpts{}
+	evalOpts := &farseek.EvalOpts{}
 	if lr.PlanOpts != nil {
 		// the LocalRun type is built primarily to support the main operations,
 		// so the variable values end up in the "PlanOpts" even though we're
@@ -211,9 +210,9 @@ func (c *ConsoleCommand) modePiped(session *repl.Session, ui cli.Ui) int {
 
 func (c *ConsoleCommand) Help() string {
 	helpText := `
-Usage: tofu [global options] console [options]
+Usage: farseek [global options] console [options]
 
-  Starts an interactive console for experimenting with OpenTofu
+  Starts an interactive console for experimenting with Farseek
   interpolations.
 
   This will open an interactive console that you can use to type
@@ -225,25 +224,25 @@ Usage: tofu [global options] console [options]
 
 Options:
 
-  -compact-warnings      If OpenTofu produces any warnings that are not
+  -compact-warnings      If Farseek produces any warnings that are not
                          accompanied by errors, show them in a more compact
                          form that includes only the summary messages.
 
-  -consolidate-warnings  If OpenTofu produces any warnings, no consolidation
+  -consolidate-warnings  If Farseek produces any warnings, no consolidation
                          will be performed. All locations, for all warnings
                          will be listed. Enabled by default.
 
-  -consolidate-errors    If OpenTofu produces any errors, no consolidation
+  -consolidate-errors    If Farseek produces any errors, no consolidation
                          will be performed. All locations, for all errors
                          will be listed. Disabled by default
 
   -state=path            Legacy option for the local backend only. See the local
                          backend's documentation for more information.
 
-  -var 'foo=bar'         Set a variable in the OpenTofu configuration. This
+  -var 'foo=bar'         Set a variable in the Farseek configuration. This
                          flag can be set multiple times.
 
-  -var-file=foo          Set variables in the OpenTofu configuration from
+  -var-file=foo          Set variables in the Farseek configuration from
                          a file. If "terraform.tfvars" or any ".auto.tfvars"
                          files are present, they will be automatically loaded.
 `

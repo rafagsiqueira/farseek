@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -22,9 +22,9 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
 )
 
-// Type binary represents the combination of a compiled binary
+// Type Binary represents the combination of a compiled binary
 // and a temporary working directory to run it in.
-type binary struct {
+type Binary struct {
 	binPath string
 	workDir string
 	env     []string
@@ -38,7 +38,7 @@ type binary struct {
 // cannot be found, or if an error occurs while _copying_ the fixture files,
 // this function will panic. Tests should be written to assume that this
 // function always succeeds.
-func NewBinary(t *testing.T, binaryPath, workingDir string) *binary {
+func NewBinary(t *testing.T, binaryPath, workingDir string) *Binary {
 	tmpDir, err := filepath.EvalSymlinks(t.TempDir())
 	if err != nil {
 		panic(err)
@@ -104,7 +104,7 @@ func NewBinary(t *testing.T, binaryPath, workingDir string) *binary {
 		panic(err)
 	}
 
-	return &binary{
+	return &Binary{
 		binPath: binaryPath,
 		workDir: tmpDir,
 	}
@@ -112,16 +112,16 @@ func NewBinary(t *testing.T, binaryPath, workingDir string) *binary {
 
 // AddEnv appends an entry to the environment variable table passed to any
 // commands subsequently run.
-func (b *binary) AddEnv(entry string) {
+func (b *Binary) AddEnv(entry string) {
 	b.env = append(b.env, entry)
 }
 
-// Cmd returns an exec.Cmd pre-configured to run the generated OpenTofu
+// Cmd returns an exec.Cmd pre-configured to run the generated Farseek
 // binary with the given arguments in the temporary working directory.
 //
 // The returned object can be mutated by the caller to customize how the
 // process will be run, before calling Run.
-func (b *binary) Cmd(args ...string) *exec.Cmd {
+func (b *Binary) Cmd(args ...string) *exec.Cmd {
 	cmd := exec.Command(b.binPath, args...)
 	cmd.Dir = b.workDir
 	cmd.Env = os.Environ()
@@ -131,13 +131,13 @@ func (b *binary) Cmd(args ...string) *exec.Cmd {
 	return cmd
 }
 
-// Run executes the generated OpenTofu binary with the given arguments
+// Run executes the generated Farseek binary with the given arguments
 // and returns the bytes that it wrote to both stdout and stderr.
 //
-// This is a simple way to run OpenTofu for non-interactive commands
+// This is a simple way to run Farseek for non-interactive commands
 // that don't need any special environment variables. For more complex
 // situations, use Cmd and customize the command before running it.
-func (b *binary) Run(args ...string) (stdout, stderr string, err error) {
+func (b *Binary) Run(args ...string) (stdout, stderr string, err error) {
 	cmd := b.Cmd(args...)
 	cmd.Stdin = nil
 	cmd.Stdout = &bytes.Buffer{}
@@ -150,7 +150,7 @@ func (b *binary) Run(args ...string) (stdout, stderr string, err error) {
 
 // Path returns a file path within the temporary working directory by
 // appending the given arguments as path segments.
-func (b *binary) Path(parts ...string) string {
+func (b *Binary) Path(parts ...string) string {
 	args := make([]string, 0, len(parts)+1)
 	args = append(args, b.workDir)
 	args = append(args, parts...)
@@ -159,21 +159,28 @@ func (b *binary) Path(parts ...string) string {
 
 // OpenFile is a helper for easily opening a file from the working directory
 // for reading.
-func (b *binary) OpenFile(path ...string) (*os.File, error) {
+func (b *Binary) OpenFile(path ...string) (*os.File, error) {
 	flatPath := b.Path(path...)
 	return os.Open(flatPath)
 }
 
 // ReadFile is a helper for easily reading a whole file from the working
 // directory.
-func (b *binary) ReadFile(path ...string) ([]byte, error) {
+func (b *Binary) ReadFile(path ...string) ([]byte, error) {
 	flatPath := b.Path(path...)
 	return os.ReadFile(flatPath)
 }
 
+// WriteFile is a helper for easily writing a whole file to the working
+// directory.
+func (b *Binary) WriteFile(filename string, content string) error {
+	path := b.Path(filename)
+	return os.WriteFile(path, []byte(content), os.ModePerm)
+}
+
 // FileExists is a helper for easily testing whether a particular file
 // exists in the working directory.
-func (b *binary) FileExists(path ...string) bool {
+func (b *Binary) FileExists(path ...string) bool {
 	flatPath := b.Path(path...)
 	_, err := os.Stat(flatPath)
 	return !os.IsNotExist(err)
@@ -181,13 +188,13 @@ func (b *binary) FileExists(path ...string) bool {
 
 // LocalState is a helper for easily reading the local backend's state file
 // farseek.tfstate from the working directory.
-func (b *binary) LocalState() (*states.State, error) {
+func (b *Binary) LocalState() (*states.State, error) {
 	return b.StateFromFile("farseek.tfstate")
 }
 
 // StateFromFile is a helper for easily reading a state snapshot from a file
 // on disk relative to the working directory.
-func (b *binary) StateFromFile(filename string) (*states.State, error) {
+func (b *Binary) StateFromFile(filename string) (*states.State, error) {
 	f, err := b.OpenFile(filename)
 	if err != nil {
 		return nil, err
@@ -202,7 +209,7 @@ func (b *binary) StateFromFile(filename string) (*states.State, error) {
 }
 
 // Plan is a helper for easily reading a plan file from the working directory.
-func (b *binary) Plan(path string) (*plans.Plan, error) {
+func (b *Binary) Plan(path string) (*plans.Plan, error) {
 	path = b.Path(path)
 	pr, err := planfile.Open(path, encryption.PlanEncryptionDisabled())
 	if err != nil {
@@ -219,7 +226,7 @@ func (b *binary) Plan(path string) (*plans.Plan, error) {
 // uses for state in the working directory. This does not go through the
 // actual local backend code, so processing such as management of serials
 // does not apply and the given state will simply be written verbatim.
-func (b *binary) SetLocalState(state *states.State) error {
+func (b *Binary) SetLocalState(state *states.State) error {
 	path := b.Path("farseek.tfstate")
 	f, err := os.OpenFile(path, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, os.ModePerm)
 	if err != nil {
@@ -282,6 +289,6 @@ func GoBuild(pkgPath, tmpPrefix string) string {
 }
 
 // WorkDir() returns the binary workdir
-func (b *binary) WorkDir() string {
+func (b *Binary) WorkDir() string {
 	return b.workDir
 }

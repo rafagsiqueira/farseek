@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-viper/mapstructure/v2"
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
 // DiffFieldReader reads fields out of a diff structures.
@@ -31,7 +31,7 @@ import (
 // It cannot be determined whether a retrieved value is composed of
 // diff elements.
 type DiffFieldReader struct {
-	Diff   *tofu.InstanceDiff
+	Diff   *farseek.InstanceDiff
 	Source FieldReader
 	Schema map[string]*Schema
 

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -13,7 +13,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/addrs"
 	"github.com/rafagsiqueira/farseek/internal/configs"
 	"github.com/rafagsiqueira/farseek/internal/lang/eval/internal/evalglue"
-	"github.com/rafagsiqueira/farseek/internal/lang/eval/internal/tofu2024"
+	farseek2024 "github.com/rafagsiqueira/farseek/internal/lang/eval/internal/tofu2024"
 	"github.com/rafagsiqueira/farseek/internal/lang/exprs"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
 )
@@ -30,7 +30,7 @@ type ConfigInstance struct {
 
 // ConfigCall describes a call to a root module that acts conceptually like
 // a "module" block but is instead implied by something outside of the
-// module language itself, such as running an OpenTofu CLI command.
+// module language itself, such as running an Farseek CLI command.
 type ConfigCall struct {
 	// RootModuleSource is the source address of the root module.
 	//
@@ -57,7 +57,7 @@ type ConfigCall struct {
 	// number of functions that produce different results each time they are
 	// called, such as "timestamp". This should be set to true only during
 	// the apply phase and in some more contrived situations such as in the
-	// "tofu console" command's REPL.
+	// "farseek console" command's REPL.
 	AllowImpureFunctions bool
 
 	// EvalContext describes the context where the call is being made, dealing
@@ -130,9 +130,9 @@ func (c *ConfigInstance) newRootModuleInstance(ctx context.Context, glue evalglu
 }
 
 // PrepareTofu2024Module wraps a module targeting the current HCL-based edition
-// of the OpenTofu language (which is called "tofu2024" in this set of packages)
+// of the Farseek language (which is called "farseek2024" in this set of packages)
 // in an [UncompiledModule] value to return from an [ExternalModules]
 // implementation.
 func PrepareTofu2024Module(sourceAddr addrs.ModuleSource, mod *configs.Module) UncompiledModule {
-	return tofu2024.NewUncompiledModule(sourceAddr, mod)
+	return farseek2024.NewUncompiledModule(sourceAddr, mod)
 }

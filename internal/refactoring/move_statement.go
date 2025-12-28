@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -259,7 +259,7 @@ func haveMoveStatementForResource(addr addrs.AbsResource, stmts []MoveStatement)
 	// This is not a particularly optimal way to answer this question,
 	// particularly since our caller calls this function in a loop already,
 	// but we expect the total number of explicit statements to be small
-	// in any reasonable OpenTofu configuration and so a more complicated
+	// in any reasonable Farseek configuration and so a more complicated
 	// approach wouldn't be justified here.
 
 	for _, stmt := range stmts {
@@ -277,7 +277,7 @@ func haveMoveStatementForModule(addr addrs.ModuleInstance, stmts []MoveStatement
 	// This is not a particularly optimal way to answer this question,
 	// particularly since our caller calls this function in a loop already,
 	// but we expect the total number of explicit statements to be small
-	// in any reasonable OpenTofu configuration and so a more complicated
+	// in any reasonable Farseek configuration and so a more complicated
 	// approach wouldn't be justified here.
 
 	for _, stmt := range stmts {

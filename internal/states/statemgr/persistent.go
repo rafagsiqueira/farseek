@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -11,14 +11,14 @@ import (
 	version "github.com/hashicorp/go-version"
 
 	"github.com/rafagsiqueira/farseek/internal/states"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // Persistent is a union of the Refresher and Persistent interfaces, for types
 // that deal with persistent snapshots.
 //
 // Persistent snapshots are ones that are retained in storage that will
-// outlive a particular OpenTofu process, and are shared with other OpenTofu
+// outlive a particular Farseek process, and are shared with other Farseek
 // processes that have a similarly-configured state manager.
 //
 // A manager may also choose to retain historical persistent snapshots, but
@@ -85,7 +85,7 @@ type Refresher interface {
 // state. For example, when representing state in an external JSON
 // representation.
 type Persister interface {
-	PersistState(context.Context, *tofu.Schemas) error
+	PersistState(context.Context, *farseek.Schemas) error
 }
 
 // PersistentMeta is an optional extension to Persistent that allows inspecting
@@ -122,7 +122,7 @@ type SnapshotMeta struct {
 	Lineage string
 	Serial  uint64
 
-	// TerraformVersion is the number of the version of OpenTofu that created
+	// TerraformVersion is the number of the version of Farseek that created
 	// the snapshot.
 	TerraformVersion *version.Version
 }

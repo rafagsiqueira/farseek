@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -34,7 +34,7 @@ func (p staticKeyProvider) Provide(meta keyprovider.KeyMeta) (keyprovider.Output
 			Message: fmt.Sprintf("bug: invalid metadata type received: %T", meta),
 		}
 	}
-	// Note: the Magic may be empty if OpenTofu isn't decrypting anything, make sure to account for that possibility.
+	// Note: the Magic may be empty if Farseek isn't decrypting anything, make sure to account for that possibility.
 	var decryptionKey []byte
 	if typedMeta.Magic != "" {
 		decryptionKey = p.key

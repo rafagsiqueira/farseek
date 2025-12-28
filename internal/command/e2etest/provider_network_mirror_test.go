@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -27,10 +27,10 @@ import (
 // the underlying implementation that talks with a remote network mirror source.
 func TestProviderNetworkMirrorRetries(t *testing.T) {
 	// Our typical rule for external service access in e2etests is that it's okay
-	// to access servers run by the OpenTofu project when TF_ACC=1 is set in the
+	// to access servers run by the Farseek project when TF_ACC=1 is set in the
 	// environment. However, this particular test is checking a network mirror source
 	// that needs to be configured with a TLS certificate and that certificate to be given
-	// in the `tofu` child process env vars to be used for talking with the server.
+	// in the `farseek` child process env vars to be used for talking with the server.
 	// The entirety of this process can be done without actual network access so it can run
 	// without the TF_ACC=1.
 	//
@@ -66,34 +66,34 @@ func TestProviderNetworkMirrorRetries(t *testing.T) {
 	})
 
 	cases := map[string]struct {
-		tofurcRetriesConfigEntry string
+		farseekrcRetriesConfigEntry string
 		envVars                  map[string]string
 		expectedErrMsg           string
 	}{
-		"no tofurc.network_mirror.download_retry_count, no TF_PROVIDER_DOWNLOAD_RETRY, default TF_PROVIDER_DOWNLOAD_RETRY used": {
-			tofurcRetriesConfigEntry: "",
+		"no farseekrc.network_mirror.download_retry_count, no TF_PROVIDER_DOWNLOAD_RETRY, default TF_PROVIDER_DOWNLOAD_RETRY used": {
+			farseekrcRetriesConfigEntry: "",
 			envVars:                  nil,
 			expectedErrMsg:           "/example.com/test/test/terraform-provider-test_0.0.1_linux_amd64.zip giving up after 3 attempt(s)",
 		},
-		"no tofurc.network_mirror.download_retry_count, TF_PROVIDER_DOWNLOAD_RETRY defined, TF_PROVIDER_DOWNLOAD_RETRY used": {
-			tofurcRetriesConfigEntry: "",
+		"no farseekrc.network_mirror.download_retry_count, TF_PROVIDER_DOWNLOAD_RETRY defined, TF_PROVIDER_DOWNLOAD_RETRY used": {
+			farseekrcRetriesConfigEntry: "",
 			envVars: map[string]string{
 				"TF_PROVIDER_DOWNLOAD_RETRY": "1",
 			},
 			expectedErrMsg: "/example.com/test/test/terraform-provider-test_0.0.1_linux_amd64.zip giving up after 2 attempt(s)",
 		},
-		"defined tofurc.network_mirror.download_retry_count as 0, no TF_PROVIDER_DOWNLOAD_RETRY, tofurc used": {
-			tofurcRetriesConfigEntry: "download_retry_count = 0",
+		"defined farseekrc.network_mirror.download_retry_count as 0, no TF_PROVIDER_DOWNLOAD_RETRY, farseekrc used": {
+			farseekrcRetriesConfigEntry: "download_retry_count = 0",
 			envVars:                  nil,
 			expectedErrMsg:           "/example.com/test/test/terraform-provider-test_0.0.1_linux_amd64.zip giving up after 1 attempt(s)",
 		},
-		"defined tofurc.network_mirror.download_retry_count as 1, no TF_PROVIDER_DOWNLOAD_RETRY, tofurc used": {
-			tofurcRetriesConfigEntry: "download_retry_count = 1",
+		"defined farseekrc.network_mirror.download_retry_count as 1, no TF_PROVIDER_DOWNLOAD_RETRY, farseekrc used": {
+			farseekrcRetriesConfigEntry: "download_retry_count = 1",
 			envVars:                  nil,
 			expectedErrMsg:           "/example.com/test/test/terraform-provider-test_0.0.1_linux_amd64.zip giving up after 2 attempt(s)",
 		},
-		"defined tofurc.network_mirror.download_retry_count as 1, TF_PROVIDER_DOWNLOAD_RETRY defined as 2, tofurc used": {
-			tofurcRetriesConfigEntry: "download_retry_count = 1",
+		"defined farseekrc.network_mirror.download_retry_count as 1, TF_PROVIDER_DOWNLOAD_RETRY defined as 2, farseekrc used": {
+			farseekrcRetriesConfigEntry: "download_retry_count = 1",
 			envVars: map[string]string{
 				"TF_PROVIDER_DOWNLOAD_RETRY": "2",
 			},
@@ -121,13 +121,13 @@ func TestProviderNetworkMirrorRetries(t *testing.T) {
 				%s
 			}
 		}
-	`, registryAddr, tt.tofurcRetriesConfigEntry)
+	`, registryAddr, tt.farseekrcRetriesConfigEntry)
 			if err := os.WriteFile(cliConfigFile, []byte(cliConfigSrc), os.ModePerm); err != nil {
 				t.Fatalf("failed to create temporary CLI configuration file: %s", err)
 			}
 			dataDir := filepath.Join(tempDir, ".farseek")
 
-			tf := e2e.NewBinary(t, tofuBin, "testdata/provider-network-mirror")
+			tf := e2e.NewBinary(t, farseekBin, "testdata/provider-network-mirror")
 			tf.AddEnv("SSL_CERT_FILE=" + certFile)
 			tf.AddEnv("TF_CLI_CONFIG_FILE=" + cliConfigFile)
 			tf.AddEnv("TF_DATA_DIR=" + dataDir)
@@ -136,7 +136,7 @@ func TestProviderNetworkMirrorRetries(t *testing.T) {
 			}
 			_, stderr, err := tf.Run("init", "-backend=false")
 			if err == nil {
-				t.Fatalf("expected `tofu init` to fail but got no error")
+				t.Fatalf("expected `farseek init` to fail but got no error")
 			}
 			t.Logf("stderr:\n%s", stderr)
 			cleanStderr := SanitizeStderr(stderr)

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -20,7 +20,7 @@ func TestInitModuleArchive(t *testing.T) {
 	skipIfCannotAccessNetwork(t)
 
 	fixturePath := filepath.Join("testdata", "module-archive")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	stdout, stderr, err := tf.Run("init")
 	if err != nil {
@@ -31,7 +31,7 @@ func TestInitModuleArchive(t *testing.T) {
 		t.Errorf("unexpected stderr output:\n%s", stderr)
 	}
 
-	if !strings.Contains(stdout, "OpenTofu has been successfully initialized!") {
+	if !strings.Contains(stdout, "Farseek has been successfully initialized!") {
 		t.Errorf("success message is missing from output:\n%s", stdout)
 	}
 }

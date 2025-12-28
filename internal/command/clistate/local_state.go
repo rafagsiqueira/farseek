@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -18,7 +18,7 @@ import (
 
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/rafagsiqueira/farseek/internal/flock"
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 )
 
@@ -44,13 +44,13 @@ type LocalState struct {
 	created bool
 
 	mu        sync.Mutex
-	state     *tofu.State
-	readState *tofu.State
+	state     *farseek.State
+	readState *farseek.State
 	written   bool
 }
 
 // SetState will force a specific state in-memory for this local state.
-func (s *LocalState) SetState(state *tofu.State) {
+func (s *LocalState) SetState(state *farseek.State) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -59,7 +59,7 @@ func (s *LocalState) SetState(state *tofu.State) {
 }
 
 // StateReader impl.
-func (s *LocalState) State() *tofu.State {
+func (s *LocalState) State() *farseek.State {
 	return s.state.DeepCopy()
 }
 
@@ -69,7 +69,7 @@ func (s *LocalState) State() *tofu.State {
 // the original.
 //
 // StateWriter impl.
-func (s *LocalState) WriteState(state *tofu.State) error {
+func (s *LocalState) WriteState(state *farseek.State) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -81,7 +81,7 @@ func (s *LocalState) WriteState(state *tofu.State) error {
 	// Sync after write
 	return s.stateFileOut.Sync()
 }
-func (s *LocalState) writeState(state *tofu.State) error {
+func (s *LocalState) writeState(state *farseek.State) error {
 	if s.stateFileOut == nil {
 		if err := s.createStateFiles(); err != nil {
 			return err
@@ -113,7 +113,7 @@ func (s *LocalState) writeState(state *tofu.State) error {
 		s.state.Serial++
 	}
 
-	if err := tofu.WriteState(s.state, s.stateFileOut); err != nil {
+	if err := farseek.WriteState(s.state, s.stateFileOut); err != nil {
 		return err
 	}
 
@@ -176,9 +176,9 @@ func (s *LocalState) RefreshState(_ context.Context) error {
 		reader = s.stateFileOut
 	}
 
-	state, err := tofu.ReadState(reader)
+	state, err := farseek.ReadState(reader)
 	// if there's no state we just assign the nil return value
-	if err != nil && err != tofu.ErrNoState {
+	if err != nil && err != farseek.ErrNoState {
 		return err
 	}
 

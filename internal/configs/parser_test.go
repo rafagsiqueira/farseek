@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -113,7 +113,7 @@ func buildNestedModuleConfig(ctx context.Context, mod *Module, path string, pars
 			// For the sake of this test we're going to just treat our
 			// SourceAddr as a path relative to the calling module.
 			// A "real" implementation of ModuleWalker should accept the
-			// various different source address syntaxes OpenTofu supports.
+			// various different source address syntaxes Farseek supports.
 
 			// Build a full path by walking up the module tree, prepending each
 			// source address path until we hit the root

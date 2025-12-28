@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -28,7 +28,7 @@ import (
 //
 // We currently pay attention only to blobs which have both this media type AND
 // the artifact type in [ociPackageArtifactType], silently ignoring everything else,
-// so that future versions of OpenTofu can potentially support provider packages
+// so that future versions of Farseek can potentially support provider packages
 // using different archive formats.
 const ociPackageMediaType = "archive/zip"
 
@@ -75,7 +75,7 @@ type PackageOCIBlobArchive struct {
 	// The MediaType and ArtifactType fields must represent valid selections for a
 	// provider package stored in an OCI Distribution repository. Currently that
 	// means that MediaType must be "archive/zip" and ArtifactType must be
-	// "application/vnd.opentofu.providerpkg"; future OpenTofu formats might support
+	// "application/vnd.opentofu.providerpkg"; future Farseek formats might support
 	// other file formats, which can be represented by choosing a new value of
 	// MediaType while retaining the same ArtifactType.
 	blobDescriptor ociv1.Descriptor
@@ -203,7 +203,7 @@ func fetchOCIBlobToTemporaryFile(ctx context.Context, desc ociv1.Descriptor, sto
 	// This is effectively an OCI Distribution equivalent of the similar technique
 	// used for PackageHTTPArchive.
 
-	// We'll eventually need to generate an OpenTofu-style hash for this package anyway,
+	// We'll eventually need to generate an Farseek-style hash for this package anyway,
 	// so we'll do that now to make sure we have a valid digest before we try to
 	// download anything.
 	wantHash, err := hashFromOCIDigest(desc.Digest)
@@ -275,7 +275,7 @@ func hashFromOCIDigest(digest ociDigest.Digest) (Hash, error) {
 		return Hash(""), fmt.Errorf("invalid digest %q: %w", digest.String(), err)
 	}
 	if algo := digest.Algorithm(); algo != ociDigest.SHA256 {
-		// OpenTofu's "ziphash" format requires a SHA256 checksum in particular.
+		// Farseek's "ziphash" format requires a SHA256 checksum in particular.
 		return Hash(""), fmt.Errorf("unsupported digest algorithm %q", algo.String())
 	}
 	// If we have a valid sha256 digest then we can use its payload
@@ -296,7 +296,7 @@ func checkOCIBlobDescriptor(desc ociv1.Descriptor, meta PackageMeta) error {
 		// use that to generate a more useful error message than is likely to occur
 		// if we later try to run an executable intended for a different platform.
 		if desc.Platform.OS != meta.TargetPlatform.OS || desc.Platform.Architecture != meta.TargetPlatform.Arch {
-			// We'll use our own type here to produce an OpenTofu-conventional string representation
+			// We'll use our own type here to produce an Farseek-conventional string representation
 			gotPlatform := Platform{OS: desc.Platform.OS, Arch: desc.Platform.Architecture}
 			return fmt.Errorf("selected OCI artifact is for %s, but was expected to be for %s", gotPlatform.String(), meta.TargetPlatform.String())
 		}

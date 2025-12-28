@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -14,7 +14,7 @@ import (
 
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
 var ReservedProviderFields = []string{
@@ -22,7 +22,7 @@ var ReservedProviderFields = []string{
 	"version",
 }
 
-// Provider represents a resource provider in OpenTofu, and properly
+// Provider represents a resource provider in Farseek, and properly
 // implements all of the ResourceProvider API.
 //
 // By defining a schema for the configuration of the provider, the
@@ -60,7 +60,7 @@ type Provider struct {
 	// this can be omitted. This functionality is currently experimental
 	// and subject to change or break without warning; it should only be
 	// used by providers that are collaborating on its use with the
-	// OpenTofu team.
+	// Farseek team.
 	ProviderMetaSchema map[string]*Schema
 
 	// ConfigureFunc is a function for configuring the provider. If the
@@ -182,7 +182,7 @@ func (p *Provider) stopInit() {
 	p.stopCtx, p.stopCtxCancel = context.WithCancel(context.Background())
 }
 
-// Stop implementation of tofu.ResourceProvider interface.
+// Stop implementation of farseek.ResourceProvider interface.
 func (p *Provider) Stop() error {
 	p.stopOnce.Do(p.stopInit)
 
@@ -205,8 +205,8 @@ func (p *Provider) TestReset() error {
 	return nil
 }
 
-// GetSchema implementation of tofu.ResourceProvider interface
-func (p *Provider) GetSchema(req *tofu.ProviderSchemaRequest) (*tofu.ProviderSchema, error) {
+// GetSchema implementation of farseek.ResourceProvider interface
+func (p *Provider) GetSchema(req *farseek.ProviderSchemaRequest) (*farseek.ProviderSchema, error) {
 	resourceTypes := map[string]*configschema.Block{}
 	dataSources := map[string]*configschema.Block{}
 
@@ -221,22 +221,22 @@ func (p *Provider) GetSchema(req *tofu.ProviderSchemaRequest) (*tofu.ProviderSch
 		}
 	}
 
-	return &tofu.ProviderSchema{
+	return &farseek.ProviderSchema{
 		Provider:      schemaMap(p.Schema).CoreConfigSchema(),
 		ResourceTypes: resourceTypes,
 		DataSources:   dataSources,
 	}, nil
 }
 
-// Input implementation of tofu.ResourceProvider interface.
+// Input implementation of farseek.ResourceProvider interface.
 func (p *Provider) Input(
-	input tofu.UIInput,
-	c *tofu.ResourceConfig) (*tofu.ResourceConfig, error) {
+	input farseek.UIInput,
+	c *farseek.ResourceConfig) (*farseek.ResourceConfig, error) {
 	return schemaMap(p.Schema).Input(input, c)
 }
 
-// Validate implementation of tofu.ResourceProvider interface.
-func (p *Provider) Validate(c *tofu.ResourceConfig) ([]string, []error) {
+// Validate implementation of farseek.ResourceProvider interface.
+func (p *Provider) Validate(c *farseek.ResourceConfig) ([]string, []error) {
 	if err := p.InternalValidate(); err != nil {
 		return nil, []error{fmt.Errorf(
 			"Internal validation of the provider failed! This is always a bug\n"+
@@ -247,9 +247,9 @@ func (p *Provider) Validate(c *tofu.ResourceConfig) ([]string, []error) {
 	return schemaMap(p.Schema).Validate(c)
 }
 
-// ValidateResource implementation of tofu.ResourceProvider interface.
+// ValidateResource implementation of farseek.ResourceProvider interface.
 func (p *Provider) ValidateResource(
-	t string, c *tofu.ResourceConfig) ([]string, []error) {
+	t string, c *farseek.ResourceConfig) ([]string, []error) {
 	r, ok := p.ResourcesMap[t]
 	if !ok {
 		return nil, []error{fmt.Errorf(
@@ -259,8 +259,8 @@ func (p *Provider) ValidateResource(
 	return r.Validate(c)
 }
 
-// Configure implementation of tofu.ResourceProvider interface.
-func (p *Provider) Configure(c *tofu.ResourceConfig) error {
+// Configure implementation of farseek.ResourceProvider interface.
+func (p *Provider) Configure(c *farseek.ResourceConfig) error {
 	// No configuration
 	if p.ConfigureFunc == nil {
 		return nil
@@ -289,11 +289,11 @@ func (p *Provider) Configure(c *tofu.ResourceConfig) error {
 	return nil
 }
 
-// Apply implementation of tofu.ResourceProvider interface.
+// Apply implementation of farseek.ResourceProvider interface.
 func (p *Provider) Apply(
-	info *tofu.InstanceInfo,
-	s *tofu.InstanceState,
-	d *tofu.InstanceDiff) (*tofu.InstanceState, error) {
+	info *farseek.InstanceInfo,
+	s *farseek.InstanceState,
+	d *farseek.InstanceDiff) (*farseek.InstanceState, error) {
 	r, ok := p.ResourcesMap[info.Type]
 	if !ok {
 		return nil, fmt.Errorf("unknown resource type: %s", info.Type)
@@ -302,11 +302,11 @@ func (p *Provider) Apply(
 	return r.Apply(s, d, p.meta)
 }
 
-// Diff implementation of tofu.ResourceProvider interface.
+// Diff implementation of farseek.ResourceProvider interface.
 func (p *Provider) Diff(
-	info *tofu.InstanceInfo,
-	s *tofu.InstanceState,
-	c *tofu.ResourceConfig) (*tofu.InstanceDiff, error) {
+	info *farseek.InstanceInfo,
+	s *farseek.InstanceState,
+	c *farseek.ResourceConfig) (*farseek.InstanceDiff, error) {
 	r, ok := p.ResourcesMap[info.Type]
 	if !ok {
 		return nil, fmt.Errorf("unknown resource type: %s", info.Type)
@@ -318,9 +318,9 @@ func (p *Provider) Diff(
 // SimpleDiff is used by the new protocol wrappers to get a diff that doesn't
 // attempt to calculate ignore_changes.
 func (p *Provider) SimpleDiff(
-	info *tofu.InstanceInfo,
-	s *tofu.InstanceState,
-	c *tofu.ResourceConfig) (*tofu.InstanceDiff, error) {
+	info *farseek.InstanceInfo,
+	s *farseek.InstanceState,
+	c *farseek.ResourceConfig) (*farseek.InstanceDiff, error) {
 	r, ok := p.ResourcesMap[info.Type]
 	if !ok {
 		return nil, fmt.Errorf("unknown resource type: %s", info.Type)
@@ -329,10 +329,10 @@ func (p *Provider) SimpleDiff(
 	return r.simpleDiff(s, c, p.meta)
 }
 
-// Refresh implementation of tofu.ResourceProvider interface.
+// Refresh implementation of farseek.ResourceProvider interface.
 func (p *Provider) Refresh(
-	info *tofu.InstanceInfo,
-	s *tofu.InstanceState) (*tofu.InstanceState, error) {
+	info *farseek.InstanceInfo,
+	s *farseek.InstanceState) (*farseek.InstanceState, error) {
 	r, ok := p.ResourcesMap[info.Type]
 	if !ok {
 		return nil, fmt.Errorf("unknown resource type: %s", info.Type)
@@ -341,15 +341,15 @@ func (p *Provider) Refresh(
 	return r.Refresh(s, p.meta)
 }
 
-// Resources implementation of tofu.ResourceProvider interface.
-func (p *Provider) Resources() []tofu.ResourceType {
+// Resources implementation of farseek.ResourceProvider interface.
+func (p *Provider) Resources() []farseek.ResourceType {
 	keys := make([]string, 0, len(p.ResourcesMap))
 	for k := range p.ResourcesMap {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 
-	result := make([]tofu.ResourceType, 0, len(keys))
+	result := make([]farseek.ResourceType, 0, len(keys))
 	for _, k := range keys {
 		resource := p.ResourcesMap[k]
 
@@ -359,7 +359,7 @@ func (p *Provider) Resources() []tofu.ResourceType {
 			resource = &Resource{}
 		}
 
-		result = append(result, tofu.ResourceType{
+		result = append(result, farseek.ResourceType{
 			Name:       k,
 			Importable: resource.Importer != nil,
 
@@ -373,8 +373,8 @@ func (p *Provider) Resources() []tofu.ResourceType {
 }
 
 func (p *Provider) ImportState(
-	info *tofu.InstanceInfo,
-	id string) ([]*tofu.InstanceState, error) {
+	info *farseek.InstanceInfo,
+	id string) ([]*farseek.InstanceState, error) {
 	// Find the resource
 	r, ok := p.ResourcesMap[info.Type]
 	if !ok {
@@ -402,7 +402,7 @@ func (p *Provider) ImportState(
 	}
 
 	// Convert the results to InstanceState values and return it
-	states := make([]*tofu.InstanceState, len(results))
+	states := make([]*farseek.InstanceState, len(results))
 	for i, r := range results {
 		states[i] = r.State()
 	}
@@ -414,16 +414,16 @@ func (p *Provider) ImportState(
 			return nil, fmt.Errorf(
 				"nil entry in ImportState results. This is always a bug with\n" +
 					"the resource that is being imported. Please report this as\n" +
-					"a bug to OpenTofu.")
+					"a bug to Farseek.")
 		}
 	}
 
 	return states, nil
 }
 
-// ValidateDataSource implementation of tofu.ResourceProvider interface.
+// ValidateDataSource implementation of farseek.ResourceProvider interface.
 func (p *Provider) ValidateDataSource(
-	t string, c *tofu.ResourceConfig) ([]string, []error) {
+	t string, c *farseek.ResourceConfig) ([]string, []error) {
 	r, ok := p.DataSourcesMap[t]
 	if !ok {
 		return nil, []error{fmt.Errorf(
@@ -433,10 +433,10 @@ func (p *Provider) ValidateDataSource(
 	return r.Validate(c)
 }
 
-// ReadDataDiff implementation of tofu.ResourceProvider interface.
+// ReadDataDiff implementation of farseek.ResourceProvider interface.
 func (p *Provider) ReadDataDiff(
-	info *tofu.InstanceInfo,
-	c *tofu.ResourceConfig) (*tofu.InstanceDiff, error) {
+	info *farseek.InstanceInfo,
+	c *farseek.ResourceConfig) (*farseek.InstanceDiff, error) {
 
 	r, ok := p.DataSourcesMap[info.Type]
 	if !ok {
@@ -446,10 +446,10 @@ func (p *Provider) ReadDataDiff(
 	return r.Diff(nil, c, p.meta)
 }
 
-// RefreshData implementation of tofu.ResourceProvider interface.
+// RefreshData implementation of farseek.ResourceProvider interface.
 func (p *Provider) ReadDataApply(
-	info *tofu.InstanceInfo,
-	d *tofu.InstanceDiff) (*tofu.InstanceState, error) {
+	info *farseek.InstanceInfo,
+	d *farseek.InstanceDiff) (*farseek.InstanceState, error) {
 
 	r, ok := p.DataSourcesMap[info.Type]
 	if !ok {
@@ -459,17 +459,17 @@ func (p *Provider) ReadDataApply(
 	return r.ReadDataApply(d, p.meta)
 }
 
-// DataSources implementation of tofu.ResourceProvider interface.
-func (p *Provider) DataSources() []tofu.DataSource {
+// DataSources implementation of farseek.ResourceProvider interface.
+func (p *Provider) DataSources() []farseek.DataSource {
 	keys := make([]string, 0, len(p.DataSourcesMap))
 	for k, _ := range p.DataSourcesMap {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 
-	result := make([]tofu.DataSource, 0, len(keys))
+	result := make([]farseek.DataSource, 0, len(keys))
 	for _, k := range keys {
-		result = append(result, tofu.DataSource{
+		result = append(result, farseek.DataSource{
 			Name: k,
 
 			// Indicates that a provider is compiled against a new enough

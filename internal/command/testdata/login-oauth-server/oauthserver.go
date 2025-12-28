@@ -1,5 +1,5 @@
 // Package oauthserver is a very simplistic OAuth server used only for
-// the testing of the "tofu login" and "tofu logout" commands.
+// the testing of the "farseek login" and "farseek logout" commands.
 package oauthserver
 
 import (

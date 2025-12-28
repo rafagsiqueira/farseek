@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -12,7 +12,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/command/format"
 	"github.com/rafagsiqueira/farseek/internal/terminal"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // View is the base layer for command views, encapsulating a set of I/O
@@ -26,7 +26,7 @@ type View struct {
 	consolidateWarnings bool
 	consolidateErrors   bool
 
-	// When this is true it's a hint that OpenTofu is being run indirectly
+	// When this is true it's a hint that Farseek is being run indirectly
 	// via a wrapper script or other automation and so we may wish to replace
 	// direct examples of commands to run with more conceptual directions.
 	// However, we only do this on a best-effort basis, typically prioritizing
@@ -38,7 +38,7 @@ type View struct {
 	concise bool
 
 	// ModuleDeprecationWarnLvl is used to filter out deprecation warnings for outputs and variables as requested by the user.
-	ModuleDeprecationWarnLvl tofu.DeprecationWarningLevel
+	ModuleDeprecationWarnLvl farseek.DeprecationWarningLevel
 
 	// showSensitive is used to display the value of variables marked as sensitive.
 	showSensitive bool
@@ -66,8 +66,8 @@ func NewView(streams *terminal.Streams) *View {
 
 // SetRunningInAutomation modifies the view's "running in automation" flag,
 // which causes some slight adjustments to certain messages that would normally
-// suggest specific OpenTofu commands to run, to make more conceptual gestures
-// instead for situations where the user isn't running OpenTofu directly.
+// suggest specific Farseek commands to run, to make more conceptual gestures
+// instead for situations where the user isn't running Farseek directly.
 //
 // For convenient use during initialization (in conjunction with NewView),
 // SetRunningInAutomation returns the receiver after modifying it.
@@ -107,14 +107,14 @@ func (v *View) Diagnostics(diags tfdiags.Diagnostics) {
 
 	// Filter the deprecation warnings based on the cli arg.
 	// For safety and performance reasons, we are filtering the deprecation related diagnostics only when
-	// the filtering level is not tofu.DeprecationWarningLevelAll.
+	// the filtering level is not farseek.DeprecationWarningLevelAll.
 	// This filtering is implemented only in here, and not in meta.go#showDiagnostics because there are meant to be
 	// shown only during apply and plan phases. These 2 phases are using this implementation to interact with the user
 	// while meta.go#showDiagnostics is used by other commands that are not meant to show the deprecation diagnostics.
-	if v.ModuleDeprecationWarnLvl != tofu.DeprecationWarningLevelAll {
+	if v.ModuleDeprecationWarnLvl != farseek.DeprecationWarningLevelAll {
 		var newDiags tfdiags.Diagnostics
 		for _, diag := range diags {
-			if !tofu.DeprecationDiagnosticAllowed(v.ModuleDeprecationWarnLvl, diag) {
+			if !farseek.DeprecationDiagnosticAllowed(v.ModuleDeprecationWarnLvl, diag) {
 				continue
 			}
 			newDiags = append(newDiags, diag)
@@ -145,7 +145,7 @@ func (v *View) Diagnostics(diags tfdiags.Diagnostics) {
 		}
 		if useCompact {
 			msg := format.DiagnosticWarningsCompact(diags, v.colorize)
-			msg = "\n" + msg + "\nTo see the full warning notes, run OpenTofu without -compact-warnings.\n"
+			msg = "\n" + msg + "\nTo see the full warning notes, run Farseek without -compact-warnings.\n"
 			v.streams.Print(msg)
 			return
 		}
@@ -176,7 +176,7 @@ func (v *View) HelpPrompt(command string) {
 
 const helpPrompt = `
 For more help on using this command, run:
-  tofu %s -help
+  farseek %s -help
 `
 
 // outputColumns returns the number of text character cells any non-error

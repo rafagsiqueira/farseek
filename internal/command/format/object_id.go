@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -22,7 +22,7 @@ func isValueMarkedUnusable(v cty.Value) bool {
 // If such an attribute is found, its name and string value intended for
 // display are returned. Both returned strings are empty if no such attribute
 // exists, in which case the caller should assume that the resource instance
-// address within the OpenTofu configuration is the best available identifier.
+// address within the Farseek configuration is the best available identifier.
 //
 // This is only a best-effort sort of thing, relying on naming conventions in
 // our resource type schemas. The result is not guaranteed to be unique, but
@@ -74,7 +74,7 @@ func ObjectValueID(obj cty.Value) (k, v string) {
 // If such an attribute is found, its name and string value intended for
 // display are returned. Both returned strings are empty if no such attribute
 // exists, in which case the caller should assume that the resource instance
-// address within the OpenTofu configuration is the best available identifier.
+// address within the Farseek configuration is the best available identifier.
 //
 // This is only a best-effort sort of thing, relying on naming conventions in
 // our resource type schemas. The result is not guaranteed to be unique, but

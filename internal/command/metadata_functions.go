@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -23,7 +23,7 @@ var (
 )
 
 // MetadataFunctionsCommand is a Command implementation that prints out information
-// about the available functions in OpenTofu.
+// about the available functions in Farseek.
 type MetadataFunctionsCommand struct {
 	Meta
 }
@@ -50,7 +50,7 @@ func (c *MetadataFunctionsCommand) Run(args []string) int {
 
 	if !jsonOutput {
 		c.Ui.Error(
-			"The `tofu metadata functions` command requires the `-json` flag.\n")
+			"The `farseek metadata functions` command requires the `-json` flag.\n")
 		cmdFlags.Usage()
 		return 1
 	}
@@ -76,7 +76,7 @@ func (c *MetadataFunctionsCommand) Run(args []string) int {
 }
 
 const metadataFunctionsCommandHelp = `
-Usage: tofu [global options] metadata functions -json
+Usage: farseek [global options] metadata functions -json
 
   Prints out a json representation of the available function signatures.
 `

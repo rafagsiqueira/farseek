@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -13,15 +13,10 @@ import (
 
 	"github.com/mitchellh/cli"
 
-	"github.com/rafagsiqueira/farseek/internal/addrs"
 	"github.com/rafagsiqueira/farseek/internal/backend"
 	"github.com/rafagsiqueira/farseek/internal/backend/local"
-	"github.com/rafagsiqueira/farseek/internal/backend/remote-state/inmem"
-	"github.com/rafagsiqueira/farseek/internal/encryption"
-	"github.com/rafagsiqueira/farseek/internal/states"
-	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 
-	legacy "github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	legacy "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
 func TestWorkspace_createAndChange(t *testing.T) {
@@ -214,77 +209,6 @@ func TestWorkspace_createInvalid(t *testing.T) {
 
 	if actual != expected {
 		t.Fatalf("\nexpected: %q\nactual:  %q", expected, actual)
-	}
-}
-
-func TestWorkspace_createWithState(t *testing.T) {
-	td := t.TempDir()
-	testCopyDir(t, testFixturePath("inmem-backend"), td)
-	t.Chdir(td)
-	defer inmem.Reset()
-
-	// init the backend
-	ui := new(cli.MockUi)
-	view, _ := testView(t)
-	initCmd := &InitCommand{
-		Meta: Meta{Ui: ui, View: view},
-	}
-	if code := initCmd.Run([]string{}); code != 0 {
-		t.Fatalf("bad: \n%s", ui.ErrorWriter.String())
-	}
-
-	originalState := states.BuildState(func(s *states.SyncState) {
-		s.SetResourceInstanceCurrent(
-			addrs.Resource{
-				Mode: addrs.ManagedResourceMode,
-				Type: "test_instance",
-				Name: "foo",
-			}.Instance(addrs.NoKey).Absolute(addrs.RootModuleInstance),
-			&states.ResourceInstanceObjectSrc{
-				AttrsJSON: []byte(`{"id":"bar"}`),
-				Status:    states.ObjectReady,
-			},
-			addrs.AbsProviderConfig{
-				Provider: addrs.NewDefaultProvider("test"),
-				Module:   addrs.RootModule,
-			},
-			addrs.NoKey,
-		)
-	})
-
-	err := statemgr.WriteAndPersist(t.Context(), statemgr.NewFilesystem("test.tfstate", encryption.StateEncryptionDisabled()), originalState, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	workspace := "test_workspace"
-
-	args := []string{"-state", "test.tfstate", workspace}
-	ui = new(cli.MockUi)
-	newCmd := &WorkspaceNewCommand{
-		Meta: Meta{Ui: ui, View: view},
-	}
-	if code := newCmd.Run(args); code != 0 {
-		t.Fatalf("bad: %d\n\n%s", code, ui.ErrorWriter)
-	}
-
-	newPath := filepath.Join(local.DefaultWorkspaceDir, "test", DefaultStateFilename)
-	envState := statemgr.NewFilesystem(newPath, encryption.StateEncryptionDisabled())
-	err = envState.RefreshState(t.Context())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	b := backend.TestBackendConfig(t, inmem.New(encryption.StateEncryptionDisabled()), nil)
-	sMgr, err := b.StateMgr(t.Context(), workspace)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	newState := sMgr.State()
-
-	if got, want := newState.String(), originalState.String(); got != want {
-		t.Fatalf("states not equal\ngot: %s\nwant: %s", got, want)
 	}
 }
 

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -13,7 +13,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/command/views/json"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // The Apply view is used for the apply command.
@@ -22,7 +22,7 @@ type Apply interface {
 	Outputs(outputValues map[string]*states.OutputValue)
 
 	Operation() Operation
-	Hooks() []tofu.Hook
+	Hooks() []farseek.Hook
 
 	Diagnostics(diags tfdiags.Diagnostics)
 	HelpPrompt()
@@ -120,8 +120,8 @@ func (v *ApplyHuman) Operation() Operation {
 	return NewOperation(arguments.ViewHuman, v.inAutomation, v.view)
 }
 
-func (v *ApplyHuman) Hooks() []tofu.Hook {
-	return []tofu.Hook{v.countHook, NewUIOptionalHook(v.view)}
+func (v *ApplyHuman) Hooks() []farseek.Hook {
+	return []farseek.Hook{v.countHook, NewUIOptionalHook(v.view)}
 }
 
 func (v *ApplyHuman) Diagnostics(diags tfdiags.Diagnostics) {
@@ -136,7 +136,7 @@ func (v *ApplyHuman) HelpPrompt() {
 	v.view.HelpPrompt(command)
 }
 
-const stateOutPathPostApply = "The state of your infrastructure has been saved to the path below. This state is required to modify and destroy your infrastructure, so keep it safe. To inspect the complete state use the `tofu show` command."
+const stateOutPathPostApply = "The state of your infrastructure has been saved to the path below. This state is required to modify and destroy your infrastructure, so keep it safe. To inspect the complete state use the `farseek show` command."
 
 // The ApplyJSON implementation renders streaming JSON logs, suitable for
 // integrating with other software.
@@ -178,8 +178,8 @@ func (v *ApplyJSON) Operation() Operation {
 	return &OperationJSON{view: v.view}
 }
 
-func (v *ApplyJSON) Hooks() []tofu.Hook {
-	return []tofu.Hook{
+func (v *ApplyJSON) Hooks() []farseek.Hook {
+	return []farseek.Hook{
 		v.countHook,
 		newJSONHook(v.view),
 	}

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -28,7 +28,7 @@ type OutputValue struct {
 	// Addr is the absolute address of this output value.
 	Addr addrs.AbsOutputValue
 
-	// Preconditions are user-defined checks that must succeed before OpenTofu
+	// Preconditions are user-defined checks that must succeed before Farseek
 	// will evaluate the output value's expression.
 	//
 	// Unlike some other uses of [CheckRule], output value preconditions don't

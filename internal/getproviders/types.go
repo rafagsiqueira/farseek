@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -219,7 +219,7 @@ var CurrentPlatform = Platform{
 // Package findproviders does no signature verification or protocol version
 // compatibility checking of its own. A caller receiving a PackageMeta must
 // verify that it has a correct signature and supports a protocol version
-// accepted by the current version of OpenTofu before trying to use the
+// accepted by the current version of Farseek before trying to use the
 // described package.
 type PackageMeta struct {
 	Provider addrs.Provider
@@ -382,7 +382,7 @@ func (l PackageMetaList) FilterProviderPlatformExactVersion(provider addrs.Provi
 func VersionConstraintsString(spec VersionConstraints) string {
 	// (we have our own function for this because the upstream versions
 	// library prefers to use npm/cargo-style constraint syntax, but
-	// OpenTofu prefers Ruby-like. Maybe we can upstream a "RubyLikeString")
+	// Farseek prefers Ruby-like. Maybe we can upstream a "RubyLikeString")
 	// function to do this later, but having this in here avoids blocking on
 	// that and this is the sort of thing that is unlikely to need ongoing
 	// maintenance because the version constraint syntax is unlikely to change.)

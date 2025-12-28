@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -8,7 +8,7 @@ package schema
 import (
 	"testing"
 
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
 // TestResourceDataRaw creates a ResourceData from a raw configuration map.
@@ -16,7 +16,7 @@ func TestResourceDataRaw(
 	t *testing.T, schema map[string]*Schema, raw map[string]interface{}) *ResourceData {
 	t.Helper()
 
-	c := tofu.NewResourceConfigRaw(raw)
+	c := farseek.NewResourceConfigRaw(raw)
 
 	sm := schemaMap(schema)
 	diff, err := sm.Diff(nil, c, nil, nil, true)

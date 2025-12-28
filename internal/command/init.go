@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -21,7 +21,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/addrs"
 	"github.com/rafagsiqueira/farseek/internal/backend"
 	backendInit "github.com/rafagsiqueira/farseek/internal/backend/init"
-	"github.com/rafagsiqueira/farseek/internal/cloud"
+
 	"github.com/rafagsiqueira/farseek/internal/command/arguments"
 	"github.com/rafagsiqueira/farseek/internal/command/views"
 	"github.com/rafagsiqueira/farseek/internal/configs"
@@ -31,8 +31,8 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/providercache"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
-	"github.com/rafagsiqueira/farseek/internal/tofumigrate"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
+	farseekmigrate "github.com/rafagsiqueira/farseek/internal/farseekmigrate"
 	"github.com/rafagsiqueira/farseek/internal/tracing"
 	"github.com/rafagsiqueira/farseek/internal/tracing/traceattrs"
 	tfversion "github.com/rafagsiqueira/farseek/version"
@@ -51,14 +51,14 @@ func (c *InitCommand) Run(args []string) int {
 	defer span.End()
 
 	var flagFromModule, flagLockfile, testsDirectory string
-	var flagBackend, flagCloud, flagGet, flagUpgrade bool
+	var flagBackend, flagGet, flagUpgrade bool
 	var flagPluginPath FlagStringSlice
 	flagConfigExtra := newRawFlags("-backend-config")
 
 	args = c.Meta.process(args)
 	cmdFlags := c.Meta.extendedFlagSet("init")
 	cmdFlags.BoolVar(&flagBackend, "backend", true, "")
-	cmdFlags.BoolVar(&flagCloud, "cloud", true, "")
+
 	cmdFlags.Var(flagConfigExtra, "backend-config", "")
 	cmdFlags.StringVar(&flagFromModule, "from-module", "", "copy the source of the given module into the directory before init")
 	cmdFlags.BoolVar(&flagGet, "get", true, "")
@@ -90,17 +90,6 @@ func (c *InitCommand) Run(args []string) int {
 	}
 
 	backendFlagSet := arguments.FlagIsSet(cmdFlags, "backend")
-	cloudFlagSet := arguments.FlagIsSet(cmdFlags, "cloud")
-
-	switch {
-	case backendFlagSet && cloudFlagSet:
-		c.Ui.Error("The -backend and -cloud options are aliases of one another and mutually-exclusive in their use")
-		return 1
-	case backendFlagSet:
-		flagCloud = flagBackend
-	case cloudFlagSet:
-		flagBackend = flagCloud
-	}
 
 	if c.migrateState && c.reconfigure {
 		c.Ui.Error("The -migrate-state and -reconfigure options are mutually-exclusive")
@@ -231,8 +220,6 @@ func (c *InitCommand) Run(args []string) int {
 	var backendOutput bool
 
 	switch {
-	case flagCloud && rootModEarly.CloudConfig != nil:
-		back, backendOutput, backDiags = c.initCloud(ctx, rootModEarly, flagConfigExtra, enc)
 	case flagBackend:
 		back, backendOutput, backDiags = c.initBackend(ctx, rootModEarly, flagConfigExtra, enc)
 	default:
@@ -249,7 +236,7 @@ func (c *InitCommand) Run(args []string) int {
 	// on a previous run) we'll use the current state as a potential source
 	// of provider dependencies.
 	if back != nil {
-		c.ignoreRemoteVersionConflict(back)
+
 		workspace, err := c.Workspace(ctx)
 		if err != nil {
 			c.Ui.Error(fmt.Sprintf("Error selecting workspace: %s", err))
@@ -285,14 +272,14 @@ func (c *InitCommand) Run(args []string) int {
 	// whole configuration tree.
 	config, confDiags := c.loadConfigWithTests(ctx, path, testsDirectory)
 	// configDiags will be handled after the version constraint check, since an
-	// incorrect version of tofu may be producing errors for configuration
+	// incorrect version of farseek may be producing errors for configuration
 	// constructs added in later versions.
 
 	// Before we go further, we'll check to make sure none of the modules in
-	// the configuration declare that they don't support this OpenTofu
+	// the configuration declare that they don't support this Farseek
 	// version, so we can produce a version-related error message rather than
 	// potentially-confusing downstream errors.
-	versionDiags := tofu.CheckCoreVersionRequirements(config)
+	versionDiags := farseek.CheckCoreVersionRequirements(config)
 	if versionDiags.HasErrors() {
 		c.showDiagnostics(versionDiags)
 		return 1
@@ -327,20 +314,10 @@ func (c *InitCommand) Run(args []string) int {
 		return 1
 	}
 
-	if cb, ok := back.(*cloud.Cloud); ok {
-		if c.RunningInAutomation {
-			if err := cb.AssertImportCompatible(config); err != nil {
-				diags = diags.Append(tfdiags.Sourceless(tfdiags.Error, "Compatibility error", err.Error()))
-				c.showDiagnostics(diags)
-				return 1
-			}
-		}
-	}
-
 	if state != nil {
 		// Since we now have the full configuration loaded, we can use it to migrate the in-memory state view
 		// prior to fetching providers.
-		migratedState, migrateDiags := tofumigrate.MigrateStateProviderAddresses(config, state)
+		migratedState, migrateDiags := farseekmigrate.MigrateStateProviderAddresses(config, state)
 		diags = diags.Append(migrateDiags)
 		if migrateDiags.HasErrors() {
 			c.showDiagnostics(diags)
@@ -370,11 +347,7 @@ func (c *InitCommand) Run(args []string) int {
 	// by errors then we'll output them here so that the success message is
 	// still the final thing shown.
 	c.showDiagnostics(diags)
-	_, cloud := back.(*cloud.Cloud)
 	output := outputInitSuccess
-	if cloud {
-		output = outputInitSuccessCloud
-	}
 
 	c.Ui.Output(c.Colorize().Color(strings.TrimSpace(output)))
 
@@ -383,9 +356,6 @@ func (c *InitCommand) Run(args []string) int {
 		// some more detailed next steps that are appropriate for interactive
 		// shell usage.
 		output = outputInitSuccessCLI
-		if cloud {
-			output = outputInitSuccessCLICloud
-		}
 		c.Ui.Output(c.Colorize().Color(strings.TrimSpace(output)))
 	}
 	return 0
@@ -443,34 +413,6 @@ func (c *InitCommand) getModules(ctx context.Context, path, testsDir string, ear
 	}
 
 	return true, installAbort, diags
-}
-
-func (c *InitCommand) initCloud(ctx context.Context, root *configs.Module, extraConfig rawFlags, enc encryption.Encryption) (be backend.Backend, output bool, diags tfdiags.Diagnostics) {
-	ctx, span := tracing.Tracer().Start(ctx, "Cloud backend init")
-	_ = ctx // prevent staticcheck from complaining to avoid a maintenance hazard of having the wrong ctx in scope here
-	defer span.End()
-
-	c.Ui.Output(c.Colorize().Color("\n[reset][bold]Initializing cloud backend..."))
-
-	if len(extraConfig.AllItems()) != 0 {
-		diags = diags.Append(tfdiags.Sourceless(
-			tfdiags.Error,
-			"Invalid command-line option",
-			"The -backend-config=... command line option is only for state backends, and is not applicable to cloud backend-based configurations.\n\nTo change the set of workspaces associated with this configuration, edit the Cloud configuration block in the root module.",
-		))
-		return nil, true, diags
-	}
-
-	backendConfig := root.CloudConfig.ToBackendConfig()
-
-	opts := &BackendOpts{
-		Config: &backendConfig,
-		Init:   true,
-	}
-
-	back, backDiags := c.Backend(ctx, opts, enc.State())
-	diags = diags.Append(backDiags)
-	return back, true, diags
 }
 
 func (c *InitCommand) initBackend(ctx context.Context, root *configs.Module, extraConfig rawFlags, enc encryption.Encryption) (be backend.Backend, output bool, diags tfdiags.Diagnostics) {
@@ -724,7 +666,7 @@ func (c *InitCommand) getProviders(ctx context.Context, config *configs.Config, 
 				}
 
 				if provider.Hostname == addrs.DefaultProviderRegistryHost {
-					suggestion += "\n\nIf you believe this provider is missing from the registry, please submit a issue on the OpenTofu Registry https://github.com/opentofu/registry/issues/new/choose"
+					suggestion += "\n\nIf you believe this provider is missing from the registry, please submit a issue on the Farseek Registry https://github.com/opentofu/registry/issues/new/choose"
 				}
 
 				warnDiags := warnOnFailedImplicitProvReference(provider, qualifs)
@@ -914,7 +856,7 @@ func (c *InitCommand) getProviders(ctx context.Context, config *configs.Config, 
 			// We're going to use this opportunity to track if we have any
 			// "incomplete" installs of providers. An incomplete install is
 			// when we are only going to write the local hashes into our lock
-			// file which means a `tofu init` command will fail in future
+			// file which means a `farseek init` command will fail in future
 			// when used on machines of a different architecture.
 			//
 			// We want to print a warning about this.
@@ -1005,7 +947,7 @@ func (c *InitCommand) getProviders(ctx context.Context, config *configs.Config, 
 				diags = diags.Append(tfdiags.Sourceless(
 					tfdiags.Error,
 					`Provider dependency changes detected`,
-					`Changes to the required provider dependencies were detected, but the lock file is read-only. To use and record these requirements, run "tofu init" without the "-lockfile=readonly" flag.`,
+					`Changes to the required provider dependencies were detected, but the lock file is read-only. To use and record these requirements, run "farseek init" without the "-lockfile=readonly" flag.`,
 				))
 				return true, true, diags
 			}
@@ -1015,7 +957,7 @@ func (c *InitCommand) getProviders(ctx context.Context, config *configs.Config, 
 			diags = diags.Append(tfdiags.Sourceless(
 				tfdiags.Warning,
 				`Provider lock file not updated`,
-				`Changes to the provider selections were detected, but not saved in the .farseek.lock.hcl file. To record these selections, run "tofu init" without the "-lockfile=readonly" flag.`,
+				`Changes to the provider selections were detected, but not saved in the .farseek.lock.hcl file. To record these selections, run "farseek init" without the "-lockfile=readonly" flag.`,
 			))
 			return true, false, diags
 		}
@@ -1038,7 +980,7 @@ func (c *InitCommand) getProviders(ctx context.Context, config *configs.Config, 
 
 		if previousLocks.Empty() {
 			// A change from empty to non-empty is special because it suggests
-			// we're running "tofu init" for the first time against a
+			// we're running "farseek init" for the first time against a
 			// new configuration. In that case we'll take the opportunity to
 			// say a little about what the dependency lock file is, for new
 			// users or those who are upgrading from a previous Terraform
@@ -1047,7 +989,7 @@ func (c *InitCommand) getProviders(ctx context.Context, config *configs.Config, 
 Farseek has created a lock file [bold].farseek.lock.hcl[reset] to record the provider
 selections it made above. Include this file in your version control repository
 so that Farseek can guarantee to make the same selections by default when
-you run "tofu init" in the future.`))
+you run "farseek init" in the future.`))
 		} else {
 			c.Ui.Output(c.Colorize().Color(`
 Farseek has made some changes to the provider dependency selections recorded
@@ -1362,14 +1304,14 @@ To initialize the configuration already in this working directory, omit the
 `
 
 const outputInitEmpty = `
-[reset][bold]OpenTofu initialized in an empty directory![reset]
+[reset][bold]Farseek initialized in an empty directory![reset]
 
-The directory has no OpenTofu configuration files. You may begin working
-with OpenTofu immediately by creating OpenTofu configuration files.
+The directory has no Farseek configuration files. You may begin working
+with Farseek immediately by creating Farseek configuration files.
 `
 
 const outputInitSuccess = `
-[reset][bold][green]OpenTofu has been successfully initialized![reset][green]
+[reset][bold][green]Farseek has been successfully initialized![reset][green]
 `
 
 const outputInitSuccessCloud = `
@@ -1377,49 +1319,49 @@ const outputInitSuccessCloud = `
 `
 
 const outputInitSuccessCLI = `[reset][green]
-You may now begin working with OpenTofu. Try running "tofu plan" to see
-any changes that are required for your infrastructure. All OpenTofu commands
+You may now begin working with Farseek. Try running "farseek plan" to see
+any changes that are required for your infrastructure. All Farseek commands
 should now work.
 
-If you ever set or change modules or backend configuration for OpenTofu,
+If you ever set or change modules or backend configuration for Farseek,
 rerun this command to reinitialize your working directory. If you forget, other
 commands will detect it and remind you to do so if necessary.
 `
 
 const outputInitSuccessCLICloud = `[reset][green]
-You may now begin working with cloud backend. Try running "tofu plan" to
+You may now begin working with cloud backend. Try running "farseek plan" to
 see any changes that are required for your infrastructure.
 
-If you ever set or change modules or OpenTofu Settings, run "tofu init"
+If you ever set or change modules or Farseek Settings, run "farseek init"
 again to reinitialize your working directory.
 `
 
 // providerProtocolTooOld is a message sent to the CLI UI if the provider's
-// supported protocol versions are too old for the user's version of tofu,
+// supported protocol versions are too old for the user's version of farseek,
 // but a newer version of the provider is compatible.
-const providerProtocolTooOld = `Provider %q v%s is not compatible with OpenTofu %s.
+const providerProtocolTooOld = `Provider %q v%s is not compatible with Farseek %s.
 Provider version %s is the latest compatible version. Select it with the following version constraint:
 	version = %q
 
-OpenTofu checked all of the plugin versions matching the given constraint:
+Farseek checked all of the plugin versions matching the given constraint:
 	%s
 
-Consult the documentation for this provider for more information on compatibility between provider and OpenTofu versions.
+Consult the documentation for this provider for more information on compatibility between provider and Farseek versions.
 `
 
 // providerProtocolTooNew is a message sent to the CLI UI if the provider's
-// supported protocol versions are too new for the user's version of tofu,
-// and the user could either upgrade tofu or choose an older version of the
+// supported protocol versions are too new for the user's version of farseek,
+// and the user could either upgrade farseek or choose an older version of the
 // provider.
-const providerProtocolTooNew = `Provider %q v%s is not compatible with OpenTofu %s.
+const providerProtocolTooNew = `Provider %q v%s is not compatible with Farseek %s.
 You need to downgrade to v%s or earlier. Select it with the following constraint:
 	version = %q
 
-OpenTofu checked all of the plugin versions matching the given constraint:
+Farseek checked all of the plugin versions matching the given constraint:
 	%s
 
-Consult the documentation for this provider for more information on compatibility between provider and OpenTofu versions.
-Alternatively, upgrade to the latest version of OpenTofu for compatibility with newer provider releases.
+Consult the documentation for this provider for more information on compatibility between provider and Farseek versions.
+Alternatively, upgrade to the latest version of Farseek for compatibility with newer provider releases.
 `
 
 // No version of the provider is compatible.
@@ -1431,22 +1373,22 @@ const incompleteLockFileInformationHeader = `Incomplete lock file information fo
 
 // incompleteLockFileInformationBody is the body of text displayed to users when
 // the lock file has only recorded local hashes.
-const incompleteLockFileInformationBody = `Due to your customized provider installation methods, OpenTofu was forced to calculate lock file checksums locally for the following providers:
+const incompleteLockFileInformationBody = `Due to your customized provider installation methods, Farseek was forced to calculate lock file checksums locally for the following providers:
   - %s
 
-The current .farseek.lock.hcl file only includes checksums for %s, so OpenTofu running on another platform will fail to install these providers.
+The current .farseek.lock.hcl file only includes checksums for %s, so Farseek running on another platform will fail to install these providers.
 
 To calculate additional checksums for another platform, run:
-  tofu providers lock -platform=linux_amd64
+  farseek providers lock -platform=linux_amd64
 (where linux_amd64 is the platform to generate)`
 
 const implicitProviderReferenceHead = `Automatically-inferred provider dependency`
 
-const implicitProviderReferenceBody = `Due to the prefix of the resource type name OpenTofu guessed that you intended to associate %s with a provider whose local name is "%s", but that name is not declared in this module's required_providers block. OpenTofu therefore guessed that you intended to use %s, but that provider does not exist.
+const implicitProviderReferenceBody = `Due to the prefix of the resource type name Farseek guessed that you intended to associate %s with a provider whose local name is "%s", but that name is not declared in this module's required_providers block. Farseek therefore guessed that you intended to use %s, but that provider does not exist.
 
-Make at least one of the following changes to tell OpenTofu which provider to use:
+Make at least one of the following changes to tell Farseek which provider to use:
 
 - Add a declaration for local name "%s" to this module's required_providers block, specifying the full source address for the provider you intended to use.
 - Verify that "%s" is the correct resource type name to use. Did you omit a prefix which would imply the correct provider?
-- Use a "provider" argument within this resource block to override OpenTofu's automatic selection of the local name "%s".
+- Use a "provider" argument within this resource block to override Farseek's automatic selection of the local name "%s".
 `

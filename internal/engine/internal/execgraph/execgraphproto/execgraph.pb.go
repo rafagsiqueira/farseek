@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -28,7 +28,7 @@ const (
 // ExecutionGraph is the root message type for an execution graph file.
 //
 // Note that we expect execution graphs to be saved as part of a larger plan
-// file structure that should represent general metadata such as which OpenTofu
+// file structure that should represent general metadata such as which Farseek
 // version a particular execution graph was created by. This message type and
 // its nested message types are focused only on representing the details of
 // the execution graph itself.
@@ -446,7 +446,7 @@ type Element_builder struct {
 	//
 	// The field types should all be as simple as possible to further shrink the
 	// size of their protobuf encoding. Don't worry about forward-compatibility,
-	// because a specific version of OpenTofu is only required to unmarshal
+	// because a specific version of Farseek is only required to unmarshal
 	// execution graphs produced by itself: we can always make the
 	// representation of a specific request type more complicated in a later
 	// release if we need to.
@@ -941,7 +941,7 @@ const file_execgraph_proto_rawDesc = "" +
 	"\x06opcode\x18\x01 \x01(\x04R\x06opcode\x12\x1a\n" +
 	"\boperands\x18\x02 \x03(\x04R\boperands\"\"\n" +
 	"\x06Waiter\x12\x18\n" +
-	"\aresults\x18\x01 \x03(\x04R\aresultsBUZSgithub.com/rafagsiqueira/farseek/internal/engine/internal/execgraph/execgraphprotob\beditionsp\xe9\a"
+	"\aresults\x18\x01 \x03(\x04R\aresultsBTZRgithub.com/rafagsiqueira/farseek/internal/engine/internal/execgraph/execgraphprotob\beditionsp\xe9\a"
 
 var file_execgraph_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_execgraph_proto_goTypes = []any{

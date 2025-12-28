@@ -1,9 +1,9 @@
-// Copyright (c) OpenTofu
+// Copyright (c) Farseek
 // SPDX-License-Identifier: MPL-2.0
 
 package response
 
-// ModuleLocationRegistryResp defines the OpenTofu registry response
+// ModuleLocationRegistryResp defines the Farseek registry response
 // returned when calling the endpoint /v1/modules/:namespace/:name/:system/:version/download
 type ModuleLocationRegistryResp struct {
 	// The URL to download the module from.

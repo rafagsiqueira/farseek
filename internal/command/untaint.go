@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -16,7 +16,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/command/views"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // UntaintCommand is a cli.Command implementation that manually untaints
@@ -82,14 +82,6 @@ func (c *UntaintCommand) Run(args []string) int {
 		return 1
 	}
 
-	// Check remote Farseek version is compatible
-	remoteVersionDiags := c.remoteVersionCheck(b, workspace)
-	diags = diags.Append(remoteVersionDiags)
-	c.showDiagnostics(diags)
-	if diags.HasErrors() {
-		return 1
-	}
-
 	// Get the state
 	stateMgr, err := b.StateMgr(ctx, workspace)
 	if err != nil {
@@ -144,7 +136,7 @@ func (c *UntaintCommand) Run(args []string) int {
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			"No such resource instance",
-			fmt.Sprintf("There is no resource instance in the state with the address %s. If the resource configuration has just been added, you must run \"tofu apply\" once to create the corresponding instance(s) before they can be tainted.", addr),
+			fmt.Sprintf("There is no resource instance in the state with the address %s. If the resource configuration has just been added, you must run \"farseek apply\" once to create the corresponding instance(s) before they can be tainted.", addr),
 		))
 		c.showDiagnostics(diags)
 		return 1
@@ -156,7 +148,7 @@ func (c *UntaintCommand) Run(args []string) int {
 			diags = diags.Append(tfdiags.Sourceless(
 				tfdiags.Error,
 				"No such resource instance",
-				fmt.Sprintf("Resource instance %s is currently part-way through a create_before_destroy replacement action. Run \"tofu apply\" to complete its replacement before tainting it.", addr),
+				fmt.Sprintf("Resource instance %s is currently part-way through a create_before_destroy replacement action. Run \"farseek apply\" to complete its replacement before tainting it.", addr),
 			))
 		} else {
 			// Don't know why we're here, but we'll produce a generic error message anyway.
@@ -181,12 +173,7 @@ func (c *UntaintCommand) Run(args []string) int {
 	}
 
 	// Get schemas, if possible, before writing state
-	var schemas *tofu.Schemas
-	if isCloudMode(b) {
-		var schemaDiags tfdiags.Diagnostics
-		schemas, schemaDiags = c.MaybeGetSchemas(ctx, state, nil)
-		diags = diags.Append(schemaDiags)
-	}
+	var schemas *farseek.Schemas
 
 	obj.Status = states.ObjectReady
 	ss.SetResourceInstanceCurrent(addr, obj, rs.ProviderConfig, is.ProviderKey)

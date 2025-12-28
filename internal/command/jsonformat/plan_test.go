@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -26,7 +26,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/terminal"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func TestRenderHuman_EmptyPlan(t *testing.T) {
@@ -257,8 +257,8 @@ Plan: 1 to import, 0 to add, 0 to change, 0 to destroy.
 				},
 			},
 			output: `
-Farseek used the selected providers to generate the following execution
-plan. Resource actions are indicated with the following symbols:
+Farseek used the selected providers to generate the following execution plan.
+Resource actions are indicated with the following symbols:
   ~ update in-place (current -> planned)
 
 Farseek will perform the following actions:
@@ -301,8 +301,8 @@ Plan: 1 to import, 0 to add, 1 to change, 0 to destroy.
 				},
 			},
 			output: `
-Farseek used the selected providers to generate the following execution
-plan. Resource actions are indicated with the following symbols:
+Farseek used the selected providers to generate the following execution plan.
+Resource actions are indicated with the following symbols:
   ~ update in-place (current -> planned)
 
 Farseek will perform the following actions:
@@ -342,8 +342,8 @@ Plan: 1 to import, 0 to add, 1 to change, 0 to destroy.
 				},
 			},
 			output: `
-Farseek used the selected providers to generate the following execution
-plan. Resource actions are indicated with the following symbols:
+Farseek used the selected providers to generate the following execution plan.
+Resource actions are indicated with the following symbols:
   ~ update in-place (current -> planned)
 
 Farseek will perform the following actions:
@@ -387,8 +387,8 @@ Plan: 1 to import, 0 to add, 1 to change, 0 to destroy.
 				},
 			},
 			output: `
-Farseek used the selected providers to generate the following execution
-plan. Resource actions are indicated with the following symbols:
+Farseek used the selected providers to generate the following execution plan.
+Resource actions are indicated with the following symbols:
 +/- create replacement and then destroy
 
 Farseek will perform the following actions:
@@ -7345,7 +7345,7 @@ func runTestCases(t *testing.T, testCases map[string]testCase) {
 				RequiredReplace: tc.RequiredReplace,
 			}
 
-			tfschemas := &tofu.Schemas{
+			tfschemas := &farseek.Schemas{
 				Providers: map[addrs.Provider]providers.ProviderSchema{
 					src.ProviderAddr.Provider: {
 						ResourceTypes: map[string]providers.Schema{

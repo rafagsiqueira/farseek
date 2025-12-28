@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -157,7 +157,7 @@ func decodeModuleBlock(block *hcl.Block, override bool) (*ModuleCall, hcl.Diagno
 			diags = append(diags, &hcl.Diagnostic{
 				Severity: hcl.DiagError,
 				Summary:  "Reserved block type name in module block",
-				Detail:   fmt.Sprintf("The block type name %q is reserved for use by OpenTofu in a future version.", block.Type),
+				Detail:   fmt.Sprintf("The block type name %q is reserved for use by Farseek in a future version.", block.Type),
 				Subject:  &block.TypeRange,
 			})
 		}
@@ -224,7 +224,7 @@ func (mc *ModuleCall) decodeStaticSource(ctx context.Context, eval *StaticEvalua
 					Severity: hcl.DiagError,
 					Summary:  "Invalid module source address",
 					Detail: fmt.Sprintf(
-						"OpenTofu failed to determine your intended installation method for remote module package %q.\n\nIf you intended this as a path relative to the current module, use \"./%s\" instead. The \"./\" prefix indicates that the address is a relative filesystem path.",
+						"Farseek failed to determine your intended installation method for remote module package %q.\n\nIf you intended this as a path relative to the current module, use \"./%s\" instead. The \"./\" prefix indicates that the address is a relative filesystem path.",
 						pathErr.Addr, pathErr.Addr,
 					),
 					Subject: mc.Source.Range().Ptr(),
@@ -237,7 +237,7 @@ func (mc *ModuleCall) decodeStaticSource(ctx context.Context, eval *StaticEvalua
 					diags = append(diags, &hcl.Diagnostic{
 						Severity: hcl.DiagError,
 						Summary:  "Invalid registry module source address",
-						Detail:   fmt.Sprintf("Failed to parse module registry address: %s.\n\nOpenTofu assumed that you intended a module registry source address because you also set the argument \"version\", which applies only to registry modules.", err),
+						Detail:   fmt.Sprintf("Failed to parse module registry address: %s.\n\nFarseek assumed that you intended a module registry source address because you also set the argument \"version\", which applies only to registry modules.", err),
 						Subject:  mc.Source.Range().Ptr(),
 					})
 				} else {
@@ -312,7 +312,7 @@ func (mc *ModuleCall) decodeStaticVariables(ctx context.Context, eval *StaticEva
 // directly via a remote source address or indirectly via a registry source
 // address.
 //
-// Other behaviors in OpenTofu may treat package crossings as a special
+// Other behaviors in Farseek may treat package crossings as a special
 // situation, because that indicates that the caller and callee can change
 // independently of one another and thus we should disallow using any features
 // where the caller assumes anything about the callee other than its input

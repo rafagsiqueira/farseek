@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -29,7 +29,7 @@ type Show struct {
 }
 
 // ShowTargetType represents the type of object that is requested to be
-// shown by the "tofu show" command.
+// shown by the "farseek show" command.
 type ShowTargetType int
 
 //go:generate go tool golang.org/x/tools/cmd/stringer -type=ShowTargetType
@@ -130,7 +130,7 @@ func ParseShow(args []string) (*Show, tfdiags.Diagnostics) {
 		case 1:
 			// This case is ambiguous: the argument could be either
 			// a saved plan file or a local state snapshot such as
-			// the output from "tofu state pull". The caller will need
+			// the output from "farseek state pull". The caller will need
 			// to probe TargetArg to decide which it is.
 			show.TargetType = ShowUnknownType
 			show.TargetArg = args[0]

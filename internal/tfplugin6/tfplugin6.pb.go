@@ -5891,7 +5891,7 @@ const file_tfplugin6_proto_rawDesc = "" +
 	"\x16CloseEphemeralResource\x12).tfplugin6.CloseEphemeralResource.Request\x1a*.tfplugin6.CloseEphemeralResource.Response\x12Q\n" +
 	"\fGetFunctions\x12\x1f.tfplugin6.GetFunctions.Request\x1a .tfplugin6.GetFunctions.Response\x12Q\n" +
 	"\fCallFunction\x12\x1f.tfplugin6.CallFunction.Request\x1a .tfplugin6.CallFunction.Response\x12Q\n" +
-	"\fStopProvider\x12\x1f.tfplugin6.StopProvider.Request\x1a .tfplugin6.StopProvider.ResponseB6Z4github.com/rafagsiqueira/farseek/internal/tfplugin6b\x06proto3"
+	"\fStopProvider\x12\x1f.tfplugin6.StopProvider.Request\x1a .tfplugin6.StopProvider.ResponseB5Z3github.com/rafagsiqueira/farseek/internal/tfplugin6b\x06proto3"
 
 var (
 	file_tfplugin6_proto_rawDescOnce sync.Once

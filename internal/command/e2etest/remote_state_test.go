@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -12,12 +12,12 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/e2e"
 )
 
-func TestOpenTofuProviderRead(t *testing.T) {
-	// Ensure the tofu provider can correctly read a remote state
+func TestFarseekProviderRead(t *testing.T) {
+	// Ensure the farseek provider can correctly read a remote state
 
 	t.Parallel()
 	fixturePath := filepath.Join("testdata", "tf-provider")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	//// INIT
 	_, stderr, err := tf.Run("init")

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -27,11 +27,10 @@ const (
 	// to other loggers, like provisioners and remote-state backends.
 	envLogCore     = "FARSEEK_LOG_CORE"
 	envLogProvider = "FARSEEK_LOG_PROVIDER"
-	envLogCloud    = "FARSEEK_LOG_CLOUD"
 )
 
 var (
-	// ValidLevels are the log level names that OpenTofu recognizes.
+	// ValidLevels are the log level names that Farseek recognizes.
 	ValidLevels = []string{"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "OFF"}
 
 	// logger is the global hclog logger
@@ -132,20 +131,6 @@ func NewProviderLogger(prefix string) hclog.Logger {
 	return l
 }
 
-// NewCloudLogger returns a logger for the cloud plugin, possibly with a
-// different log level from the global logger.
-func NewCloudLogger() hclog.Logger {
-	l := &logPanicWrapper{
-		Logger: logger.Named("cloud"),
-	}
-
-	level := cloudLogLevel()
-	logger.Debug("created cloud logger", "level", level)
-
-	l.SetLevel(level)
-	return l
-}
-
 // CurrentLogLevel returns the current log level string based the environment vars
 func CurrentLogLevel() string {
 	ll, _ := globalLogLevel()
@@ -154,15 +139,6 @@ func CurrentLogLevel() string {
 
 func providerLogLevel() hclog.Level {
 	providerEnvLevel := strings.ToUpper(os.Getenv(envLogProvider))
-	if providerEnvLevel == "" {
-		providerEnvLevel = strings.ToUpper(os.Getenv(envLog))
-	}
-
-	return parseLogLevel(providerEnvLevel)
-}
-
-func cloudLogLevel() hclog.Level {
-	providerEnvLevel := strings.ToUpper(os.Getenv(envLogCloud))
 	if providerEnvLevel == "" {
 		providerEnvLevel = strings.ToUpper(os.Getenv(envLog))
 	}

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -19,7 +19,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
 	"github.com/rafagsiqueira/farseek/internal/terminal"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -84,11 +84,11 @@ func TestOperation_emergencyDumpState(t *testing.T) {
 func TestOperation_planNoChanges(t *testing.T) {
 
 	tests := map[string]struct {
-		plan     func(schemas *tofu.Schemas) *plans.Plan
+		plan     func(schemas *farseek.Schemas) *plans.Plan
 		wantText string
 	}{
 		"nothing at all in normal mode": {
-			func(schemas *tofu.Schemas) *plans.Plan {
+			func(schemas *farseek.Schemas) *plans.Plan {
 				return &plans.Plan{
 					UIMode:  plans.NormalMode,
 					Changes: plans.NewChanges(),
@@ -97,7 +97,7 @@ func TestOperation_planNoChanges(t *testing.T) {
 			"no differences, so no changes are needed.",
 		},
 		"nothing at all in refresh-only mode": {
-			func(schemas *tofu.Schemas) *plans.Plan {
+			func(schemas *farseek.Schemas) *plans.Plan {
 				return &plans.Plan{
 					UIMode:  plans.RefreshOnlyMode,
 					Changes: plans.NewChanges(),
@@ -106,7 +106,7 @@ func TestOperation_planNoChanges(t *testing.T) {
 			"Farseek has checked that the real remote objects still match",
 		},
 		"nothing at all in destroy mode": {
-			func(schemas *tofu.Schemas) *plans.Plan {
+			func(schemas *farseek.Schemas) *plans.Plan {
 				return &plans.Plan{
 					UIMode:  plans.DestroyMode,
 					Changes: plans.NewChanges(),
@@ -115,7 +115,7 @@ func TestOperation_planNoChanges(t *testing.T) {
 			"No objects need to be destroyed.",
 		},
 		"no drift detected in normal noop": {
-			func(schemas *tofu.Schemas) *plans.Plan {
+			func(schemas *farseek.Schemas) *plans.Plan {
 				addr := addrs.Resource{
 					Mode: addrs.ManagedResourceMode,
 					Type: "test_resource",
@@ -156,7 +156,7 @@ func TestOperation_planNoChanges(t *testing.T) {
 			"No changes",
 		},
 		"drift detected in normal mode": {
-			func(schemas *tofu.Schemas) *plans.Plan {
+			func(schemas *farseek.Schemas) *plans.Plan {
 				addr := addrs.Resource{
 					Mode: addrs.ManagedResourceMode,
 					Type: "test_resource",
@@ -203,7 +203,7 @@ func TestOperation_planNoChanges(t *testing.T) {
 			"Objects have changed outside of Farseek",
 		},
 		"drift detected in refresh-only mode": {
-			func(schemas *tofu.Schemas) *plans.Plan {
+			func(schemas *farseek.Schemas) *plans.Plan {
 				addr := addrs.Resource{
 					Mode: addrs.ManagedResourceMode,
 					Type: "test_resource",
@@ -244,7 +244,7 @@ func TestOperation_planNoChanges(t *testing.T) {
 			"If you were expecting these changes then you can apply this plan",
 		},
 		"move-only changes in refresh-only mode": {
-			func(schemas *tofu.Schemas) *plans.Plan {
+			func(schemas *farseek.Schemas) *plans.Plan {
 				addr := addrs.Resource{
 					Mode: addrs.ManagedResourceMode,
 					Type: "test_resource",
@@ -293,7 +293,7 @@ func TestOperation_planNoChanges(t *testing.T) {
 			"test_resource.anywhere has moved to test_resource.somewhere",
 		},
 		"drift detected in destroy mode": {
-			func(schemas *tofu.Schemas) *plans.Plan {
+			func(schemas *farseek.Schemas) *plans.Plan {
 				return &plans.Plan{
 					UIMode:  plans.DestroyMode,
 					Changes: plans.NewChanges(),
@@ -343,8 +343,8 @@ func TestOperation_plan(t *testing.T) {
 	v.Plan(plan, schemas)
 
 	want := `
-Farseek used the selected providers to generate the following execution
-plan. Resource actions are indicated with the following symbols:
+Farseek used the selected providers to generate the following execution plan.
+Resource actions are indicated with the following symbols:
   + create
 
 Farseek will perform the following actions:
@@ -372,8 +372,8 @@ func TestOperation_planWithDatasource(t *testing.T) {
 	v.Plan(plan, schemas)
 
 	want := `
-Farseek used the selected providers to generate the following execution
-plan. Resource actions are indicated with the following symbols:
+Farseek used the selected providers to generate the following execution plan.
+Resource actions are indicated with the following symbols:
   + create
  <= read (data resources)
 
@@ -408,8 +408,8 @@ func TestOperation_planWithDatasourceAndDrift(t *testing.T) {
 	v.Plan(plan, schemas)
 
 	want := `
-Farseek used the selected providers to generate the following execution
-plan. Resource actions are indicated with the following symbols:
+Farseek used the selected providers to generate the following execution plan.
+Resource actions are indicated with the following symbols:
   + create
  <= read (data resources)
 
@@ -444,8 +444,8 @@ func TestOperation_planWithEphemeral(t *testing.T) {
 	v.Plan(plan, schemas)
 
 	want := `
-Farseek used the selected providers to generate the following execution
-plan. Resource actions are indicated with the following symbols:
+Farseek used the selected providers to generate the following execution plan.
+Resource actions are indicated with the following symbols:
   + create
 
 Farseek will perform the following actions:
@@ -529,31 +529,31 @@ func TestOperationJSON_logs(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "Apply cancelled",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "log",
 		},
 		{
 			"@level":   "info",
 			"@message": "Destroy cancelled",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "log",
 		},
 		{
 			"@level":   "info",
 			"@message": "Stopping operation...",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "log",
 		},
 		{
 			"@level":   "info",
 			"@message": interrupted,
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "log",
 		},
 		{
 			"@level":   "info",
 			"@message": fatalInterrupt,
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "log",
 		},
 	}
@@ -590,7 +590,7 @@ func TestOperationJSON_emergencyDumpState(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "Emergency state dump",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "log",
 			"state":    stateJSON,
 		},
@@ -612,7 +612,7 @@ func TestOperationJSON_planNoChanges(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "Plan: 0 to add, 0 to change, 0 to destroy.",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "change_summary",
 			"changes": map[string]interface{}{
 				"operation": "plan",
@@ -685,7 +685,7 @@ func TestOperationJSON_plan(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_resource.boop[0]: Plan to replace",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "planned_change",
 			"change": map[string]interface{}{
 				"action": "replace",
@@ -704,7 +704,7 @@ func TestOperationJSON_plan(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_resource.boop[1]: Plan to create",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "planned_change",
 			"change": map[string]interface{}{
 				"action": "create",
@@ -723,7 +723,7 @@ func TestOperationJSON_plan(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "module.vpc.test_resource.boop[0]: Plan to delete",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "planned_change",
 			"change": map[string]interface{}{
 				"action": "delete",
@@ -742,7 +742,7 @@ func TestOperationJSON_plan(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_resource.beep: Plan to replace",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "planned_change",
 			"change": map[string]interface{}{
 				"action": "replace",
@@ -761,7 +761,7 @@ func TestOperationJSON_plan(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "module.vpc.test_resource.beep: Plan to update",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "planned_change",
 			"change": map[string]interface{}{
 				"action": "update",
@@ -781,7 +781,7 @@ func TestOperationJSON_plan(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "Plan: 3 to add, 1 to change, 3 to destroy.",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "change_summary",
 			"changes": map[string]interface{}{
 				"operation": "plan",
@@ -842,7 +842,7 @@ func TestOperationJSON_planWithImport(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "module.vpc.test_resource.boop[0]: Plan to import",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "planned_change",
 			"change": map[string]interface{}{
 				"action": "import",
@@ -864,7 +864,7 @@ func TestOperationJSON_planWithImport(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "module.vpc.test_resource.boop[1]: Plan to delete",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "planned_change",
 			"change": map[string]interface{}{
 				"action": "delete",
@@ -886,7 +886,7 @@ func TestOperationJSON_planWithImport(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_resource.boop[0]: Plan to replace",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "planned_change",
 			"change": map[string]interface{}{
 				"action": "replace",
@@ -908,7 +908,7 @@ func TestOperationJSON_planWithImport(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_resource.beep: Plan to update",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "planned_change",
 			"change": map[string]interface{}{
 				"action": "update",
@@ -929,7 +929,7 @@ func TestOperationJSON_planWithImport(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "Plan: 4 to import, 1 to add, 1 to change, 2 to destroy.",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "change_summary",
 			"changes": map[string]interface{}{
 				"operation": "plan",
@@ -992,7 +992,7 @@ func TestOperationJSON_planDriftWithMove(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_resource.beep: Drift detected (delete)",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "resource_drift",
 			"change": map[string]interface{}{
 				"action": "delete",
@@ -1011,7 +1011,7 @@ func TestOperationJSON_planDriftWithMove(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_resource.boop: Drift detected (update)",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "resource_drift",
 			"change": map[string]interface{}{
 				"action": "update",
@@ -1039,7 +1039,7 @@ func TestOperationJSON_planDriftWithMove(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": `test_resource.honk["bonk"]: Plan to move`,
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "planned_change",
 			"change": map[string]interface{}{
 				"action": "move",
@@ -1067,7 +1067,7 @@ func TestOperationJSON_planDriftWithMove(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "Plan: 0 to add, 0 to change, 0 to destroy.",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "change_summary",
 			"changes": map[string]interface{}{
 				"operation": "plan",
@@ -1124,7 +1124,7 @@ func TestOperationJSON_planDriftWithMoveRefreshOnly(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_resource.beep: Drift detected (delete)",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "resource_drift",
 			"change": map[string]interface{}{
 				"action": "delete",
@@ -1143,7 +1143,7 @@ func TestOperationJSON_planDriftWithMoveRefreshOnly(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_resource.boop: Drift detected (update)",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "resource_drift",
 			"change": map[string]interface{}{
 				"action": "update",
@@ -1171,7 +1171,7 @@ func TestOperationJSON_planDriftWithMoveRefreshOnly(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": `test_resource.honk["bonk"]: Drift detected (move)`,
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "resource_drift",
 			"change": map[string]interface{}{
 				"action": "move",
@@ -1199,7 +1199,7 @@ func TestOperationJSON_planDriftWithMoveRefreshOnly(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "Plan: 0 to add, 0 to change, 0 to destroy.",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "change_summary",
 			"changes": map[string]interface{}{
 				"operation": "plan",
@@ -1260,7 +1260,7 @@ func TestOperationJSON_planOutputChanges(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "Plan: 0 to add, 0 to change, 0 to destroy.",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "change_summary",
 			"changes": map[string]interface{}{
 				"operation": "plan",
@@ -1275,7 +1275,7 @@ func TestOperationJSON_planOutputChanges(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "Outputs: 4",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "outputs",
 			"outputs": map[string]interface{}{
 				"boop": map[string]interface{}{
@@ -1336,7 +1336,7 @@ func TestOperationJSON_plannedChange(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_instance.boop[0]: Plan to replace",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "planned_change",
 			"change": map[string]interface{}{
 				"action": "replace",
@@ -1355,7 +1355,7 @@ func TestOperationJSON_plannedChange(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_instance.boop[1]: Plan to create",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "planned_change",
 			"change": map[string]interface{}{
 				"action": "create",

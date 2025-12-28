@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -24,7 +24,7 @@ const JSON_UI_VERSION = "1.2"
 
 func NewJSONView(view *View) *JSONView {
 	log := hclog.New(&hclog.LoggerOptions{
-		Name:               "tofu.ui",
+		Name:               "farseek.ui",
 		Output:             view.streams.Stdout.File,
 		JSONFormat:         true,
 		JSONEscapeDisabled: true,
@@ -55,9 +55,9 @@ type JSONView struct {
 func (v *JSONView) Version() {
 	version := tfversion.String()
 	v.log.Info(
-		fmt.Sprintf("OpenTofu %s", version),
+		fmt.Sprintf("Farseek %s", version),
 		"type", json.MessageVersion,
-		"tofu", version,
+		"farseek", version,
 		"ui", JSON_UI_VERSION,
 	)
 }

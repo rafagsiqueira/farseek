@@ -1,29 +1,29 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
 package schema
 
-// ResourceImporter defines how a resource is imported in OpenTofu. This
+// ResourceImporter defines how a resource is imported in Farseek. This
 // can be set onto a Resource struct to make it Importable. Not all resources
 // have to be importable; if a Resource doesn't have a ResourceImporter then
 // it won't be importable.
 //
-// "Importing" in OpenTofu is the process of taking an already-created
-// resource and bringing it under OpenTofu management. This can include
-// updating OpenTofu state, generating OpenTofu configuration, etc.
+// "Importing" in Farseek is the process of taking an already-created
+// resource and bringing it under Farseek management. This can include
+// updating Farseek state, generating Farseek configuration, etc.
 type ResourceImporter struct {
 	// The functions below must all be implemented for importing to work.
 
 	// State is called to convert an ID to one or more InstanceState to
-	// insert into the OpenTofu state. If this isn't specified, then
+	// insert into the Farseek state. If this isn't specified, then
 	// the ID is passed straight through.
 	State StateFunc
 }
 
 // StateFunc is the function called to import a resource into the
-// OpenTofu state. It is given a ResourceData with only ID set. This
+// Farseek state. It is given a ResourceData with only ID set. This
 // ID is going to be an arbitrary value given by the user and may not map
 // directly to the ID format that the resource expects, so that should
 // be validated.

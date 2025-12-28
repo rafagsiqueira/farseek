@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -16,10 +16,10 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/command/views"
 	"github.com/rafagsiqueira/farseek/internal/configs"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
-// ValidateCommand is a Command implementation that validates the tofu files
+// ValidateCommand is a Command implementation that validates the farseek files
 type ValidateCommand struct {
 	Meta
 }
@@ -67,7 +67,7 @@ func (c *ValidateCommand) Run(rawArgs []string) int {
 
 	// Validating with dev overrides in effect means that the result might
 	// not be valid for a stable release, so we'll warn about that in case
-	// the user is trying to use "tofu validate" as a sort of pre-flight
+	// the user is trying to use "farseek validate" as a sort of pre-flight
 	// check before submitting a change.
 	diags = diags.Append(c.providerDevOverrideRuntimeWarnings())
 
@@ -113,7 +113,7 @@ func (c *ValidateCommand) validate(ctx context.Context, dir, testDir string, noT
 			return diags
 		}
 
-		tfCtx, ctxDiags := tofu.NewContext(opts)
+		tfCtx, ctxDiags := farseek.NewContext(opts)
 		diags = diags.Append(ctxDiags)
 		if ctxDiags.HasErrors() {
 			return diags
@@ -130,8 +130,8 @@ func (c *ValidateCommand) validate(ctx context.Context, dir, testDir string, noT
 
 	validatedModules := make(map[string]bool)
 
-	// We'll also do a quick validation of the OpenTofu test files. These live
-	// outside the OpenTofu graph so we have to do this separately.
+	// We'll also do a quick validation of the Farseek test files. These live
+	// outside the Farseek graph so we have to do this separately.
 	for _, file := range cfg.Module.Tests {
 
 		diags = diags.Append(file.Validate())
@@ -145,7 +145,7 @@ func (c *ValidateCommand) validate(ctx context.Context, dir, testDir string, noT
 				// Basically, local testing modules are something the user can
 				// reasonably go and fix. If it's a module being downloaded from
 				// the registry, the expectation is that the author of the
-				// module should have ran `tofu validate` themselves.
+				// module should have ran `farseek validate` themselves.
 				if _, ok := run.Module.Source.(addrs.ModuleSourceLocal); ok {
 
 					if validated := validatedModules[run.Module.Source.String()]; !validated {
@@ -173,7 +173,7 @@ func (c *ValidateCommand) Synopsis() string {
 
 func (c *ValidateCommand) Help() string {
 	helpText := `
-Usage: tofu [global options] validate [options]
+Usage: farseek [global options] validate [options]
 
   Validate the configuration files in a directory, referring only to the
   configuration and not accessing any remote services such as remote state,
@@ -191,23 +191,23 @@ Usage: tofu [global options] validate [options]
   Validation requires an initialized working directory with any referenced
   plugins and modules installed. To initialize a working directory for
   validation without accessing any configured remote backend, use:
-      tofu init -backend=false
+      farseek init -backend=false
 
   To verify configuration in the context of a particular run (a particular
-  target workspace, input variable values, etc), use the 'tofu plan'
+  target workspace, input variable values, etc), use the 'farseek plan'
   command instead, which includes an implied validation check.
 
 Options:
 
-  -compact-warnings     If OpenTofu produces any warnings that are not
+  -compact-warnings     If Farseek produces any warnings that are not
                         accompanied by errors, show them in a more compact
                         form that includes only the summary messages.
 
-  -consolidate-warnings If OpenTofu produces any warnings, no consolidation
+  -consolidate-warnings If Farseek produces any warnings, no consolidation
                         will be performed. All locations, for all warnings
                         will be listed. Enabled by default.
 
-  -consolidate-errors   If OpenTofu produces any errors, no consolidation
+  -consolidate-errors   If Farseek produces any errors, no consolidation
                         will be performed. All locations, for all errors
                         will be listed. Disabled by default
 
@@ -217,9 +217,9 @@ Options:
 
   -no-color             If specified, output won't contain any color.
 
-  -no-tests             If specified, OpenTofu will not validate test files.
+  -no-tests             If specified, Farseek will not validate test files.
 
-  -test-directory=path  Set the OpenTofu test directory, defaults to "tests". When set, the
+  -test-directory=path  Set the Farseek test directory, defaults to "tests". When set, the
                         test command will search for test files in the current directory and
                         in the one specified by the flag.
 

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -161,7 +161,7 @@ func (c Config) asAWSBase() (*awsbase.Config, error) {
 		UseDualStackEndpoint: c.UseDualStackEndpoint,
 		UseFIPSEndpoint:      c.UseFIPSEndpoint,
 		APNInfo: &awsbase.APNInfo{
-			PartnerName: "OpenTofu-AWS-KMS",
+			PartnerName: "Farseek-AWS-KMS",
 			Products: []awsbase.UserAgentProduct{
 				{Name: httpclient.DefaultApplicationName, Version: version.String()},
 			},

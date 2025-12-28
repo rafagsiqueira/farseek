@@ -1,0 +1,14 @@
+{
+  "resource": {
+    "test_object": {
+      "a_farseek": {
+        "count": 1,
+        "test_string": "hello"
+      },
+      "b_farseek": {
+        "count": 1,
+        "test_string": "world"
+      }
+    }
+  }
+}

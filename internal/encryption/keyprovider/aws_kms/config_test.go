@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -41,7 +41,7 @@ func TestConfig_asAWSBase(t *testing.T) {
 				CallerName:             "KMS Key Provider",
 				MaxRetries:             5,
 				APNInfo: &awsbase.APNInfo{
-					PartnerName: "OpenTofu-AWS-KMS",
+					PartnerName: "Farseek-AWS-KMS",
 					Products: []awsbase.UserAgentProduct{
 						{Name: httpclient.DefaultApplicationName, Version: version.String()},
 					},
@@ -108,7 +108,7 @@ func TestConfig_asAWSBase(t *testing.T) {
 				CallerDocumentationURL: "https://opentofu.org/docs/language/settings/backends/s3",
 				CallerName:             "KMS Key Provider",
 				APNInfo: &awsbase.APNInfo{
-					PartnerName: "OpenTofu-AWS-KMS",
+					PartnerName: "Farseek-AWS-KMS",
 					Products: []awsbase.UserAgentProduct{
 						{Name: httpclient.DefaultApplicationName, Version: version.String()},
 					},

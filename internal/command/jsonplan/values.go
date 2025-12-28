@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -18,7 +18,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/states"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // StateValues is the common representation of resolved values for both the
@@ -95,7 +95,7 @@ func marshalPlannedOutputs(changes *plans.Changes) (map[string]Output, error) {
 
 }
 
-func marshalPlannedValues(changes *plans.Changes, schemas *tofu.Schemas) (Module, error) {
+func marshalPlannedValues(changes *plans.Changes, schemas *farseek.Schemas) (Module, error) {
 	var ret Module
 
 	// build three maps:
@@ -181,7 +181,7 @@ func marshalPlannedValues(changes *plans.Changes, schemas *tofu.Schemas) (Module
 }
 
 // marshalPlanResources
-func marshalPlanResources(changeMap map[string]*plans.ResourceInstanceChangeSrc, ris []addrs.AbsResourceInstance, schemas *tofu.Schemas) ([]Resource, error) {
+func marshalPlanResources(changeMap map[string]*plans.ResourceInstanceChangeSrc, ris []addrs.AbsResourceInstance, schemas *farseek.Schemas) ([]Resource, error) {
 	var ret []Resource
 
 	for _, ri := range ris {
@@ -267,7 +267,7 @@ func marshalPlanResources(changeMap map[string]*plans.ResourceInstanceChangeSrc,
 // the full module tree.
 func marshalPlanModules(
 	changeMap map[string]*plans.ResourceInstanceChangeSrc,
-	schemas *tofu.Schemas,
+	schemas *farseek.Schemas,
 	childModules []addrs.ModuleInstance,
 	moduleMap map[string][]addrs.ModuleInstance,
 	moduleResourceMap map[string][]addrs.AbsResourceInstance,

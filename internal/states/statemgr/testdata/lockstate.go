@@ -10,7 +10,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 )
 
-// Attempt to open and lock a tofu state file.
+// Attempt to open and lock a farseek state file.
 // Lock failure exits with 0 and writes "lock failed" to stderr.
 func main() {
 	if len(os.Args) != 2 {

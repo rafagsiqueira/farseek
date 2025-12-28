@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -366,9 +366,9 @@ type Plan struct {
 	Version uint64 `protobuf:"varint,1,opt,name=version,proto3" json:"version,omitempty"`
 	// The mode that was active when this plan was created.
 	//
-	// This is saved only for UI purposes, so that OpenTofu can tailor its
+	// This is saved only for UI purposes, so that Farseek can tailor its
 	// rendering of the plan depending on the mode. This must never be used to
-	// make decisions in OpenTofu Core during the applying of a plan.
+	// make decisions in Farseek Core during the applying of a plan.
 	UiMode Mode `protobuf:"varint,17,opt,name=ui_mode,json=uiMode,proto3,enum=tfplan.Mode" json:"ui_mode,omitempty"`
 	// Errored is true for any plan whose creation was interrupted by an
 	// error. A plan with this flag set cannot be applied, and the changes
@@ -382,7 +382,7 @@ type Plan struct {
 	// each resource to determine which module it belongs to.
 	ResourceChanges []*ResourceInstanceChange `protobuf:"bytes,3,rep,name=resource_changes,json=resourceChanges,proto3" json:"resource_changes,omitempty"`
 	// An unordered set of detected drift: changes made to resources outside of
-	// OpenTofu, computed by comparing the previous run's state to the state
+	// Farseek, computed by comparing the previous run's state to the state
 	// after refresh.
 	ResourceDrift []*ResourceInstanceChange `protobuf:"bytes,18,rep,name=resource_drift,json=resourceDrift,proto3" json:"resource_drift,omitempty"`
 	// An unordered set of proposed changes to outputs in the root module
@@ -409,7 +409,7 @@ type Plan struct {
 	// plan, or else applying the plan will fail when it reaches a different
 	// conclusion about what action a particular resource instance needs.
 	ForceReplaceAddrs []string `protobuf:"bytes,16,rep,name=force_replace_addrs,json=forceReplaceAddrs,proto3" json:"force_replace_addrs,omitempty"`
-	// The version string for the OpenTofu binary that created this plan.
+	// The version string for the Farseek binary that created this plan.
 	TerraformVersion string `protobuf:"bytes,14,opt,name=terraform_version,json=terraformVersion,proto3" json:"terraform_version,omitempty"`
 	// Backend is a description of the backend configuration and other related
 	// settings at the time the plan was created.
@@ -425,7 +425,7 @@ type Plan struct {
 	// TempExecutionGraph is a temporary addition for the "walking skeleton"
 	// phase of implementing the new language runtime, and in particular
 	// the internal/engine packages. It's always unset when using the
-	// traditional OpenTofu runtime, because in that case the equivalent
+	// traditional Farseek runtime, because in that case the equivalent
 	// of the execution graph is recalculated from all of the other fields
 	// above during the apply phase.
 	//
@@ -434,7 +434,7 @@ type Plan struct {
 	// saved plans for the new runtime, and this field number is unlikely
 	// to get reused later even if we don't explicitly "reserve" it. We
 	// don't technically need to worry about that anyway since we don't
-	// allow sharing plan files between different OpenTofu versions, but
+	// allow sharing plan files between different Farseek versions, but
 	// this'll make absolutely sure we don't accidentally overload this
 	// number in any version that's close to the one where this eventually
 	// gets removed.
@@ -769,7 +769,7 @@ type ResourceInstanceChange struct {
 	// this resource instance was tracked during the previous apply operation.
 	//
 	// This is populated only if it would be different from addr due to
-	// OpenTofu having reacted to refactoring annotations in the configuration.
+	// Farseek having reacted to refactoring annotations in the configuration.
 	// If empty, the previous run address is the same as the current address.
 	PrevRunAddr string `protobuf:"bytes,14,opt,name=prev_run_addr,json=prevRunAddr,proto3" json:"prev_run_addr,omitempty"`
 	// deposed_key, if set, indicates that this change applies to a deposed
@@ -1502,7 +1502,7 @@ const file_planfile_proto_rawDesc = "" +
 	"\x1dDELETE_BECAUSE_NO_MOVE_TARGET\x10\f\x12 \n" +
 	"\x1cDELETE_BECAUSE_ENABLED_FALSE\x10\x0e\x12-\n" +
 	")FORGOT_BECAUSE_LIFECYCLE_DESTROY_IN_STATE\x10\x0f\x12.\n" +
-	"*FORGOT_BECAUSE_LIFECYCLE_DESTROY_IN_CONFIG\x10\x10BEZCgithub.com/rafagsiqueira/farseek/internal/plans/internal/planprotob\x06proto3"
+	"*FORGOT_BECAUSE_LIFECYCLE_DESTROY_IN_CONFIG\x10\x10BDZBgithub.com/rafagsiqueira/farseek/internal/plans/internal/planprotob\x06proto3"
 
 var (
 	file_planfile_proto_rawDescOnce sync.Once

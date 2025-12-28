@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -12,11 +12,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
 func TestProvisioner_impl(t *testing.T) {
-	var _ tofu.ResourceProvisioner = new(Provisioner)
+	var _ farseek.ResourceProvisioner = new(Provisioner)
 }
 
 func noopApply(ctx context.Context) error {
@@ -116,7 +116,7 @@ func TestProvisionerValidate(t *testing.T) {
 			P: &Provisioner{
 				Schema:    nil,
 				ApplyFunc: noopApply,
-				ValidateFunc: func(*tofu.ResourceConfig) (ws []string, errors []error) {
+				ValidateFunc: func(*farseek.ResourceConfig) (ws []string, errors []error) {
 					ws = append(ws, "Simple warning from provisioner ValidateFunc")
 					return
 				},
@@ -129,7 +129,7 @@ func TestProvisionerValidate(t *testing.T) {
 
 	for i, tc := range cases {
 		t.Run(fmt.Sprintf("%d-%s", i, tc.Name), func(t *testing.T) {
-			c := tofu.NewResourceConfigRaw(tc.Config)
+			c := farseek.NewResourceConfigRaw(tc.Config)
 			ws, es := tc.P.Validate(c)
 			if len(es) > 0 != tc.Err {
 				t.Fatalf("%d: %#v %s", i, es, es)
@@ -191,10 +191,10 @@ func TestProvisionerApply(t *testing.T) {
 
 	for i, tc := range cases {
 		t.Run(fmt.Sprintf("%d-%s", i, tc.Name), func(t *testing.T) {
-			c := tofu.NewResourceConfigRaw(tc.Config)
+			c := farseek.NewResourceConfigRaw(tc.Config)
 
-			state := &tofu.InstanceState{
-				Ephemeral: tofu.EphemeralState{
+			state := &farseek.InstanceState{
+				Ephemeral: farseek.EphemeralState{
 					ConnInfo: tc.Conn,
 				},
 			}
@@ -232,7 +232,7 @@ func TestProvisionerApply_nilState(t *testing.T) {
 		"foo": 42,
 	}
 
-	c := tofu.NewResourceConfigRaw(conf)
+	c := farseek.NewResourceConfigRaw(conf)
 	err := p.Apply(nil, nil, c)
 	if err != nil {
 		t.Fatalf("err: %s", err)
@@ -292,9 +292,9 @@ func TestProvisionerStop_apply(t *testing.T) {
 		"foo": 42,
 	}
 
-	c := tofu.NewResourceConfigRaw(conf)
-	state := &tofu.InstanceState{
-		Ephemeral: tofu.EphemeralState{
+	c := farseek.NewResourceConfigRaw(conf)
+	state := &farseek.InstanceState{
+		Ephemeral: farseek.EphemeralState{
 			ConnInfo: conn,
 		},
 	}

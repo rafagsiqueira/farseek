@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -14,7 +14,7 @@ import (
 
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
 	"github.com/rafagsiqueira/farseek/internal/legacy/hcl2shim"
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 	ctyconvert "github.com/zclconf/go-cty/cty/convert"
 )
 
@@ -183,16 +183,16 @@ func (b *Backend) Configure(ctx context.Context, obj cty.Value) tfdiags.Diagnost
 }
 
 // shimConfig turns a new-style cty.Value configuration (which must be of
-// an object type) into a minimal old-style *tofu.ResourceConfig object
+// an object type) into a minimal old-style *farseek.ResourceConfig object
 // that should be populated enough to appease the not-yet-updated functionality
 // in this package. This should be removed once everything is updated.
-func (b *Backend) shimConfig(obj cty.Value) *tofu.ResourceConfig {
+func (b *Backend) shimConfig(obj cty.Value) *farseek.ResourceConfig {
 	shimMap, ok := hcl2shim.ConfigValueFromHCL2(obj).(map[string]interface{})
 	if !ok {
 		// If the configVal was nil, we still want a non-nil map here.
 		shimMap = map[string]interface{}{}
 	}
-	return &tofu.ResourceConfig{
+	return &farseek.ResourceConfig{
 		Config: shimMap,
 		Raw:    shimMap,
 	}

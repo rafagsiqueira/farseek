@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
 func TestResourceTimeout_ConfigDecode_badkey(t *testing.T) {
@@ -64,7 +64,7 @@ func TestResourceTimeout_ConfigDecode_badkey(t *testing.T) {
 				Timeouts: c.ResourceDefaultTimeout,
 			}
 
-			conf := tofu.NewResourceConfigRaw(
+			conf := farseek.NewResourceConfigRaw(
 				map[string]interface{}{
 					"foo":             "bar",
 					TimeoutsConfigKey: c.Config,
@@ -101,7 +101,7 @@ func TestResourceTimeout_ConfigDecode(t *testing.T) {
 		},
 	}
 
-	c := tofu.NewResourceConfigRaw(
+	c := farseek.NewResourceConfigRaw(
 		map[string]interface{}{
 			"foo": "bar",
 			TimeoutsConfigKey: map[string]interface{}{
@@ -135,7 +135,7 @@ func TestResourceTimeout_legacyConfigDecode(t *testing.T) {
 		},
 	}
 
-	c := tofu.NewResourceConfigRaw(
+	c := farseek.NewResourceConfigRaw(
 		map[string]interface{}{
 			"foo": "bar",
 			TimeoutsConfigKey: []interface{}{
@@ -197,7 +197,7 @@ func TestResourceTimeout_DiffEncode_basic(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		state := &tofu.InstanceDiff{}
+		state := &farseek.InstanceDiff{}
 		err := c.Timeout.DiffEncode(state)
 		if err != nil && !c.ShouldErr {
 			t.Fatalf("Error, expected:\n%#v\n got:\n%#v\n", c.Expected, state.Meta)
@@ -211,7 +211,7 @@ func TestResourceTimeout_DiffEncode_basic(t *testing.T) {
 	}
 	// same test cases but for InstanceState
 	for _, c := range cases {
-		state := &tofu.InstanceState{}
+		state := &farseek.InstanceState{}
 		err := c.Timeout.StateEncode(state)
 		if err != nil && !c.ShouldErr {
 			t.Fatalf("Error, expected:\n%#v\n got:\n%#v\n", c.Expected, state.Meta)
@@ -227,32 +227,32 @@ func TestResourceTimeout_DiffEncode_basic(t *testing.T) {
 
 func TestResourceTimeout_MetaDecode_basic(t *testing.T) {
 	cases := []struct {
-		State    *tofu.InstanceDiff
+		State    *farseek.InstanceDiff
 		Expected *ResourceTimeout
 		// Not immediately clear when an error would hit
 		ShouldErr bool
 	}{
 		// Two fields
 		{
-			State:     &tofu.InstanceDiff{Meta: map[string]interface{}{TimeoutKey: expectedForValues(10, 0, 5, 0, 0)}},
+			State:     &farseek.InstanceDiff{Meta: map[string]interface{}{TimeoutKey: expectedForValues(10, 0, 5, 0, 0)}},
 			Expected:  timeoutForValues(10, 0, 5, 0, 0),
 			ShouldErr: false,
 		},
 		// Two fields, one is Default
 		{
-			State:     &tofu.InstanceDiff{Meta: map[string]interface{}{TimeoutKey: expectedForValues(10, 0, 0, 0, 7)}},
+			State:     &farseek.InstanceDiff{Meta: map[string]interface{}{TimeoutKey: expectedForValues(10, 0, 0, 0, 7)}},
 			Expected:  timeoutForValues(10, 7, 7, 7, 7),
 			ShouldErr: false,
 		},
 		// All fields
 		{
-			State:     &tofu.InstanceDiff{Meta: map[string]interface{}{TimeoutKey: expectedForValues(10, 3, 4, 1, 7)}},
+			State:     &farseek.InstanceDiff{Meta: map[string]interface{}{TimeoutKey: expectedForValues(10, 3, 4, 1, 7)}},
 			Expected:  timeoutForValues(10, 3, 4, 1, 7),
 			ShouldErr: false,
 		},
 		// No fields
 		{
-			State:     &tofu.InstanceDiff{},
+			State:     &farseek.InstanceDiff{},
 			Expected:  &ResourceTimeout{},
 			ShouldErr: false,
 		},

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -19,7 +19,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/lang/marks"
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/states"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func TestMarshalOutputs(t *testing.T) {
@@ -202,7 +202,7 @@ func TestMarshalResources(t *testing.T) {
 	deposedKey := states.NewDeposedKey()
 	tests := map[string]struct {
 		Resources map[string]*states.Resource
-		Schemas   *tofu.Schemas
+		Schemas   *farseek.Schemas
 		Want      []Resource
 		ErrMsg    string
 	}{
@@ -707,7 +707,7 @@ func TestMarshalResources(t *testing.T) {
 			},
 			testSchemas(),
 			nil,
-			`ephemeral resource "ephemeral.test_thing.bar" detected in the current state. This is an error in OpenTofu`,
+			`ephemeral resource "ephemeral.test_thing.bar" detected in the current state. This is an error in Farseek`,
 		},
 	}
 
@@ -938,8 +938,8 @@ func TestMarshalModules_parent_no_resources(t *testing.T) {
 	}
 }
 
-func testSchemas() *tofu.Schemas {
-	return &tofu.Schemas{
+func testSchemas() *farseek.Schemas {
+	return &farseek.Schemas{
 		Providers: map[addrs.Provider]providers.ProviderSchema{
 			addrs.NewDefaultProvider("test"): {
 				ResourceTypes: map[string]providers.Schema{

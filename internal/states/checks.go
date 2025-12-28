@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -11,7 +11,7 @@ import (
 )
 
 // CheckResults represents a summary snapshot of the status of a set of checks
-// declared in configuration, updated after each OpenTofu Core run that
+// declared in configuration, updated after each Farseek Core run that
 // changes the state or remote system in a way that might impact the check
 // results.
 //
@@ -44,12 +44,12 @@ type CheckResultAggregate struct {
 	// Status is the aggregate status across all objects.
 	//
 	// Sometimes an error or check failure during planning will prevent
-	// OpenTofu Core from even determining the individual checkable objects
+	// Farseek Core from even determining the individual checkable objects
 	// associated with a downstream configuration object, and that situation is
 	// described here by this Status being checks.StatusUnknown and there being
 	// no elements in the ObjectResults field.
 	//
-	// That's different than OpenTofu Core explicitly reporting that there are
+	// That's different than Farseek Core explicitly reporting that there are
 	// no instances of the config object (e.g. a resource with count = 0),
 	// which leads to the aggregate status being checks.StatusPass while
 	// ObjectResults is still empty.
@@ -82,7 +82,7 @@ type CheckResultObject struct {
 // NewCheckResults constructs a new states.CheckResults object that is a
 // snapshot of the check statuses recorded in the given checks.State object.
 //
-// This should be called only after a OpenTofu Core run has completed and
+// This should be called only after a Farseek Core run has completed and
 // recorded any results from running the checks in the given object.
 func NewCheckResults(source *checks.State) *CheckResults {
 	ret := &CheckResults{

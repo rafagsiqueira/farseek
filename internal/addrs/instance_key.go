@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -116,7 +116,7 @@ func (k WildcardKey) String() string {
 	// represent an absense of information rather than something directly
 	// configured, but as a compromise we'll use something resembling HCL's
 	// "splat expression" syntax since it's at least hopefully somewhat
-	// familiar to OpenTofu users, and * is a character commonly used
+	// familiar to Farseek users, and * is a character commonly used
 	// to represent wildcards in other systems.
 	return "[*]"
 }

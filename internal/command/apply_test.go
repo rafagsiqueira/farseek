@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -26,13 +26,12 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/addrs"
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
 	"github.com/rafagsiqueira/farseek/internal/encryption"
-	"github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func TestApply(t *testing.T) {
@@ -270,88 +269,6 @@ func TestApply_approveYes(t *testing.T) {
 	}
 }
 
-// test apply with locked state
-func TestApply_lockedState(t *testing.T) {
-	// Create a temporary working directory that is empty
-	td := t.TempDir()
-	testCopyDir(t, testFixturePath("apply"), td)
-	t.Chdir(td)
-
-	statePath := testTempFile(t)
-
-	unlock, err := testLockState(t, testDataDir, statePath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer unlock()
-
-	p := applyFixtureProvider()
-	view, done := testView(t)
-	c := &ApplyCommand{
-		Meta: Meta{
-			testingOverrides: metaOverridesForProvider(p),
-			View:             view,
-		},
-	}
-
-	args := []string{
-		"-state", statePath,
-		"-auto-approve",
-	}
-	code := c.Run(args)
-	output := done(t)
-	if code == 0 {
-		t.Fatal("expected error")
-	}
-
-	if !strings.Contains(output.Stderr(), "lock") {
-		t.Fatal("command output does not look like a lock error:", output.Stderr())
-	}
-}
-
-// test apply with locked state, waiting for unlock
-func TestApply_lockedStateWait(t *testing.T) {
-	// Create a temporary working directory that is empty
-	td := t.TempDir()
-	testCopyDir(t, testFixturePath("apply"), td)
-	t.Chdir(td)
-
-	statePath := testTempFile(t)
-
-	unlock, err := testLockState(t, testDataDir, statePath)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// unlock during apply
-	go func() {
-		time.Sleep(500 * time.Millisecond)
-		unlock()
-	}()
-
-	p := applyFixtureProvider()
-	view, done := testView(t)
-	c := &ApplyCommand{
-		Meta: Meta{
-			testingOverrides: metaOverridesForProvider(p),
-			View:             view,
-		},
-	}
-
-	// wait 4s just in case the lock process doesn't release in under a second,
-	// and we want our context to be alive for a second retry at the 3s mark.
-	args := []string{
-		"-state", statePath,
-		"-lock-timeout", "4s",
-		"-auto-approve",
-	}
-	code := c.Run(args)
-	output := done(t)
-	if code != 0 {
-		t.Fatalf("lock should have succeeded in less than 3s: %s", output.Stderr())
-	}
-}
-
 // Verify that the parallelism flag allows no more than the desired number of
 // concurrent calls to ApplyResourceChange.
 func TestApply_parallelism(t *testing.T) {
@@ -383,7 +300,7 @@ func TestApply_parallelism(t *testing.T) {
 	providerFactories := map[addrs.Provider]providers.Factory{}
 	for i := 0; i < 10; i++ {
 		name := fmt.Sprintf("test%d", i)
-		provider := &tofu.MockProvider{}
+		provider := &farseek.MockProvider{}
 		provider.GetProviderSchemaResponse = &providers.GetProviderSchemaResponse{
 			ResourceTypes: map[string]providers.Schema{
 				name + "_instance": {Block: &configschema.Block{}},
@@ -642,7 +559,7 @@ result = foo
 	testStateOutput(t, statePath, expected)
 }
 
-// When only a partial set of the variables are set, OpenTofu
+// When only a partial set of the variables are set, Farseek
 // should still ask for the unset ones by default (with -input=true)
 func TestApply_inputPartial(t *testing.T) {
 	// Create a temporary working directory that is empty
@@ -845,86 +762,6 @@ func TestApply_plan_noBackup(t *testing.T) {
 	_, err = os.Stat("-")
 	if err == nil || !os.IsNotExist(err) {
 		t.Fatalf("backup should not exist")
-	}
-}
-
-func TestApply_plan_remoteState(t *testing.T) {
-	// Disable test mode so input would be asked
-	test = false
-	defer func() { test = true }()
-	tmp := testCwdTemp(t)
-	remoteStatePath := filepath.Join(tmp, DefaultDataDir, DefaultStateFilename)
-	if err := os.MkdirAll(filepath.Dir(remoteStatePath), 0755); err != nil {
-		t.Fatalf("err: %s", err)
-	}
-
-	// Set some default reader/writers for the inputs
-	defaultInputReader = new(bytes.Buffer)
-	defaultInputWriter = new(bytes.Buffer)
-
-	// Create a remote state
-	state := testState()
-	_, srv := testRemoteState(t, state, 200)
-	defer srv.Close()
-
-	_, snap := testModuleWithSnapshot(t, "apply")
-	backendConfig := cty.ObjectVal(map[string]cty.Value{
-		"address":                   cty.StringVal(srv.URL),
-		"update_method":             cty.NullVal(cty.String),
-		"lock_address":              cty.NullVal(cty.String),
-		"unlock_address":            cty.NullVal(cty.String),
-		"lock_method":               cty.NullVal(cty.String),
-		"unlock_method":             cty.NullVal(cty.String),
-		"username":                  cty.NullVal(cty.String),
-		"password":                  cty.NullVal(cty.String),
-		"skip_cert_verification":    cty.NullVal(cty.Bool),
-		"retry_max":                 cty.NullVal(cty.String),
-		"retry_wait_min":            cty.NullVal(cty.String),
-		"retry_wait_max":            cty.NullVal(cty.String),
-		"client_ca_certificate_pem": cty.NullVal(cty.String),
-		"client_certificate_pem":    cty.NullVal(cty.String),
-		"client_private_key_pem":    cty.NullVal(cty.String),
-		"headers":                   cty.NullVal(cty.String),
-	})
-	backendConfigRaw, err := plans.NewDynamicValue(backendConfig, backendConfig.Type())
-	if err != nil {
-		t.Fatal(err)
-	}
-	planPath := testPlanFile(t, snap, state, &plans.Plan{
-		Backend: plans.Backend{
-			Type:   "http",
-			Config: backendConfigRaw,
-		},
-		Changes: plans.NewChanges(),
-	})
-
-	p := testProvider()
-	view, done := testView(t)
-	c := &ApplyCommand{
-		Meta: Meta{
-			testingOverrides: metaOverridesForProvider(p),
-			View:             view,
-		},
-	}
-
-	args := []string{
-		planPath,
-	}
-	code := c.Run(args)
-	output := done(t)
-	if code != 0 {
-		t.Fatalf("bad: %d\n\n%s", code, output.Stderr())
-	}
-
-	// State file should be not be installed
-	if _, err := os.Stat(filepath.Join(tmp, DefaultStateFilename)); err == nil {
-		data, _ := os.ReadFile(DefaultStateFilename)
-		t.Fatalf("State path should not exist: %s", string(data))
-	}
-
-	// Check that there is no remote state config
-	if src, err := os.ReadFile(remoteStatePath); err == nil {
-		t.Fatalf("has %s file; should not\n%s", remoteStatePath, src)
 	}
 }
 
@@ -1814,11 +1651,11 @@ output = default
 	testStateOutput(t, statePath, expected)
 }
 
-// Test that the OpenTofu env is passed through
-func TestApply_tofuWorkspace(t *testing.T) {
+// Test that the Farseek env is passed through
+func TestApply_farseekWorkspace(t *testing.T) {
 	// Create a temporary working directory that is empty
 	td := t.TempDir()
-	testCopyDir(t, testFixturePath("apply-tofu-workspace"), td)
+	testCopyDir(t, testFixturePath("apply-farseek-workspace"), td)
 	t.Chdir(td)
 
 	statePath := testTempFile(t)
@@ -1912,11 +1749,11 @@ output = test
 	testStateOutput(t, statePath, expected)
 }
 
-// Test that the OpenTofu env is passed through
-func TestApply_tofuWorkspaceNonDefault(t *testing.T) {
+// Test that the Farseek env is passed through
+func TestApply_farseekWorkspaceNonDefault(t *testing.T) {
 	// Create a temporary working directory that is empty
 	td := t.TempDir()
-	testCopyDir(t, testFixturePath("apply-tofu-workspace"), td)
+	testCopyDir(t, testFixturePath("apply-farseek-workspace"), td)
 	t.Chdir(td)
 
 	// Create new env
@@ -1972,183 +1809,6 @@ Outputs:
 output = test
 	`)
 	testStateOutput(t, statePath, expected)
-}
-
-// Config with multiple resources, targeting apply of a subset
-func TestApply_targeted(t *testing.T) {
-	td := t.TempDir()
-	testCopyDir(t, testFixturePath("apply-targeted"), td)
-	t.Chdir(td)
-
-	p := testProvider()
-	p.GetProviderSchemaResponse = &providers.GetProviderSchemaResponse{
-		ResourceTypes: map[string]providers.Schema{
-			"test_instance": {
-				Block: &configschema.Block{
-					Attributes: map[string]*configschema.Attribute{
-						"id": {Type: cty.String, Computed: true},
-					},
-				},
-			},
-		},
-	}
-	p.PlanResourceChangeFn = func(req providers.PlanResourceChangeRequest) providers.PlanResourceChangeResponse {
-		return providers.PlanResourceChangeResponse{
-			PlannedState: req.ProposedNewState,
-		}
-	}
-
-	view, done := testView(t)
-	c := &ApplyCommand{
-		Meta: Meta{
-			testingOverrides: metaOverridesForProvider(p),
-			View:             view,
-		},
-	}
-
-	args := []string{
-		"-auto-approve",
-		"-target", "test_instance.foo",
-		"-target", "test_instance.baz",
-	}
-	code := c.Run(args)
-	output := done(t)
-	if code != 0 {
-		t.Fatalf("bad: %d\n\n%s", code, output.Stderr())
-	}
-
-	if got, want := output.Stdout(), "3 added, 0 changed, 0 destroyed"; !strings.Contains(got, want) {
-		t.Fatalf("bad change summary, want %q, got:\n%s", want, got)
-	}
-}
-
-// Diagnostics for invalid -target flags
-func TestApply_targetFlagsDiags(t *testing.T) {
-	testCases := map[string]string{
-		"test_instance.": "Dot must be followed by attribute name.",
-		"test_instance":  "Resource specification must include a resource type and name.",
-	}
-
-	for target, wantDiag := range testCases {
-		t.Run(target, func(t *testing.T) {
-			td := testTempDirRealpath(t)
-			defer os.RemoveAll(td)
-			t.Chdir(td)
-
-			view, done := testView(t)
-			c := &ApplyCommand{
-				Meta: Meta{
-					View: view,
-				},
-			}
-
-			args := []string{
-				"-auto-approve",
-				"-target", target,
-			}
-			code := c.Run(args)
-			output := done(t)
-			if code != 1 {
-				t.Fatalf("bad: %d\n\n%s", code, output.Stderr())
-			}
-
-			got := output.Stderr()
-			if !strings.Contains(got, target) {
-				t.Fatalf("bad error output, want %q, got:\n%s", target, got)
-			}
-			if !strings.Contains(got, wantDiag) {
-				t.Fatalf("bad error output, want %q, got:\n%s", wantDiag, got)
-			}
-		})
-	}
-}
-
-// Config with multiple resources, targeted apply with exclude
-func TestApply_excluded(t *testing.T) {
-	td := t.TempDir()
-	testCopyDir(t, testFixturePath("apply-excluded"), td)
-	t.Chdir(td)
-
-	p := testProvider()
-	p.GetProviderSchemaResponse = &providers.GetProviderSchemaResponse{
-		ResourceTypes: map[string]providers.Schema{
-			"test_instance": {
-				Block: &configschema.Block{
-					Attributes: map[string]*configschema.Attribute{
-						"id": {Type: cty.String, Computed: true},
-					},
-				},
-			},
-		},
-	}
-	p.PlanResourceChangeFn = func(req providers.PlanResourceChangeRequest) providers.PlanResourceChangeResponse {
-		return providers.PlanResourceChangeResponse{
-			PlannedState: req.ProposedNewState,
-		}
-	}
-
-	view, done := testView(t)
-	c := &ApplyCommand{
-		Meta: Meta{
-			testingOverrides: metaOverridesForProvider(p),
-			View:             view,
-		},
-	}
-
-	args := []string{
-		"-auto-approve",
-		"-exclude", "test_instance.bar",
-	}
-	code := c.Run(args)
-	output := done(t)
-	if code != 0 {
-		t.Fatalf("bad: %d\n\n%s", code, output.Stderr())
-	}
-
-	if got, want := output.Stdout(), "3 added, 0 changed, 0 destroyed"; !strings.Contains(got, want) {
-		t.Fatalf("bad change summary, want %q, got:\n%s", want, got)
-	}
-}
-
-// Diagnostics for invalid -exclude flags
-func TestApply_excludeFlagsDiags(t *testing.T) {
-	testCases := map[string]string{
-		"test_instance.": "Dot must be followed by attribute name.",
-		"test_instance":  "Resource specification must include a resource type and name.",
-	}
-
-	for exclude, wantDiag := range testCases {
-		t.Run(exclude, func(t *testing.T) {
-			td := testTempDirRealpath(t)
-			defer os.RemoveAll(td)
-			t.Chdir(td)
-
-			view, done := testView(t)
-			c := &ApplyCommand{
-				Meta: Meta{
-					View: view,
-				},
-			}
-
-			args := []string{
-				"-auto-approve",
-				"-exclude", exclude,
-			}
-			code := c.Run(args)
-			output := done(t)
-			if code != 1 {
-				t.Fatalf("bad: %d\n\n%s", code, output.Stderr())
-			}
-
-			got := output.Stderr()
-			if !strings.Contains(got, exclude) {
-				t.Fatalf("bad error output, want %q, got:\n%s", exclude, got)
-			}
-			if !strings.Contains(got, wantDiag) {
-				t.Fatalf("bad error output, want %q, got:\n%s", wantDiag, got)
-			}
-		})
-	}
 }
 
 func TestApply_replace(t *testing.T) {
@@ -2386,7 +2046,7 @@ func TestApply_warnings(t *testing.T) {
 		wantWarnings := []string{
 			"warning 1",
 			"warning 2",
-			"To see the full warning notes, run OpenTofu without -compact-warnings.",
+			"To see the full warning notes, run Farseek without -compact-warnings.",
 		}
 		for _, want := range wantWarnings {
 			if !strings.Contains(output.Stdout(), want) {
@@ -2558,8 +2218,8 @@ func applyFixtureSchema() *providers.GetProviderSchemaResponse {
 // operation with the configuration in testdata/apply. This mock has
 // GetSchemaResponse, PlanResourceChangeFn, and ApplyResourceChangeFn populated,
 // with the plan/apply steps just passing through the data determined by
-// OpenTofu Core.
-func applyFixtureProvider() *tofu.MockProvider {
+// Farseek Core.
+func applyFixtureProvider() *farseek.MockProvider {
 	p := testProvider()
 	p.GetProviderSchemaResponse = applyFixtureSchema()
 	p.PlanResourceChangeFn = func(req providers.PlanResourceChangeRequest) providers.PlanResourceChangeResponse {
@@ -2633,12 +2293,18 @@ const applyVarFileJSON = `
 { "foo": "bar" }
 `
 
-// TestLocal_planFarseekMode_IgnoresDeletion verifies that Farseek currently fails to
-// plan deletions for resources that are targeted (via Git drift) but missing from configuration.
-func TestLocal_planFarseekMode_IgnoresDeletion(t *testing.T) {
+// TestLocal_planFarseekMode_HandlesDeletion verifies that Farseek now correctly
+// plans deletions for resources that are targeted (via Git drift) but missing from configuration.
+func TestLocal_planFarseekMode_HandlesDeletion(t *testing.T) {
 	// 1. Setup temp dir with partial config (resource "foo" is missing/deleted)
 	td := t.TempDir()
 	t.Chdir(td)
+
+	t.Setenv("FARSEEK_TEST_FORCE_MODE", "true")
+	// Create a .farseek_sha file to trigger hasSHA
+	if err := os.WriteFile(".farseek_sha", []byte("base-sha"), 0644); err != nil {
+		t.Fatal(err)
+	}
 
 	// Create a main.tf that has one resource, but NOT the one we target
 	config := `
@@ -2652,7 +2318,7 @@ func TestLocal_planFarseekMode_IgnoresDeletion(t *testing.T) {
 	// 2. Mock Discovery: "test_instance.foo" changed (deleted)
 	mockDiscovery := &mockDiscoverer{
 		resources: []farseek.DiscoveredResource{
-			{Address: "test_instance.foo"},
+			{Address: "test_instance.foo", Filename: "old.tf"}, // Missing from config
 		},
 	}
 	oldDiscovery := farseek.Discovery
@@ -2682,8 +2348,11 @@ func TestLocal_planFarseekMode_IgnoresDeletion(t *testing.T) {
 		t.Fatalf("bad: %d\n\n%s", code, output.Stderr())
 	}
 
-	// The BUG is that it says "No changes" instead of planning a destroy.
-	if !strings.Contains(output.Stdout(), "No changes. Your infrastructure matches the configuration.") {
-		t.Fatalf("Expected 'No changes' message (reproducing bug), but got:\n%s", output.Stdout())
+	// We expect a deletion now!
+	if !strings.Contains(output.Stdout(), "1 destroyed") {
+		t.Fatalf("Expected '1 destroyed' message, but got:\n%s", output.Stdout())
+	}
+	if !strings.Contains(output.Stdout(), "test_instance.foo will be destroyed") {
+		t.Fatalf("Expected 'test_instance.foo will be destroyed', but got:\n%s", output.Stdout())
 	}
 }

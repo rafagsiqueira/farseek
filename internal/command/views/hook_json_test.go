@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -17,7 +17,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/terminal"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -115,7 +115,7 @@ func TestJSONHook_create(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_instance.boop: Creating...",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "apply_start",
 			"hook": map[string]interface{}{
 				"action":   string("create"),
@@ -125,7 +125,7 @@ func TestJSONHook_create(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_instance.boop: Provisioning with 'local-exec'...",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "provision_start",
 			"hook": map[string]interface{}{
 				"provisioner": "local-exec",
@@ -135,7 +135,7 @@ func TestJSONHook_create(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": `test_instance.boop: (local-exec): Executing: ["/bin/sh" "-c" "touch /etc/motd"]`,
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "provision_progress",
 			"hook": map[string]interface{}{
 				"output":      `Executing: ["/bin/sh" "-c" "touch /etc/motd"]`,
@@ -146,7 +146,7 @@ func TestJSONHook_create(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_instance.boop: (local-exec) Provisioning complete",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "provision_complete",
 			"hook": map[string]interface{}{
 				"provisioner": "local-exec",
@@ -156,7 +156,7 @@ func TestJSONHook_create(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_instance.boop: Still creating... [10s elapsed]",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "apply_progress",
 			"hook": map[string]interface{}{
 				"action":          string("create"),
@@ -167,7 +167,7 @@ func TestJSONHook_create(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_instance.boop: Still creating... [20s elapsed]",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "apply_progress",
 			"hook": map[string]interface{}{
 				"action":          string("create"),
@@ -178,7 +178,7 @@ func TestJSONHook_create(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_instance.boop: Creation complete after 22s [id=test]",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "apply_complete",
 			"hook": map[string]interface{}{
 				"action":          string("create"),
@@ -247,7 +247,7 @@ func TestJSONHook_errors(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_instance.boop: Destroying...",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "apply_start",
 			"hook": map[string]interface{}{
 				"action":   string("delete"),
@@ -257,7 +257,7 @@ func TestJSONHook_errors(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_instance.boop: (local-exec) Provisioning errored",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "provision_errored",
 			"hook": map[string]interface{}{
 				"provisioner": "local-exec",
@@ -267,7 +267,7 @@ func TestJSONHook_errors(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "test_instance.boop: Destruction errored after 0s",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "apply_errored",
 			"hook": map[string]interface{}{
 				"action":          string("delete"),
@@ -315,7 +315,7 @@ func TestJSONHook_refresh(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "data.test_data_source.beep: Refreshing state... [id=honk]",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "refresh_start",
 			"hook": map[string]interface{}{
 				"resource": wantResource,
@@ -326,7 +326,7 @@ func TestJSONHook_refresh(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "data.test_data_source.beep: Refresh complete [id=honk]",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "refresh_complete",
 			"hook": map[string]interface{}{
 				"resource": wantResource,
@@ -348,23 +348,23 @@ func TestJSONHook_ephemeral(t *testing.T) {
 
 	cases := []struct {
 		name  string
-		preF  func(hook tofu.Hook) (tofu.HookAction, error)
-		postF func(hook tofu.Hook) (tofu.HookAction, error)
+		preF  func(hook farseek.Hook) (farseek.HookAction, error)
+		postF func(hook farseek.Hook) (farseek.HookAction, error)
 		want  []map[string]interface{}
 	}{
 		{
 			name: "opening",
-			preF: func(hook tofu.Hook) (tofu.HookAction, error) {
+			preF: func(hook farseek.Hook) (farseek.HookAction, error) {
 				return hook.PreOpen(addr)
 			},
-			postF: func(hook tofu.Hook) (tofu.HookAction, error) {
+			postF: func(hook farseek.Hook) (farseek.HookAction, error) {
 				return hook.PostOpen(addr, nil)
 			},
 			want: []map[string]interface{}{
 				{
 					"@level":   "info",
 					"@message": "ephemeral.test_instance.foo: Opening...",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"hook": map[string]any{
 						"Msg": "Opening...",
 						"resource": map[string]any{
@@ -382,7 +382,7 @@ func TestJSONHook_ephemeral(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "ephemeral.test_instance.foo: Open complete",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"hook": map[string]any{
 						"Msg": "Open complete",
 						"resource": map[string]any{
@@ -401,17 +401,17 @@ func TestJSONHook_ephemeral(t *testing.T) {
 		},
 		{
 			name: "renewing",
-			preF: func(hook tofu.Hook) (tofu.HookAction, error) {
+			preF: func(hook farseek.Hook) (farseek.HookAction, error) {
 				return hook.PreRenew(addr)
 			},
-			postF: func(hook tofu.Hook) (tofu.HookAction, error) {
+			postF: func(hook farseek.Hook) (farseek.HookAction, error) {
 				return hook.PostRenew(addr, nil)
 			},
 			want: []map[string]interface{}{
 				{
 					"@level":   "info",
 					"@message": "ephemeral.test_instance.foo: Renewing...",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"hook": map[string]any{
 						"Msg": "Renewing...",
 						"resource": map[string]any{
@@ -429,7 +429,7 @@ func TestJSONHook_ephemeral(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "ephemeral.test_instance.foo: Renew complete",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"hook": map[string]any{
 						"Msg": "Renew complete",
 						"resource": map[string]any{
@@ -448,17 +448,17 @@ func TestJSONHook_ephemeral(t *testing.T) {
 		},
 		{
 			name: "closing",
-			preF: func(hook tofu.Hook) (tofu.HookAction, error) {
+			preF: func(hook farseek.Hook) (farseek.HookAction, error) {
 				return hook.PreClose(addr)
 			},
-			postF: func(hook tofu.Hook) (tofu.HookAction, error) {
+			postF: func(hook farseek.Hook) (farseek.HookAction, error) {
 				return hook.PostClose(addr, nil)
 			},
 			want: []map[string]interface{}{
 				{
 					"@level":   "info",
 					"@message": "ephemeral.test_instance.foo: Closing...",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"hook": map[string]any{
 						"Msg": "Closing...",
 						"resource": map[string]any{
@@ -476,7 +476,7 @@ func TestJSONHook_ephemeral(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "ephemeral.test_instance.foo: Close complete",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"hook": map[string]any{
 						"Msg": "Close complete",
 						"resource": map[string]any{
@@ -503,7 +503,7 @@ func TestJSONHook_ephemeral(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if action != tofu.HookActionContinue {
+			if action != farseek.HookActionContinue {
 				t.Fatalf("Expected hook to continue, given: %#v", action)
 			}
 
@@ -514,7 +514,7 @@ func TestJSONHook_ephemeral(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if action != tofu.HookActionContinue {
+			if action != farseek.HookActionContinue {
 				t.Errorf("Expected hook to continue, given: %#v", action)
 			}
 
@@ -523,13 +523,13 @@ func TestJSONHook_ephemeral(t *testing.T) {
 	}
 }
 
-func testHookReturnValues(t *testing.T, action tofu.HookAction, err error) {
+func testHookReturnValues(t *testing.T, action farseek.HookAction, err error) {
 	t.Helper()
 
 	if err != nil {
 		t.Fatal(err)
 	}
-	if action != tofu.HookActionContinue {
+	if action != farseek.HookActionContinue {
 		t.Fatalf("Expected hook to continue, given: %#v", action)
 	}
 }

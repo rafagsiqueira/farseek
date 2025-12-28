@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -54,12 +54,12 @@ type Installer struct {
 
 	// builtInProviderTypes is an optional set of types that should be
 	// considered valid to appear in the special terraform.io/builtin/...
-	// namespace, which we use for providers that are built in to OpenTofu
+	// namespace, which we use for providers that are built in to Farseek
 	// and thus do not need any separate installation step.
 	builtInProviderTypes []string
 
 	// unmanagedProviderTypes is a set of provider addresses that should be
-	// considered implemented, but that OpenTofu does not manage the
+	// considered implemented, but that Farseek does not manage the
 	// lifecycle for, and therefore does not need to worry about the
 	// installation of.
 	unmanagedProviderTypes map[addrs.Provider]struct{}
@@ -127,7 +127,7 @@ func (i *Installer) SetGlobalCacheDir(cacheDir *Dir) {
 // If this is set then if we install a provider for the first time from the
 // cache then the dependency lock file will include only the checksum from
 // the package in the global cache, which means the lock file won't be portable
-// to OpenTofu running on another operating system or CPU architecture.
+// to Farseek running on another operating system or CPU architecture.
 func (i *Installer) SetGlobalCacheDirMayBreakDependencyLockFile(mayBreak bool) {
 	i.globalCacheDirMayBreakDependencyLockFile = mayBreak
 }
@@ -141,7 +141,7 @@ func (i *Installer) HasGlobalCacheDir() bool {
 // SetBuiltInProviderTypes tells the receiver to consider the type names in the
 // given slice to be valid as providers in the special special
 // terraform.io/builtin/... namespace that we use for providers that are
-// built in to OpenTofu and thus do not need a separate installation step.
+// built in to Farseek and thus do not need a separate installation step.
 //
 // If a caller requests installation of a provider in that namespace, the
 // installer will treat it as a no-op if its name exists in this list, but
@@ -157,10 +157,10 @@ func (i *Installer) SetBuiltInProviderTypes(types []string) {
 }
 
 // SetUnmanagedProviderTypes tells the receiver to consider the providers
-// indicated by the passed addrs.Providers as unmanaged. OpenTofu does not
+// indicated by the passed addrs.Providers as unmanaged. Farseek does not
 // need to control the lifecycle of these providers, and they are assumed to be
-// running already when OpenTofu is started. Because these are essentially
-// processes, not binaries, OpenTofu will not do any work to ensure presence
+// running already when Farseek is started. Because these are essentially
+// processes, not binaries, Farseek will not do any work to ensure presence
 // or versioning of these binaries.
 func (i *Installer) SetUnmanagedProviderTypes(types map[addrs.Provider]struct{}) {
 	i.unmanagedProviderTypes = types
@@ -303,11 +303,11 @@ func (i *Installer) ensureProviderVersionsMightNeed(
 				} else {
 					// A built-in provider is not permitted to have an explicit
 					// version constraint, because we can only use the version
-					// that is built in to the current OpenTofu release.
+					// that is built in to the current Farseek release.
 					err = fmt.Errorf("built-in providers do not support explicit version constraints")
 				}
 			} else {
-				err = fmt.Errorf("this OpenTofu release has no built-in provider named %q", provider.Type)
+				err = fmt.Errorf("this Farseek release has no built-in provider named %q", provider.Type)
 			}
 			if err != nil {
 				errs[provider] = err
@@ -329,7 +329,7 @@ func (i *Installer) ensureProviderVersionsMightNeed(
 			if lock := locks.Provider(provider); lock != nil {
 				if !acceptableVersions.Has(lock.Version()) {
 					err := fmt.Errorf(
-						"locked provider %s %s does not match configured version constraint %s; must use tofu init -upgrade to allow selection of new versions",
+						"locked provider %s %s does not match configured version constraint %s; must use farseek init -upgrade to allow selection of new versions",
 						provider, lock.Version(), getproviders.VersionConstraintsString(versionConstraints),
 					)
 					errs[provider] = err
@@ -575,7 +575,7 @@ func (i *Installer) ensureProviderVersionInstalled(
 		// cache directory.
 		new = linkTo.ProviderVersion(provider, version)
 		if new == nil {
-			err := fmt.Errorf("after installing %s it is still not detected in %s; this is a bug in OpenTofu", provider, linkTo.BasePath())
+			err := fmt.Errorf("after installing %s it is still not detected in %s; this is a bug in Farseek", provider, linkTo.BasePath())
 			if cb := evts.LinkFromCacheFailure; cb != nil {
 				cb(provider, version, err)
 			}
@@ -670,7 +670,7 @@ func (i *Installer) ensureProviderVersionInDirectory(
 
 	new := installTo.ProviderVersion(provider, version)
 	if new == nil {
-		err := fmt.Errorf("after installing %s it is still not detected in %s; this is a bug in OpenTofu", provider, installTo.BasePath())
+		err := fmt.Errorf("after installing %s it is still not detected in %s; this is a bug in Farseek", provider, installTo.BasePath())
 		if cb := evts.FetchPackageFailure; cb != nil {
 			cb(provider, version, err)
 		}
@@ -735,7 +735,7 @@ func (i *Installer) ensureProviderVersionInDirectory(
 			// just for the purposes of updating the lock file and
 			// reporting that lock file update to the UI layer through
 			// the evts object.
-			// Note that the "tofu init" UI relies on us pretending
+			// Note that the "farseek init" UI relies on us pretending
 			// that these are "signed" to avoid generating its warning
 			// that the dependency lock file might be incomplete.
 			return hd.ReportedByRegistry

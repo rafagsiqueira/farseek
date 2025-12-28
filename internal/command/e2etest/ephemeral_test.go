@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -17,7 +17,7 @@ import (
 // TestEphemeralErrors_variables checks common errors when ephemeral variables
 // are referenced in contexts where it's not allowed to.
 func TestEphemeralErrors_variables(t *testing.T) {
-	tf := e2e.NewBinary(t, tofuBin, "testdata/ephemeral-errors/variables")
+	tf := e2e.NewBinary(t, farseekBin, "testdata/ephemeral-errors/variables")
 	buildSimpleProvider(t, "6", tf.WorkDir(), "simple")
 	with := func(path string, fn func()) {
 		src := tf.Path(path + ".disabled")
@@ -55,7 +55,7 @@ func TestEphemeralErrors_variables(t *testing.T) {
 			t.Errorf("unexpected err: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 		}
 		sanitized := SanitizeStderr(serr)
-		if !strings.Contains(sanitized, `The error expression used to explain this condition refers to ephemeral values. OpenTofu will not display the resulting message.  You can correct this by removing references to ephemeral values or by utilizing the builtin ephemeralasnull() function.`) {
+		if !strings.Contains(sanitized, `The error expression used to explain this condition refers to ephemeral values. Farseek will not display the resulting message.  You can correct this by removing references to ephemeral values or by utilizing the builtin ephemeralasnull() function.`) {
 			t.Errorf("unexpected stderr: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 			t.Logf("sanitized serr: %s", sanitized)
 		}
@@ -113,7 +113,7 @@ func TestEphemeralErrors_variables(t *testing.T) {
 }
 
 func TestEphemeralErrors_outputs(t *testing.T) {
-	tf := e2e.NewBinary(t, tofuBin, "testdata/ephemeral-errors/outputs")
+	tf := e2e.NewBinary(t, farseekBin, "testdata/ephemeral-errors/outputs")
 	buildSimpleProvider(t, "6", tf.WorkDir(), "simple")
 	with := func(path string, fn func()) {
 		src := tf.Path(path + ".disabled")
@@ -133,7 +133,7 @@ func TestEphemeralErrors_outputs(t *testing.T) {
 		}
 	}
 
-	tofuInit := func() {
+	farseekInit := func() {
 		sout, serr, err := tf.Run("init", "-plugin-dir=cache")
 		if err != nil {
 			t.Fatalf("unable to init: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
@@ -154,7 +154,7 @@ func TestEphemeralErrors_outputs(t *testing.T) {
 	})
 
 	with("ephemeral_output_in_resource.tf", func() {
-		tofuInit()
+		farseekInit()
 		sout, serr, err := tf.Run("apply")
 		if err == nil || !strings.Contains(err.Error(), "exit status 1") {
 			t.Errorf("unexpected err: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
@@ -167,7 +167,7 @@ func TestEphemeralErrors_outputs(t *testing.T) {
 	})
 
 	with("ephemeral_output_in_data_source.tf", func() {
-		tofuInit()
+		farseekInit()
 		sout, serr, err := tf.Run("apply")
 		if err == nil || !strings.Contains(err.Error(), "exit status 1") {
 			t.Errorf("unexpected err: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
@@ -180,7 +180,7 @@ func TestEphemeralErrors_outputs(t *testing.T) {
 	})
 
 	with("regular_output_given_ephemeral_value.tf", func() {
-		tofuInit()
+		farseekInit()
 		sout, serr, err := tf.Run("apply")
 		if err == nil || !strings.Contains(err.Error(), "exit status 1") {
 			t.Errorf("unexpected err: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
@@ -195,7 +195,7 @@ func TestEphemeralErrors_outputs(t *testing.T) {
 	})
 
 	with("ephemeral_output_with_precondition.tf", func() {
-		tofuInit()
+		farseekInit()
 		sout, serr, err := tf.Run("apply", "-var", "in=notdefaultvalue")
 		if err == nil || !strings.Contains(err.Error(), "exit status 1") {
 			t.Errorf("unexpected err: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
@@ -210,7 +210,7 @@ func TestEphemeralErrors_outputs(t *testing.T) {
 			t.Logf("sanitized serr: %s", sanitizedSerr)
 		}
 		if !strings.Contains(sanitizedSout, `Warning: Error message refers to ephemeral values    on `+filename) ||
-			!strings.Contains(sanitizedSout, `The error expression used to explain this condition refers to ephemeral values, so OpenTofu will not display the resulting message.  You can correct this by removing references to ephemeral values`) {
+			!strings.Contains(sanitizedSout, `The error expression used to explain this condition refers to ephemeral values, so Farseek will not display the resulting message.  You can correct this by removing references to ephemeral values`) {
 			t.Errorf("unexpected stdout: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 			t.Logf("sanitized sout: %s", sanitizedSerr)
 		}

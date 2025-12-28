@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -22,14 +22,6 @@ func TestInit_backend(t *testing.T) {
 		CanonicalName string
 	}{
 		{"local", "*local.Local", "local"},
-		{"remote", "*remote.Remote", "remote"},
-		{"azurerm", "*azure.Backend", "azurerm"},
-		{"consul", "*consul.Backend", "consul"},
-		{"cos", "*cos.Backend", "cos"},
-		{"gcs", "*gcs.Backend", "gcs"},
-		{"inmem", "*inmem.Backend", "inmem"},
-		{"pg", "*pg.Backend", "pg"},
-		{"s3", "*s3.Backend", "s3"},
 	}
 
 	// Make sure we get the requested backend

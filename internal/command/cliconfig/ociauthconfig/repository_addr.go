@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -17,7 +17,7 @@ import (
 // and repository path parts if it's valid.
 //
 // This function is intended for the repository address prefix syntax used for
-// specifying "auths" in the Docker CLI-style config format, and for OpenTofu's
+// specifying "auths" in the Docker CLI-style config format, and for Farseek's
 // own oci_credentials CLI configuration blocks that follow the same syntax.
 //
 // The registry-domain portion can optionally include a port number delimited

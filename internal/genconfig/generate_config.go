@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -26,8 +26,8 @@ import (
 // GenerateResourceContents generates HCL configuration code for the provided
 // resource and state value.
 //
-// If you want to generate actual valid OpenTofu code you should follow this
-// call up with a call to WrapResourceContents, which will place an OpenTofu
+// If you want to generate actual valid Farseek code you should follow this
+// call up with a call to WrapResourceContents, which will place an Farseek
 // resource header around the attributes and blocks returned by this function.
 func GenerateResourceContents(addr addrs.AbsResourceInstance,
 	schema *configschema.Block,

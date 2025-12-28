@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -15,7 +15,7 @@ import (
 )
 
 // Once is a similar principle to the Go standard library's [sync.Once], but
-// with some additions tailored for use in OpenTofu:
+// with some additions tailored for use in Farseek:
 //
 //   - The "Do" method returns a result of type T and diagnostics.
 //   - If two Once instances attempt to depend on each other for resolution then

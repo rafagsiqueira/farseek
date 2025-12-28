@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -40,7 +40,7 @@ type moduleInstanceScope struct {
 	coreFunctions map[string]function.Function
 
 	// TODO: some way to interact with provider-defined functions too, but
-	// that's tricky since OpenTofu decided to call them on _configured_
+	// that's tricky since Farseek decided to call them on _configured_
 	// providers rather than unconfigured ones and this evaluator otherwise
 	// only uses unconfigured providers... so I guess we'll need some sort of
 	// upcall glue to ask whatever code is orchestrating the plan or apply
@@ -79,7 +79,7 @@ func (m *moduleInstanceScope) ResolveFunc(call *hcl.StaticCall) (function.Functi
 		diags = diags.Append(&hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "Call to unsupported function",
-			Detail:   fmt.Sprintf("There is no core function named %q in this version of OpenTofu.", call.Name),
+			Detail:   fmt.Sprintf("There is no core function named %q in this version of Farseek.", call.Name),
 			Subject:  &call.NameRange,
 		})
 		return function.Function{}, diags
@@ -535,7 +535,7 @@ func (i *instanceLocalSymbolTable) HandleInvalidStep(rng tfdiags.SourceRange) tf
 		diags = diags.Append(&hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "Invalid reference",
-			Detail:   "This reference is invalid, but we cannot explain why due to a bug in OpenTofu.",
+			Detail:   "This reference is invalid, but we cannot explain why due to a bug in Farseek.",
 			Subject:  rng.ToHCL().Ptr(),
 		})
 	}
@@ -568,7 +568,7 @@ func (i *instanceLocalSymbolTable) ResolveAttr(ref hcl.TraverseAttr) (exprs.Attr
 		diags = diags.Append(&hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "Invalid reference",
-			Detail:   "This reference is invalid, but we cannot explain why due to a bug in OpenTofu.",
+			Detail:   "This reference is invalid, but we cannot explain why due to a bug in Farseek.",
 			Subject:  &ref.SrcRange,
 		})
 		return nil, diags

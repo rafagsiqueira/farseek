@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -18,7 +18,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/getproviders"
 )
 
-// TestProviderProtocols verifies that OpenTofu can execute provider plugins
+// TestProviderProtocols verifies that Farseek can execute provider plugins
 // with both supported protocol versions.
 func TestProviderProtocols(t *testing.T) {
 	if !canRunGoBuild {
@@ -31,7 +31,7 @@ func TestProviderProtocols(t *testing.T) {
 	}
 	t.Parallel()
 
-	tf := e2e.NewBinary(t, tofuBin, "testdata/provider-plugin")
+	tf := e2e.NewBinary(t, farseekBin, "testdata/provider-plugin")
 
 	// In order to do a decent end-to-end test for this case we will need a real
 	// enough provider plugin to try to run and make sure we are able to
@@ -48,7 +48,7 @@ func TestProviderProtocols(t *testing.T) {
 		extension = ".exe"
 	}
 
-	// Move the provider binaries into a directory that we will point tofu
+	// Move the provider binaries into a directory that we will point farseek
 	// to using the -plugin-dir cli flag.
 	platform := getproviders.CurrentPlatform.String()
 	hashiDir := "cache/registry.opentofu.org/hashicorp/"
@@ -115,7 +115,7 @@ func TestProviderGlobalCache(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rcLoc := filepath.Join(tmpDir, ".tofurc")
+	rcLoc := filepath.Join(tmpDir, ".farseekrc")
 	// We use forward slashes consistently, even on Windows, because backslashes
 	// require escaping for valid HCL syntax.
 	rcData := fmt.Sprintf(`plugin_cache_dir = "%s"`, filepath.ToSlash(tmpDir))
@@ -130,11 +130,11 @@ func TestProviderGlobalCache(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			tf := e2e.NewBinary(t, tofuBin, "testdata/provider-global-cache")
+			tf := e2e.NewBinary(t, farseekBin, "testdata/provider-global-cache")
 			tf.AddEnv(fmt.Sprintf("TF_CLI_CONFIG_FILE=%s", rcLoc))
 
 			stdout, stderr, err := tf.Run("init")
-			tofuResult{t, stdout, stderr, err}.Success()
+			farseekResult{t, stdout, stderr, err}.Success()
 		}()
 	}
 

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -75,8 +75,8 @@ func ParseBrowserEnv(raw string) string {
 	execPath, err := exec.LookPath(raw)
 	if err != nil {
 		// We silently ignore variable values we cannot use, because this
-		// environment variable is not OpenTofu-specific and so it may have
-		// been set for the benefit of software other than OpenTofu which
+		// environment variable is not Farseek-specific and so it may have
+		// been set for the benefit of software other than Farseek which
 		// interprets it differently.
 		return ""
 	}

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -419,7 +419,7 @@ func TestNewDiagnostic(t *testing.T) {
 			// The EvalContext in this case is set up to resemble what
 			// happens in nested scopes such as those created by "for"
 			// expressions, where there are local symbols that are not
-			// subject to OpenTofu's usual rules for references and can
+			// subject to Farseek's usual rules for references and can
 			// potentially shadow the prefixes normally used for references.
 			&hcl.Diagnostic{
 				Severity: hcl.DiagError,

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -8,7 +8,7 @@
 //
 // For example, this is used to describe the expected contents of a resource
 // configuration block, which is defined by the corresponding provider plugin
-// and thus not compiled into OpenTofu core.
+// and thus not compiled into Farseek core.
 //
 // A configschema primarily describes the shape of configuration, but it is
 // also suitable for use with other structures derived from the configuration,

@@ -9,7 +9,7 @@ package main
 // arguments in order to enable the use of experimental features for a
 // particular Farseek build:
 //
-//	go install -ldflags="-X 'main.experimentsAllowed=yes'" ./cmd/tofu
+//	go install -ldflags="-X 'main.experimentsAllowed=yes'" ./cmd/farseek
 //
 // By default this variable is initialized as empty, in which case
 // experimental features are not available.

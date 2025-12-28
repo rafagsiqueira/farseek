@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -28,7 +28,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/initwd"
 	"github.com/rafagsiqueira/farseek/internal/registry"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // normalizePath normalizes a given path so that it is, if possible, relative
@@ -145,7 +145,7 @@ func (m *Meta) rootModuleCall(ctx context.Context, rootDir string) (configs.Stat
 				v = unparsedVariableValueString{
 					str:        rawVal,
 					name:       name,
-					sourceType: tofu.ValueFromInput,
+					sourceType: farseek.ValueFromInput,
 				}
 				m.updateInputVariableCache(name, v)
 			} else {
@@ -167,9 +167,9 @@ func (m *Meta) getInput(ctx context.Context, variable *configs.Variable) (string
 
 	uiInput := m.UIInput()
 	if variable.Ephemeral {
-		uiInput = tofu.NewEphemeralSuffixUIInput(uiInput)
+		uiInput = farseek.NewEphemeralSuffixUIInput(uiInput)
 	}
-	rawValue, err := uiInput.Input(ctx, &tofu.InputOpts{
+	rawValue, err := uiInput.Input(ctx, &farseek.InputOpts{
 		Id:          fmt.Sprintf("var.%s", variable.Name),
 		Query:       fmt.Sprintf("var.%s", variable.Name),
 		Description: variable.InputPrompt(),
@@ -206,7 +206,7 @@ func (m *Meta) loadSingleModuleWithTests(ctx context.Context, dir string, testDi
 }
 
 // dirIsConfigPath checks if the given path is a directory that contains at
-// least one OpenTofu configuration file (.tf or .tf.json), returning true
+// least one Farseek configuration file (.tf or .tf.json), returning true
 // if so.
 //
 // In the unlikely event that the underlying config loader cannot be initialized,
@@ -375,7 +375,7 @@ func (m *Meta) inputForSchema(given cty.Value, schema *configschema.Block) (cty.
 		attrS := schema.Attributes[name]
 
 		for {
-			strVal, err := input.Input(context.Background(), &tofu.InputOpts{
+			strVal, err := input.Input(context.Background(), &farseek.InputOpts{
 				Id:          name,
 				Query:       name,
 				Description: attrS.Description,
@@ -441,7 +441,7 @@ func (m *Meta) registerSynthConfigSource(filename string, src []byte) {
 // If the loader cannot be created for some reason then an error is returned
 // and no loader is created. Subsequent calls will presumably see the same
 // error. Loader initialization errors will tend to prevent any further use
-// of most OpenTofu features, so callers should report any error and safely
+// of most Farseek features, so callers should report any error and safely
 // terminate.
 func (m *Meta) initConfigLoader() (*configload.Loader, error) {
 	if m.configLoader == nil {

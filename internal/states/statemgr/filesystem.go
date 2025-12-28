@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -23,7 +23,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/flock"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // Filesystem is a full state manager that uses a file in the local filesystem
@@ -184,13 +184,13 @@ func (s *Filesystem) writeState(state *states.State, meta *SnapshotMeta) error {
 }
 
 // PersistState writes state to a tfstate file.
-func (s *Filesystem) PersistState(_ context.Context, schemas *tofu.Schemas) error {
+func (s *Filesystem) PersistState(_ context.Context, schemas *farseek.Schemas) error {
 	defer s.mutex()()
 
 	return s.persistState(schemas)
 }
 
-func (s *Filesystem) persistState(schemas *tofu.Schemas) error {
+func (s *Filesystem) persistState(schemas *farseek.Schemas) error {
 	// TODO: this should use a more robust method of writing state, by first
 	// writing to a temp file on the same filesystem, and renaming the file over
 	// the original.

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -18,7 +18,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/lang/marks"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 const (
@@ -32,7 +32,7 @@ const (
 	EphemeralResourceMode = "ephemeral"
 )
 
-// State is the top-level representation of the json format of a tofu
+// State is the top-level representation of the json format of a farseek
 // state.
 type State struct {
 	FormatVersion    string          `json:"format_version,omitempty"`
@@ -108,10 +108,10 @@ type Resource struct {
 	// addresses relative to the containing module.
 	DependsOn []string `json:"depends_on,omitempty"`
 
-	// Tainted is true if the resource is tainted in tofu state.
+	// Tainted is true if the resource is tainted in farseek state.
 	Tainted bool `json:"tainted,omitempty"`
 
-	// Deposed is set if the resource is deposed in tofu state.
+	// Deposed is set if the resource is deposed in farseek state.
 	DeposedKey string `json:"deposed_key,omitempty"`
 }
 
@@ -147,7 +147,7 @@ func newState() *State {
 
 // MarshalForRenderer returns the pre-json encoding changes of the state, in a
 // format available to the structured renderer.
-func MarshalForRenderer(sf *statefile.File, schemas *tofu.Schemas) (Module, map[string]Output, error) {
+func MarshalForRenderer(sf *statefile.File, schemas *farseek.Schemas) (Module, map[string]Output, error) {
 	if sf.State.Modules == nil {
 		// Empty state case.
 		return Module{}, nil, nil
@@ -168,7 +168,7 @@ func MarshalForRenderer(sf *statefile.File, schemas *tofu.Schemas) (Module, map[
 
 // MarshalForLog returns the origin JSON compatible state, read for a logging
 // package to marshal further.
-func MarshalForLog(sf *statefile.File, schemas *tofu.Schemas) (*State, error) {
+func MarshalForLog(sf *statefile.File, schemas *farseek.Schemas) (*State, error) {
 	output := newState()
 
 	if sf == nil || sf.State.Empty() {
@@ -193,8 +193,8 @@ func MarshalForLog(sf *statefile.File, schemas *tofu.Schemas) (*State, error) {
 	return output, nil
 }
 
-// Marshal returns the json encoding of a tofu state.
-func Marshal(sf *statefile.File, schemas *tofu.Schemas) ([]byte, error) {
+// Marshal returns the json encoding of a farseek state.
+func Marshal(sf *statefile.File, schemas *farseek.Schemas) ([]byte, error) {
 	output, err := MarshalForLog(sf, schemas)
 	if err != nil {
 		return nil, err
@@ -204,7 +204,7 @@ func Marshal(sf *statefile.File, schemas *tofu.Schemas) ([]byte, error) {
 	return ret, err
 }
 
-func (jsonstate *State) marshalStateValues(s *states.State, schemas *tofu.Schemas) error {
+func (jsonstate *State) marshalStateValues(s *states.State, schemas *farseek.Schemas) error {
 	var sv StateValues
 	var err error
 
@@ -253,7 +253,7 @@ func MarshalOutputs(outputs map[string]*states.OutputValue) (map[string]Output, 
 	return ret, nil
 }
 
-func marshalRootModule(s *states.State, schemas *tofu.Schemas) (Module, error) {
+func marshalRootModule(s *states.State, schemas *farseek.Schemas) (Module, error) {
 	var ret Module
 	var err error
 
@@ -297,10 +297,10 @@ func marshalRootModule(s *states.State, schemas *tofu.Schemas) (Module, error) {
 }
 
 // marshalModules is an ungainly recursive function to build a module structure
-// out of tofu state.
+// out of farseek state.
 func marshalModules(
 	s *states.State,
-	schemas *tofu.Schemas,
+	schemas *farseek.Schemas,
 	modules []addrs.ModuleInstance,
 	moduleMap map[string][]addrs.ModuleInstance,
 ) ([]Module, error) {
@@ -338,7 +338,7 @@ func marshalModules(
 	return ret, nil
 }
 
-func marshalResources(resources map[string]*states.Resource, module addrs.ModuleInstance, schemas *tofu.Schemas) ([]Resource, error) {
+func marshalResources(resources map[string]*states.Resource, module addrs.ModuleInstance, schemas *farseek.Schemas) ([]Resource, error) {
 	var ret []Resource
 
 	var sortedResources []*states.Resource
@@ -387,7 +387,7 @@ func marshalResources(resources map[string]*states.Resource, module addrs.Module
 			case addrs.DataResourceMode:
 				current.Mode = DataResourceMode
 			case addrs.EphemeralResourceMode:
-				return ret, fmt.Errorf("ephemeral resource %q detected in the current state. This is an error in OpenTofu", resAddr.String())
+				return ret, fmt.Errorf("ephemeral resource %q detected in the current state. This is an error in Farseek", resAddr.String())
 			default:
 				return ret, fmt.Errorf("resource %s has an unsupported mode %s",
 					resAddr.String(),

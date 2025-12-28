@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -41,7 +41,7 @@ func (p *planGlue) planDesiredDataResourceInstance(ctx context.Context, inst *ev
 
 	// The equivalent of "refreshing" a data resource is just to discard it
 	// completely, because we only retain the previous result in state snapshots
-	// to support unusual situations like "tofu console"; it's not expected that
+	// to support unusual situations like "farseek console"; it's not expected that
 	// data resource instances persist between rounds and they cannot because
 	// the protocol doesn't include any way to "upgrade" them if the provider
 	// schema has changed since previous round.
@@ -90,7 +90,7 @@ func (p *planGlue) planOrphanDataResourceInstance(_ context.Context, addr addrs.
 	var diags tfdiags.Diagnostics
 
 	// An orphan data object is always just discarded completely, because
-	// OpenTofu retains them only for esoteric uses like the "tofu console"
+	// Farseek retains them only for esoteric uses like the "farseek console"
 	// command: they are not actually expected to persist between rounds.
 	p.planCtx.refreshedState.SetResourceInstanceObjectFull(addr, states.NotDeposed, nil)
 

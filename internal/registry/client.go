@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -39,10 +39,10 @@ var (
 	tfVersion = version.String()
 )
 
-// Client provides methods to query OpenTofu module registries.
+// Client provides methods to query Farseek module registries.
 //
 // This client implements the "modules.v1" protocol. It does not implement
-// any other OpenTofu registry protocols, and in particular the client for
+// any other Farseek registry protocols, and in particular the client for
 // provider registry clients lives elsewhere.
 //
 // (The overly-general name of this package is a historical accident, and

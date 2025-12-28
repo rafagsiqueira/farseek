@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -15,10 +15,10 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/plans/planfile"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
-// GraphCommand is a Command implementation that takes a OpenTofu
+// GraphCommand is a Command implementation that takes a Farseek
 // configuration and outputs the dependency tree in graphical form.
 type GraphCommand struct {
 	Meta
@@ -97,7 +97,7 @@ func (c *GraphCommand) Run(args []string) int {
 			diags = diags.Append(tfdiags.Sourceless(
 				tfdiags.Error,
 				"Failed to read plan from plan file",
-				"The given plan file does not have a valid backend configuration. This is a bug in the OpenTofu command that generated this plan file.",
+				"The given plan file does not have a valid backend configuration. This is a bug in the Farseek command that generated this plan file.",
 			))
 			c.showDiagnostics(diags)
 			return 1
@@ -136,7 +136,6 @@ func (c *GraphCommand) Run(args []string) int {
 	}
 
 	// This is a read-only command
-	c.ignoreRemoteVersionConflict(b)
 
 	// Build the operation
 	opReq := c.Operation(ctx, b, arguments.ViewHuman, enc)
@@ -177,7 +176,7 @@ func (c *GraphCommand) Run(args []string) int {
 		}
 	}
 
-	var g *tofu.Graph
+	var g *farseek.Graph
 	var graphDiags tfdiags.Diagnostics
 	switch graphTypeStr {
 	case "plan":
@@ -189,7 +188,7 @@ func (c *GraphCommand) Run(args []string) int {
 	case "apply":
 		plan := lr.Plan
 
-		// Historically "tofu graph" would allow the nonsensical request to
+		// Historically "farseek graph" would allow the nonsensical request to
 		// render an apply graph without a plan, so we continue to support that
 		// here, though perhaps one day this should be an error.
 		if lr.Plan == nil {
@@ -225,7 +224,7 @@ func (c *GraphCommand) Run(args []string) int {
 		return 1
 	}
 
-	graphStr, err := tofu.GraphDot(g, &dag.DotOpts{
+	graphStr, err := farseek.GraphDot(g, &dag.DotOpts{
 		DrawCycles: drawCycles,
 		MaxDepth:   moduleDepth,
 		Verbose:    verbose,
@@ -250,7 +249,7 @@ func (c *GraphCommand) Run(args []string) int {
 
 func (c *GraphCommand) Help() string {
 	helpText := `
-Usage: tofu [global options] graph [options]
+Usage: farseek [global options] graph [options]
 
   Produces a representation of the dependency graph between different
   objects in the current configuration and state.
@@ -268,10 +267,10 @@ Options:
                    This helps when diagnosing cycle errors.
 
   -type=plan       Type of graph to output. Can be: plan, plan-refresh-only,
-                   plan-destroy, or apply. By default OpenTofu chooses
+                   plan-destroy, or apply. By default Farseek chooses
 				   "plan", or "apply" if you also set the -plan=... option.
 
-  -module-depth=n  (deprecated) In prior versions of OpenTofu, specified the
+  -module-depth=n  (deprecated) In prior versions of Farseek, specified the
 				   depth of modules to show in the output.
 
   -var 'foo=bar'     Set a value for one of the input variables in the root

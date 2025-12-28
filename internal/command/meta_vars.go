@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -18,7 +18,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/backend"
 	"github.com/rafagsiqueira/farseek/internal/configs"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // VarEnvPrefix is the prefix for environment variables that represent values
@@ -72,7 +72,7 @@ func (m *Meta) collectVariableValues() (map[string]backend.UnparsedVariableValue
 			ret[name] = unparsedVariableValueString{
 				str:        rawVal,
 				name:       name,
-				sourceType: tofu.ValueFromEnvVar,
+				sourceType: farseek.ValueFromEnvVar,
 			}
 		}
 	}
@@ -114,11 +114,11 @@ func (m *Meta) collectVariableValues() (map[string]backend.UnparsedVariableValue
 			ret[name] = unparsedVariableValueString{
 				str:        rawVal,
 				name:       name,
-				sourceType: tofu.ValueFromCLIArg,
+				sourceType: farseek.ValueFromCLIArg,
 			}
 
 		case "-var-file":
-			moreDiags := m.addVarsFromFile(rawFlag.Value, tofu.ValueFromNamedFile, ret)
+			moreDiags := m.addVarsFromFile(rawFlag.Value, farseek.ValueFromNamedFile, ret)
 			diags = diags.Append(moreDiags)
 
 		default:
@@ -140,12 +140,12 @@ func (m *Meta) addVarsFromDir(currDir string, ret map[string]backend.UnparsedVar
 	var diags tfdiags.Diagnostics
 
 	if _, err := os.Stat(filepath.Join(currDir, DefaultVarsFilename)); err == nil {
-		moreDiags := m.addVarsFromFile(filepath.Join(currDir, DefaultVarsFilename), tofu.ValueFromAutoFile, ret)
+		moreDiags := m.addVarsFromFile(filepath.Join(currDir, DefaultVarsFilename), farseek.ValueFromAutoFile, ret)
 		diags = diags.Append(moreDiags)
 	}
 	const defaultVarsFilenameJSON = DefaultVarsFilename + ".json"
 	if _, err := os.Stat(filepath.Join(currDir, defaultVarsFilenameJSON)); err == nil {
-		moreDiags := m.addVarsFromFile(filepath.Join(currDir, defaultVarsFilenameJSON), tofu.ValueFromAutoFile, ret)
+		moreDiags := m.addVarsFromFile(filepath.Join(currDir, defaultVarsFilenameJSON), farseek.ValueFromAutoFile, ret)
 		diags = diags.Append(moreDiags)
 	}
 	if infos, err := os.ReadDir(currDir); err == nil {
@@ -155,7 +155,7 @@ func (m *Meta) addVarsFromDir(currDir string, ret map[string]backend.UnparsedVar
 			if !isAutoVarFile(name) {
 				continue
 			}
-			moreDiags := m.addVarsFromFile(filepath.Join(currDir, name), tofu.ValueFromAutoFile, ret)
+			moreDiags := m.addVarsFromFile(filepath.Join(currDir, name), farseek.ValueFromAutoFile, ret)
 			diags = diags.Append(moreDiags)
 		}
 	}
@@ -163,7 +163,7 @@ func (m *Meta) addVarsFromDir(currDir string, ret map[string]backend.UnparsedVar
 	return diags
 }
 
-func (m *Meta) addVarsFromFile(filename string, sourceType tofu.ValueSourceType, to map[string]backend.UnparsedVariableValue) tfdiags.Diagnostics {
+func (m *Meta) addVarsFromFile(filename string, sourceType farseek.ValueSourceType, to map[string]backend.UnparsedVariableValue) tfdiags.Diagnostics {
 	var diags tfdiags.Diagnostics
 
 	src, err := os.ReadFile(filename)
@@ -266,17 +266,17 @@ func (m *Meta) addVarsFromFile(filename string, sourceType tofu.ValueSourceType,
 // intended to deal with expressions inside "tfvars" files.
 type unparsedVariableValueExpression struct {
 	expr       hcl.Expression
-	sourceType tofu.ValueSourceType
+	sourceType farseek.ValueSourceType
 }
 
-func (v unparsedVariableValueExpression) ParseVariableValue(mode configs.VariableParsingMode) (*tofu.InputValue, tfdiags.Diagnostics) {
+func (v unparsedVariableValueExpression) ParseVariableValue(mode configs.VariableParsingMode) (*farseek.InputValue, tfdiags.Diagnostics) {
 	var diags tfdiags.Diagnostics
 	val, hclDiags := v.expr.Value(nil) // nil because no function calls or variable references are allowed here
 	diags = diags.Append(hclDiags)
 
 	rng := tfdiags.SourceRangeFromHCL(v.expr.Range())
 
-	return &tofu.InputValue{
+	return &farseek.InputValue{
 		Value:       val,
 		SourceType:  v.sourceType,
 		SourceRange: rng,
@@ -290,16 +290,16 @@ func (v unparsedVariableValueExpression) ParseVariableValue(mode configs.Variabl
 type unparsedVariableValueString struct {
 	str        string
 	name       string
-	sourceType tofu.ValueSourceType
+	sourceType farseek.ValueSourceType
 }
 
-func (v unparsedVariableValueString) ParseVariableValue(mode configs.VariableParsingMode) (*tofu.InputValue, tfdiags.Diagnostics) {
+func (v unparsedVariableValueString) ParseVariableValue(mode configs.VariableParsingMode) (*farseek.InputValue, tfdiags.Diagnostics) {
 	var diags tfdiags.Diagnostics
 
 	val, hclDiags := mode.Parse(v.name, v.str)
 	diags = diags.Append(hclDiags)
 
-	return &tofu.InputValue{
+	return &farseek.InputValue{
 		Value:      val,
 		SourceType: v.sourceType,
 	}, diags

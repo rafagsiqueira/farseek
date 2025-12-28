@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -15,7 +15,7 @@ import (
 
 	"github.com/rafagsiqueira/farseek/internal/configs"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func TestUnparsedValue(t *testing.T) {
@@ -74,10 +74,10 @@ func TestUnparsedValue(t *testing.T) {
 			t.Fatalf("wrong number of diagnostics %d; want %d", got, want)
 		}
 
-		wantVals := tofu.InputValues{
+		wantVals := farseek.InputValues{
 			"declared1": {
 				Value:      cty.StringVal("5"),
-				SourceType: tofu.ValueFromNamedFile,
+				SourceType: farseek.ValueFromNamedFile,
 				SourceRange: tfdiags.SourceRange{
 					Filename: "fake.tfvars",
 					Start:    tfdiags.SourcePos{Line: 1, Column: 1, Byte: 0},
@@ -110,10 +110,10 @@ func TestUnparsedValue(t *testing.T) {
 			t.Errorf("wrong summary for diagnostic 2\ngot:  %s\nwant: %s", got, want)
 		}
 
-		wantVals := tofu.InputValues{
+		wantVals := farseek.InputValues{
 			"undeclared0": {
 				Value:      cty.StringVal("0"),
-				SourceType: tofu.ValueFromNamedFile,
+				SourceType: farseek.ValueFromNamedFile,
 				SourceRange: tfdiags.SourceRange{
 					Filename: "fake.tfvars",
 					Start:    tfdiags.SourcePos{Line: 1, Column: 1},
@@ -122,7 +122,7 @@ func TestUnparsedValue(t *testing.T) {
 			},
 			"undeclared1": {
 				Value:      cty.StringVal("1"),
-				SourceType: tofu.ValueFromNamedFile,
+				SourceType: farseek.ValueFromNamedFile,
 				SourceRange: tfdiags.SourceRange{
 					Filename: "fake.tfvars",
 					Start:    tfdiags.SourcePos{Line: 1, Column: 1},
@@ -131,7 +131,7 @@ func TestUnparsedValue(t *testing.T) {
 			},
 			"undeclared2": {
 				Value:      cty.StringVal("2"),
-				SourceType: tofu.ValueFromNamedFile,
+				SourceType: farseek.ValueFromNamedFile,
 				SourceRange: tfdiags.SourceRange{
 					Filename: "fake.tfvars",
 					Start:    tfdiags.SourcePos{Line: 1, Column: 1},
@@ -140,7 +140,7 @@ func TestUnparsedValue(t *testing.T) {
 			},
 			"undeclared3": {
 				Value:      cty.StringVal("3"),
-				SourceType: tofu.ValueFromNamedFile,
+				SourceType: farseek.ValueFromNamedFile,
 				SourceRange: tfdiags.SourceRange{
 					Filename: "fake.tfvars",
 					Start:    tfdiags.SourcePos{Line: 1, Column: 1},
@@ -149,7 +149,7 @@ func TestUnparsedValue(t *testing.T) {
 			},
 			"undeclared4": {
 				Value:      cty.StringVal("4"),
-				SourceType: tofu.ValueFromNamedFile,
+				SourceType: farseek.ValueFromNamedFile,
 				SourceRange: tfdiags.SourceRange{
 					Filename: "fake.tfvars",
 					Start:    tfdiags.SourcePos{Line: 1, Column: 1},
@@ -189,10 +189,10 @@ func TestUnparsedValue(t *testing.T) {
 			t.Errorf("wrong summary for diagnostic 3\ngot:  %s\nwant: %s", got, want)
 		}
 
-		wantVals := tofu.InputValues{
+		wantVals := farseek.InputValues{
 			"declared1": {
 				Value:      cty.StringVal("5"),
-				SourceType: tofu.ValueFromNamedFile,
+				SourceType: farseek.ValueFromNamedFile,
 				SourceRange: tfdiags.SourceRange{
 					Filename: "fake.tfvars",
 					Start:    tfdiags.SourcePos{Line: 1, Column: 1, Byte: 0},
@@ -201,7 +201,7 @@ func TestUnparsedValue(t *testing.T) {
 			},
 			"missing1": {
 				Value:      cty.DynamicVal,
-				SourceType: tofu.ValueFromConfig,
+				SourceType: farseek.ValueFromConfig,
 				SourceRange: tfdiags.SourceRange{
 					Filename: "fake.tf",
 					Start:    tfdiags.SourcePos{Line: 3, Column: 1, Byte: 0},
@@ -209,8 +209,8 @@ func TestUnparsedValue(t *testing.T) {
 				},
 			},
 			"missing2": {
-				Value:      cty.NilVal, // OpenTofu Core handles substituting the default
-				SourceType: tofu.ValueFromConfig,
+				Value:      cty.NilVal, // Farseek Core handles substituting the default
+				SourceType: farseek.ValueFromConfig,
 				SourceRange: tfdiags.SourceRange{
 					Filename: "fake.tf",
 					Start:    tfdiags.SourcePos{Line: 4, Column: 1, Byte: 0},
@@ -226,10 +226,10 @@ func TestUnparsedValue(t *testing.T) {
 
 type testUnparsedVariableValue string
 
-func (v testUnparsedVariableValue) ParseVariableValue(mode configs.VariableParsingMode) (*tofu.InputValue, tfdiags.Diagnostics) {
-	return &tofu.InputValue{
+func (v testUnparsedVariableValue) ParseVariableValue(mode configs.VariableParsingMode) (*farseek.InputValue, tfdiags.Diagnostics) {
+	return &farseek.InputValue{
 		Value:      cty.StringVal(string(v)),
-		SourceType: tofu.ValueFromNamedFile,
+		SourceType: farseek.ValueFromNamedFile,
 		SourceRange: tfdiags.SourceRange{
 			Filename: "fake.tfvars",
 			Start:    tfdiags.SourcePos{Line: 1, Column: 1, Byte: 0},

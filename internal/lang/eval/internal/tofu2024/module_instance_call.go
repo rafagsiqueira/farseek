@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -24,7 +24,7 @@ type ModuleInstanceCall struct {
 	//
 	// This should be nil for calls that are caused by something other than
 	// configuration, such as a top-level call to a root module caused by
-	// running an OpenTofu CLI command.
+	// running an Farseek CLI command.
 	DeclRange *tfdiags.SourceRange
 
 	// InputValues describes how to build the values for the input variables
@@ -58,7 +58,7 @@ type ModuleInstanceCall struct {
 	// number of functions that produce different results each time they are
 	// called, such as "timestamp". This should be set to true only during
 	// the apply phase and in some more contrived situations such as in the
-	// "tofu console" command's REPL.
+	// "farseek console" command's REPL.
 	//
 	// This setting should typically be propagated verbatim to any child
 	// module instances because there's little reason for one module to

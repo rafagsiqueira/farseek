@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -11,18 +11,18 @@ import (
 	"testing"
 
 	"github.com/hashicorp/go-plugin"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func TestUIInput_impl(t *testing.T) {
-	var _ tofu.UIInput = new(UIInput)
+	var _ farseek.UIInput = new(UIInput)
 }
 
 func TestUIInput_input(t *testing.T) {
 	client, server := plugin.TestRPCConn(t)
 	defer client.Close()
 
-	i := new(tofu.MockUIInput)
+	i := new(farseek.MockUIInput)
 	i.InputReturnString = "foo"
 
 	err := server.RegisterName("Plugin", &UIInputServer{
@@ -34,7 +34,7 @@ func TestUIInput_input(t *testing.T) {
 
 	input := &UIInput{Client: client}
 
-	opts := &tofu.InputOpts{
+	opts := &farseek.InputOpts{
 		Id: "foo",
 	}
 

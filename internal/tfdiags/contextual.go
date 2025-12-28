@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -141,7 +141,7 @@ func (d *attributeDiagnostic) ElaborateFromConfigBody(body hcl.Body, addr string
 	// This function will often end up re-decoding values that were already
 	// decoded by an earlier step. This is non-ideal but is architecturally
 	// more convenient than arranging for source location information to be
-	// propagated to every place in OpenTofu, and this happens only in the
+	// propagated to every place in Farseek, and this happens only in the
 	// presence of errors where performance isn't a concern.
 
 	traverse := d.attrPath[:]

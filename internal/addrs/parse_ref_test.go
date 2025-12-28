@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -743,32 +743,32 @@ func TestParseRef(t *testing.T) {
 			`The "terraform" object does not support this operation.`,
 		},
 
-		// tofu
+		// farseek
 		{
-			`tofu.workspace`,
+			`farseek.workspace`,
 			&Reference{
-				Subject: NewTerraformAttr("tofu", "workspace"),
+				Subject: NewTerraformAttr("farseek", "workspace"),
 				SourceRange: tfdiags.SourceRange{
 					Start: tfdiags.SourcePos{Line: 1, Column: 1, Byte: 0},
-					End:   tfdiags.SourcePos{Line: 1, Column: 15, Byte: 14},
+					End:   tfdiags.SourcePos{Line: 1, Column: 18, Byte: 17},
 				},
 			},
 			``,
 		},
 		{
-			`tofu.workspace.blah`,
+			`farseek.workspace.blah`,
 			&Reference{
-				Subject: NewTerraformAttr("tofu", "workspace"),
+				Subject: NewTerraformAttr("farseek", "workspace"),
 				SourceRange: tfdiags.SourceRange{
 					Start: tfdiags.SourcePos{Line: 1, Column: 1, Byte: 0},
-					End:   tfdiags.SourcePos{Line: 1, Column: 15, Byte: 14},
+					End:   tfdiags.SourcePos{Line: 1, Column: 18, Byte: 17},
 				},
 				Remaining: hcl.Traversal{
 					hcl.TraverseAttr{
 						Name: "blah",
 						SrcRange: hcl.Range{
-							Start: hcl.Pos{Line: 1, Column: 15, Byte: 14},
-							End:   hcl.Pos{Line: 1, Column: 20, Byte: 19},
+							Start: hcl.Pos{Line: 1, Column: 18, Byte: 17},
+							End:   hcl.Pos{Line: 1, Column: 23, Byte: 22},
 						},
 					},
 				},
@@ -776,14 +776,14 @@ func TestParseRef(t *testing.T) {
 			``, // valid at this layer, but will fail during eval because "workspace" is a string
 		},
 		{
-			`tofu`,
+			`farseek`,
 			nil,
-			`The "tofu" object cannot be accessed directly. Instead, access one of its attributes.`,
+			`The "farseek" object cannot be accessed directly. Instead, access one of its attributes.`,
 		},
 		{
-			`tofu["workspace"]`,
+			`farseek["workspace"]`,
 			nil,
-			`The "tofu" object does not support this operation.`,
+			`The "farseek" object does not support this operation.`,
 		},
 
 		// var
@@ -836,7 +836,7 @@ func TestParseRef(t *testing.T) {
 		// the "resource" prefix forces interpreting the next name as a
 		// resource type name. This is an alias for just using a resource
 		// type name at the top level, to be used only if a later edition
-		// of the OpenTofu language introduces a new reserved word that
+		// of the Farseek language introduces a new reserved word that
 		// overlaps with a resource type name.
 		{
 			`resource.boop_instance.foo`,
@@ -860,17 +860,17 @@ func TestParseRef(t *testing.T) {
 		{
 			`template.foo`,
 			nil,
-			`The symbol name "template" is reserved for use in a future OpenTofu version. If you are using a provider that already uses this as a resource type name, add the prefix "resource." to force interpretation as a resource type name.`,
+			`The symbol name "template" is reserved for use in a future Farseek version. If you are using a provider that already uses this as a resource type name, add the prefix "resource." to force interpretation as a resource type name.`,
 		},
 		{
 			`lazy.foo`,
 			nil,
-			`The symbol name "lazy" is reserved for use in a future OpenTofu version. If you are using a provider that already uses this as a resource type name, add the prefix "resource." to force interpretation as a resource type name.`,
+			`The symbol name "lazy" is reserved for use in a future Farseek version. If you are using a provider that already uses this as a resource type name, add the prefix "resource." to force interpretation as a resource type name.`,
 		},
 		{
 			`arg.foo`,
 			nil,
-			`The symbol name "arg" is reserved for use in a future OpenTofu version. If you are using a provider that already uses this as a resource type name, add the prefix "resource." to force interpretation as a resource type name.`,
+			`The symbol name "arg" is reserved for use in a future Farseek version. If you are using a provider that already uses this as a resource type name, add the prefix "resource." to force interpretation as a resource type name.`,
 		},
 
 		// anything else, interpreted as a managed resource reference

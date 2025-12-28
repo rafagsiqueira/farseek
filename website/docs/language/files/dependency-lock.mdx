@@ -1,7 +1,7 @@
 ---
 title: Dependency Lock File
 description: >-
-  OpenTofu uses the dependency lock file .farseek.lock.hcl to track and select
+  OpenTofu uses the dependency lock file .terraform.lock.hcl to track and select
   provider versions. Learn about dependency installation and lock file changes.
 ---
 
@@ -42,7 +42,7 @@ OpenTofu creates it and expects to find it in your current working directory
 when you run OpenTofu, which is also the directory containing the `.tf` or
 `.tofu` files for the root module of your configuration.
 
-The lock file is always named `.farseek.lock.hcl`, and this name is intended
+The lock file is always named `.terraform.lock.hcl`, and this name is intended
 to signify that it is a lock file for various items that OpenTofu caches in
 the `.terraform` subdirectory of your working directory.
 
@@ -79,7 +79,7 @@ will mention that as part of its output:
 
 ```
 OpenTofu has made some changes to the provider dependency selections recorded
-in the .farseek.lock.hcl file. Review those changes and commit them to your
+in the .terraform.lock.hcl file. Review those changes and commit them to your
 version control system if they represent changes you intended to make.
 ```
 
@@ -161,8 +161,8 @@ in the configuration, and it will record its decision as a new `provider`
 block in the dependency lock file.
 
 ```diff
---- .farseek.lock.hcl	2020-10-07 16:12:07.539570634 -0700
-+++ .farseek.lock.hcl	2020-10-07 16:12:15.267487237 -0700
+--- .terraform.lock.hcl	2020-10-07 16:12:07.539570634 -0700
++++ .terraform.lock.hcl	2020-10-07 16:12:15.267487237 -0700
 @@ -6,6 +6,26 @@
    ]
  }
@@ -213,8 +213,8 @@ then select a newer version for a provider and update its existing `provider`
 block to reflect that change.
 
 ```diff
---- .farseek.lock.hcl	2020-10-07 16:44:25.819579509 -0700
-+++ .farseek.lock.hcl	2020-10-07 16:43:42.785665945 -0700
+--- .terraform.lock.hcl	2020-10-07 16:44:25.819579509 -0700
++++ .terraform.lock.hcl	2020-10-07 16:43:42.785665945 -0700
 @@ -7,22 +7,22 @@
  }
 
@@ -270,8 +270,8 @@ new checksums that were not previously recorded, even though nothing else
 in the `provider` block has changed:
 
 ```diff
---- .farseek.lock.hcl	2020-10-07 17:24:23.397892140 -0700
-+++ .farseek.lock.hcl	2020-10-07 17:24:57.423130253 -0700
+--- .terraform.lock.hcl	2020-10-07 17:24:23.397892140 -0700
++++ .terraform.lock.hcl	2020-10-07 17:24:57.423130253 -0700
 @@ -10,6 +10,7 @@
    version     = "2.1.0"
    constraints = "~> 2.1.0"
@@ -367,8 +367,8 @@ configuration and state, then `tofu init` will remove any existing lock
 file entry for that provider.
 
 ```diff
---- .farseek.lock.hcl	2020-10-07 16:12:07.539570634 -0700
-+++ .farseek.lock.hcl	2020-10-07 16:12:15.267487237 -0700
+--- .terraform.lock.hcl	2020-10-07 16:12:07.539570634 -0700
++++ .terraform.lock.hcl	2020-10-07 16:12:15.267487237 -0700
 @@ -6,26 +6,6 @@
    ]
  }

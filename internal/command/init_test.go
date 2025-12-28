@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -20,7 +20,6 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/google/go-cmp/cmp"
-	"github.com/hashicorp/go-version"
 	"github.com/mitchellh/cli"
 	"github.com/zclconf/go-cty/cty"
 
@@ -33,7 +32,6 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/getproviders"
 	"github.com/rafagsiqueira/farseek/internal/providercache"
 	"github.com/rafagsiqueira/farseek/internal/states"
-	"github.com/rafagsiqueira/farseek/internal/states/statefile"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 )
 
@@ -342,7 +340,7 @@ func TestInit_backendConfigFile(t *testing.T) {
 		}
 	})
 
-	// the backend config file must not be a full tofu block
+	// the backend config file must not be a full farseek block
 	t.Run("full-backend-config-file", func(t *testing.T) {
 		ui := new(cli.MockUi)
 		view, _ := testView(t)
@@ -557,59 +555,6 @@ func TestInit_backendConfigFileChange(t *testing.T) {
 	state := testDataStateRead(t, filepath.Join(DefaultDataDir, DefaultStateFilename))
 	if got, want := normalizeJSON(t, state.Backend.ConfigRaw), `{"path":"hello","workspace_dir":null}`; got != want {
 		t.Errorf("wrong config\ngot:  %s\nwant: %s", got, want)
-	}
-}
-
-func TestInit_backendMigrateWhileLocked(t *testing.T) {
-	// Create a temporary working directory that is empty
-	td := t.TempDir()
-	testCopyDir(t, testFixturePath("init-backend-migrate-while-locked"), td)
-	t.Chdir(td)
-
-	providerSource, close := newMockProviderSource(t, map[string][]string{
-		"hashicorp/test": {"1.2.3"},
-	})
-	defer close()
-
-	ui := new(cli.MockUi)
-	view, _ := testView(t)
-	c := &InitCommand{
-		Meta: Meta{
-			testingOverrides: metaOverridesForProvider(testProvider()),
-			ProviderSource:   providerSource,
-			Ui:               ui,
-			View:             view,
-		},
-	}
-
-	// Create some state, so the backend has something to migrate from
-	f, err := os.Create("local-state.tfstate")
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
-	err = writeStateForTesting(testState(), f)
-	f.Close()
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
-
-	// Lock the source state
-	unlock, err := testLockState(t, testDataDir, "local-state.tfstate")
-	if err != nil {
-		t.Fatal(err)
-	}
-	// Attempt to migrate
-	args := []string{"-backend-config", "input.config", "-migrate-state", "-force-copy"}
-	if code := c.Run(args); code == 0 {
-		t.Fatalf("expected nonzero exit code: %s", ui.OutputWriter.String())
-	}
-
-	// Unlock before trying to migrate again
-	unlock()
-
-	args = []string{"-backend-config", "input.config", "-migrate-state", "-force-copy", "-lock=false"}
-	if code := c.Run(args); code != 0 {
-		t.Fatalf("expected zero exit code, got %d: %s", code, ui.ErrorWriter.String())
 	}
 }
 
@@ -927,315 +872,6 @@ func TestInit_backendReinitConfigToExtra(t *testing.T) {
 	}
 }
 
-func TestInit_backendCloudInvalidOptions(t *testing.T) {
-	// There are various "tofu init" options that are only for
-	// traditional backends and not applicable to Terraform Cloud mode.
-	// For those, we want to return an explicit error rather than
-	// just silently ignoring them, so that users will be aware that
-	// Cloud mode has more of an expected "happy path" than the
-	// less-vertically-integrated backends do, and to avoid these
-	// inapplicable options becoming compatibility constraints for
-	// future evolution of Cloud mode.
-
-	// We use the same starting fixture for all of these tests, but some
-	// of them will customize it a bit as part of their work.
-	setupTempDir := func(t *testing.T) {
-		t.Helper()
-		td := t.TempDir()
-		testCopyDir(t, testFixturePath("init-cloud-simple"), td)
-		t.Chdir(td)
-	}
-
-	// Some of the tests need a non-empty placeholder state file to work
-	// with.
-	fakeState := states.BuildState(func(cb *states.SyncState) {
-		// Having a root module output value should be enough for this
-		// state file to be considered "non-empty" and thus a candidate
-		// for migration.
-		cb.SetOutputValue(
-			addrs.OutputValue{Name: "a"}.Absolute(addrs.RootModuleInstance),
-			cty.True,
-			false,
-			"",
-		)
-	})
-	fakeStateFile := &statefile.File{
-		Lineage:          "boop",
-		Serial:           4,
-		TerraformVersion: version.Must(version.NewVersion("1.0.0")),
-		State:            fakeState,
-	}
-	var fakeStateBuf bytes.Buffer
-	err := statefile.WriteForTest(fakeStateFile, &fakeStateBuf)
-	if err != nil {
-		t.Error(err)
-	}
-	fakeStateBytes := fakeStateBuf.Bytes()
-
-	t.Run("-backend-config", func(t *testing.T) {
-		setupTempDir(t)
-
-		// We have -backend-config as a pragmatic way to dynamically set
-		// certain settings of backends that tend to vary depending on
-		// where OpenTofu is running, such as AWS authentication profiles
-		// that are naturally local only to the machine where OpenTofu is
-		// running. Those needs don't apply to Terraform Cloud, because
-		// the remote workspace encapsulates all of the details of how
-		// operations and state work in that case, and so the Cloud
-		// configuration is only about which workspaces we'll be working
-		// with.
-		ui := cli.NewMockUi()
-		view, _ := testView(t)
-		c := &InitCommand{
-			Meta: Meta{
-				Ui:   ui,
-				View: view,
-			},
-		}
-		args := []string{"-backend-config=anything"}
-		if code := c.Run(args); code == 0 {
-			t.Fatalf("unexpected success\n%s", ui.OutputWriter.String())
-		}
-
-		gotStderr := ui.ErrorWriter.String()
-		wantStderr := `
-Error: Invalid command-line option
-
-The -backend-config=... command line option is only for state backends, and
-is not applicable to cloud backend-based configurations.
-
-To change the set of workspaces associated with this configuration, edit the
-Cloud configuration block in the root module.
-
-`
-		if diff := cmp.Diff(wantStderr, gotStderr); diff != "" {
-			t.Errorf("wrong error output\n%s", diff)
-		}
-	})
-	t.Run("-reconfigure", func(t *testing.T) {
-		setupTempDir(t)
-
-		// The -reconfigure option was originally imagined as a way to force
-		// skipping state migration when migrating between backends, but it
-		// has a historical flaw that it doesn't work properly when the
-		// initial situation is the implicit local backend with a state file
-		// present. The Terraform Cloud migration path has some additional
-		// steps to take care of more details automatically, and so
-		// -reconfigure doesn't really make sense in that context, particularly
-		// with its design bug with the handling of the implicit local backend.
-		ui := cli.NewMockUi()
-		view, _ := testView(t)
-		c := &InitCommand{
-			Meta: Meta{
-				Ui:   ui,
-				View: view,
-			},
-		}
-		args := []string{"-reconfigure"}
-		if code := c.Run(args); code == 0 {
-			t.Fatalf("unexpected success\n%s", ui.OutputWriter.String())
-		}
-
-		gotStderr := ui.ErrorWriter.String()
-		wantStderr := `
-Error: Invalid command-line option
-
-The -reconfigure option is for in-place reconfiguration of state backends
-only, and is not needed when changing cloud backend settings.
-
-When using cloud backend, initialization automatically activates any new
-Cloud configuration settings.
-
-`
-		if diff := cmp.Diff(wantStderr, gotStderr); diff != "" {
-			t.Errorf("wrong error output\n%s", diff)
-		}
-	})
-	t.Run("-reconfigure when migrating in", func(t *testing.T) {
-		setupTempDir(t)
-
-		// We have a slightly different error message for the case where we
-		// seem to be trying to migrate to Terraform Cloud with existing
-		// state or explicit backend already present.
-
-		if err := os.WriteFile("farseek.tfstate", fakeStateBytes, 0644); err != nil {
-			t.Fatal(err)
-		}
-
-		ui := cli.NewMockUi()
-		view, _ := testView(t)
-		c := &InitCommand{
-			Meta: Meta{
-				Ui:   ui,
-				View: view,
-			},
-		}
-		args := []string{"-reconfigure"}
-		if code := c.Run(args); code == 0 {
-			t.Fatalf("unexpected success\n%s", ui.OutputWriter.String())
-		}
-
-		gotStderr := ui.ErrorWriter.String()
-		wantStderr := `
-Error: Invalid command-line option
-
-The -reconfigure option is unsupported when migrating to cloud backend,
-because activating cloud backend involves some additional steps.
-
-`
-		if diff := cmp.Diff(wantStderr, gotStderr); diff != "" {
-			t.Errorf("wrong error output\n%s", diff)
-		}
-	})
-	t.Run("-migrate-state", func(t *testing.T) {
-		setupTempDir(t)
-
-		// In Cloud mode, migrating in or out always proposes migrating state
-		// and changing configuration while staying in cloud mode never migrates
-		// state, so this special option isn't relevant.
-		ui := cli.NewMockUi()
-		view, _ := testView(t)
-		c := &InitCommand{
-			Meta: Meta{
-				Ui:   ui,
-				View: view,
-			},
-		}
-		args := []string{"-migrate-state"}
-		if code := c.Run(args); code == 0 {
-			t.Fatalf("unexpected success\n%s", ui.OutputWriter.String())
-		}
-
-		gotStderr := ui.ErrorWriter.String()
-		wantStderr := `
-Error: Invalid command-line option
-
-The -migrate-state option is for migration between state backends only, and
-is not applicable when using cloud backend.
-
-State storage is handled automatically by cloud backend and so the state
-storage location is not configurable.
-
-`
-		if diff := cmp.Diff(wantStderr, gotStderr); diff != "" {
-			t.Errorf("wrong error output\n%s", diff)
-		}
-	})
-	t.Run("-migrate-state when migrating in", func(t *testing.T) {
-		setupTempDir(t)
-
-		// We have a slightly different error message for the case where we
-		// seem to be trying to migrate to Terraform Cloud with existing
-		// state or explicit backend already present.
-
-		if err := os.WriteFile("farseek.tfstate", fakeStateBytes, 0644); err != nil {
-			t.Fatal(err)
-		}
-
-		ui := cli.NewMockUi()
-		view, _ := testView(t)
-		c := &InitCommand{
-			Meta: Meta{
-				Ui:   ui,
-				View: view,
-			},
-		}
-		args := []string{"-migrate-state"}
-		if code := c.Run(args); code == 0 {
-			t.Fatalf("unexpected success\n%s", ui.OutputWriter.String())
-		}
-
-		gotStderr := ui.ErrorWriter.String()
-		wantStderr := `
-Error: Invalid command-line option
-
-The -migrate-state option is for migration between state backends only, and
-is not applicable when using cloud backend.
-
-Cloud backend migration has additional steps, configured by interactive
-prompts.
-
-`
-		if diff := cmp.Diff(wantStderr, gotStderr); diff != "" {
-			t.Errorf("wrong error output\n%s", diff)
-		}
-	})
-	t.Run("-force-copy", func(t *testing.T) {
-		setupTempDir(t)
-
-		// In Cloud mode, migrating in or out always proposes migrating state
-		// and changing configuration while staying in cloud mode never migrates
-		// state, so this special option isn't relevant.
-		ui := cli.NewMockUi()
-		view, _ := testView(t)
-		c := &InitCommand{
-			Meta: Meta{
-				Ui:   ui,
-				View: view,
-			},
-		}
-		args := []string{"-force-copy"}
-		if code := c.Run(args); code == 0 {
-			t.Fatalf("unexpected success\n%s", ui.OutputWriter.String())
-		}
-
-		gotStderr := ui.ErrorWriter.String()
-		wantStderr := `
-Error: Invalid command-line option
-
-The -force-copy option is for migration between state backends only, and is
-not applicable when using cloud backend.
-
-State storage is handled automatically by cloud backend and so the state
-storage location is not configurable.
-
-`
-		if diff := cmp.Diff(wantStderr, gotStderr); diff != "" {
-			t.Errorf("wrong error output\n%s", diff)
-		}
-	})
-	t.Run("-force-copy when migrating in", func(t *testing.T) {
-		setupTempDir(t)
-
-		// We have a slightly different error message for the case where we
-		// seem to be trying to migrate to Terraform Cloud with existing
-		// state or explicit backend already present.
-
-		if err := os.WriteFile("farseek.tfstate", fakeStateBytes, 0644); err != nil {
-			t.Fatal(err)
-		}
-
-		ui := cli.NewMockUi()
-		view, _ := testView(t)
-		c := &InitCommand{
-			Meta: Meta{
-				Ui:   ui,
-				View: view,
-			},
-		}
-		args := []string{"-force-copy"}
-		if code := c.Run(args); code == 0 {
-			t.Fatalf("unexpected success\n%s", ui.OutputWriter.String())
-		}
-
-		gotStderr := ui.ErrorWriter.String()
-		wantStderr := `
-Error: Invalid command-line option
-
-The -force-copy option is for migration between state backends only, and is
-not applicable when using cloud backend.
-
-Cloud backend migration has additional steps, configured by interactive
-prompts.
-
-`
-		if diff := cmp.Diff(wantStderr, gotStderr); diff != "" {
-			t.Errorf("wrong error output\n%s", diff)
-		}
-	})
-
-}
-
 // make sure inputFalse stops execution on migrate
 func TestInit_inputFalse(t *testing.T) {
 	td := t.TempDir()
@@ -1353,22 +989,22 @@ func TestInit_getProvider(t *testing.T) {
 	}
 
 	// check that we got the providers for our config
-	exactPath := fmt.Sprintf(".terraform/providers/registry.opentofu.org/hashicorp/exact/1.2.3/%s", getproviders.CurrentPlatform)
+	exactPath := fmt.Sprintf(".farseek/providers/registry.opentofu.org/hashicorp/exact/1.2.3/%s", getproviders.CurrentPlatform)
 	if _, err := os.Stat(exactPath); os.IsNotExist(err) {
 		t.Fatal("provider 'exact' not downloaded")
 	}
-	greaterThanPath := fmt.Sprintf(".terraform/providers/registry.opentofu.org/hashicorp/greater-than/2.3.4/%s", getproviders.CurrentPlatform)
+	greaterThanPath := fmt.Sprintf(".farseek/providers/registry.opentofu.org/hashicorp/greater-than/2.3.4/%s", getproviders.CurrentPlatform)
 	if _, err := os.Stat(greaterThanPath); os.IsNotExist(err) {
 		t.Fatal("provider 'greater-than' not downloaded")
 	}
-	betweenPath := fmt.Sprintf(".terraform/providers/registry.opentofu.org/hashicorp/between/2.3.4/%s", getproviders.CurrentPlatform)
+	betweenPath := fmt.Sprintf(".farseek/providers/registry.opentofu.org/hashicorp/between/2.3.4/%s", getproviders.CurrentPlatform)
 	if _, err := os.Stat(betweenPath); os.IsNotExist(err) {
 		t.Fatal("provider 'between' not downloaded")
 	}
 
 	t.Run("future-state", func(t *testing.T) {
 		// getting providers should fail if a state from a newer version of
-		// tofu exists, since InitCommand.getProviders needs to inspect that
+		// farseek exists, since InitCommand.getProviders needs to inspect that
 		// state.
 
 		f, err := os.Create(DefaultStateFilename)
@@ -1457,15 +1093,15 @@ func TestInit_getProviderSource(t *testing.T) {
 	}
 
 	// check that we got the providers for our config
-	exactPath := fmt.Sprintf(".terraform/providers/registry.opentofu.org/acme/alpha/1.2.3/%s", getproviders.CurrentPlatform)
+	exactPath := fmt.Sprintf(".farseek/providers/registry.opentofu.org/acme/alpha/1.2.3/%s", getproviders.CurrentPlatform)
 	if _, err := os.Stat(exactPath); os.IsNotExist(err) {
 		t.Error("provider 'alpha' not downloaded")
 	}
-	greaterThanPath := fmt.Sprintf(".terraform/providers/registry.example.com/acme/beta/1.0.0/%s", getproviders.CurrentPlatform)
+	greaterThanPath := fmt.Sprintf(".farseek/providers/registry.example.com/acme/beta/1.0.0/%s", getproviders.CurrentPlatform)
 	if _, err := os.Stat(greaterThanPath); os.IsNotExist(err) {
 		t.Error("provider 'beta' not downloaded")
 	}
-	betweenPath := fmt.Sprintf(".terraform/providers/registry.opentofu.org/hashicorp/gamma/2.0.0/%s", getproviders.CurrentPlatform)
+	betweenPath := fmt.Sprintf(".farseek/providers/registry.opentofu.org/hashicorp/gamma/2.0.0/%s", getproviders.CurrentPlatform)
 	if _, err := os.Stat(betweenPath); os.IsNotExist(err) {
 		t.Error("provider 'gamma' not downloaded")
 	}
@@ -1557,7 +1193,7 @@ func TestInit_getProviderInvalidPackage(t *testing.T) {
 	}
 
 	// invalid provider should be installed
-	packagePath := fmt.Sprintf(".terraform/providers/registry.opentofu.org/invalid/package/1.0.0/%s/terraform-package", getproviders.CurrentPlatform)
+	packagePath := fmt.Sprintf(".farseek/providers/registry.opentofu.org/invalid/package/1.0.0/%s/terraform-package", getproviders.CurrentPlatform)
 	if _, err := os.Stat(packagePath); os.IsNotExist(err) {
 		t.Fatal("provider 'invalid/package' not downloaded")
 	}
@@ -1616,12 +1252,12 @@ func TestInit_getProviderDetectedLegacy(t *testing.T) {
 	}
 
 	// foo should be installed
-	fooPath := fmt.Sprintf(".terraform/providers/registry.opentofu.org/hashicorp/foo/1.2.3/%s", getproviders.CurrentPlatform)
+	fooPath := fmt.Sprintf(".farseek/providers/registry.opentofu.org/hashicorp/foo/1.2.3/%s", getproviders.CurrentPlatform)
 	if _, err := os.Stat(fooPath); os.IsNotExist(err) {
 		t.Error("provider 'foo' not installed")
 	}
 	// baz should not be installed
-	bazPath := fmt.Sprintf(".terraform/providers/registry.opentofu.org/terraform-providers/baz/2.3.4/%s", getproviders.CurrentPlatform)
+	bazPath := fmt.Sprintf(".farseek/providers/registry.opentofu.org/terraform-providers/baz/2.3.4/%s", getproviders.CurrentPlatform)
 	if _, err := os.Stat(bazPath); !os.IsNotExist(err) {
 		t.Error("provider 'baz' installed, but should not be")
 	}
@@ -1687,11 +1323,11 @@ func TestInit_getProviderDetectedDuplicate(t *testing.T) {
 	errOutput := ui.ErrorWriter.String()
 	errors := []string{
 		"Warning: Potential provider misconfiguration",
-		"OpenTofu has detected multiple providers of type foo",
+		"Farseek has detected multiple providers of type foo",
 		"If this is intentional you can ignore this warning",
 	}
 	unexpected := []string{
-		"OpenTofu has detected multiple providers of type bar",
+		"Farseek has detected multiple providers of type bar",
 	}
 	for _, want := range errors {
 		if !strings.Contains(errOutput, want) {
@@ -1737,7 +1373,7 @@ func TestInit_providerSource(t *testing.T) {
 	if code := c.Run(args); code != 0 {
 		t.Fatalf("bad: \n%s", ui.ErrorWriter.String())
 	}
-	if strings.Contains(ui.OutputWriter.String(), "OpenTofu has initialized, but configuration upgrades may be needed") {
+	if strings.Contains(ui.OutputWriter.String(), "Farseek has initialized, but configuration upgrades may be needed") {
 		t.Fatalf("unexpected \"configuration upgrade\" warning in output")
 	}
 
@@ -1822,7 +1458,7 @@ func TestInit_providerSource(t *testing.T) {
 }
 
 func TestInit_cancelModules(t *testing.T) {
-	// This test runs `tofu init` against a server that stalls indefinitely
+	// This test runs `farseek init` against a server that stalls indefinitely
 	// instead of responding, and then requests shutdown in the same way
 	// as package main would in response to SIGINT (or similar on other
 	// platforms). This ensures that slow requests can be interrupted.
@@ -1894,7 +1530,7 @@ func TestInit_cancelModules(t *testing.T) {
 }
 
 func TestInit_cancelProviders(t *testing.T) {
-	// This test runs `tofu init` as if SIGINT (or similar on other
+	// This test runs `farseek init` as if SIGINT (or similar on other
 	// platforms) were sent to it, testing that it is interruptible.
 
 	td := t.TempDir()
@@ -2158,7 +1794,7 @@ func TestInit_checkRequiredVersionFirst(t *testing.T) {
 			t.Fatalf("got exit status %d; want 1\nstderr:\n%s\n\nstdout:\n%s", code, ui.ErrorWriter.String(), ui.OutputWriter.String())
 		}
 		errStr := ui.ErrorWriter.String()
-		if !strings.Contains(errStr, `Unsupported OpenTofu Core version`) {
+		if !strings.Contains(errStr, `Unsupported Farseek Core version`) {
 			t.Fatalf("output should point to unmet version constraint, but is:\n\n%s", errStr)
 		}
 	})
@@ -2182,7 +1818,7 @@ func TestInit_checkRequiredVersionFirst(t *testing.T) {
 			t.Fatalf("got exit status %d; want 1\nstderr:\n%s\n\nstdout:\n%s", code, ui.ErrorWriter.String(), ui.OutputWriter.String())
 		}
 		errStr := ui.ErrorWriter.String()
-		if !strings.Contains(errStr, `Unsupported OpenTofu Core version`) {
+		if !strings.Contains(errStr, `Unsupported Farseek Core version`) {
 			t.Fatalf("output should point to unmet version constraint, but is:\n\n%s", errStr)
 		}
 	})
@@ -2232,7 +1868,7 @@ func TestInit_providerLockFile(t *testing.T) {
 	// The hashes in here are for the fake package that newMockProviderSource produces
 	// (so they'll change if newMockProviderSource starts producing different contents)
 	wantLockFile := strings.TrimSpace(`
-# This file is maintained automatically by "tofu init".
+# This file is maintained automatically by "farseek init".
 # Manual edits may be lost in future updates.
 
 provider "registry.opentofu.org/hashicorp/test" {
@@ -2262,7 +1898,7 @@ func TestInit_providerLockFileReadonly(t *testing.T) {
 	// The hash in here is for the fake package that newMockProviderSource produces
 	// (so it'll change if newMockProviderSource starts producing different contents)
 	inputLockFile := strings.TrimSpace(`
-# This file is maintained automatically by "tofu init".
+# This file is maintained automatically by "farseek init".
 # Manual edits may be lost in future updates.
 
 provider "registry.opentofu.org/hashicorp/test" {
@@ -2275,7 +1911,7 @@ provider "registry.opentofu.org/hashicorp/test" {
 `)
 
 	badLockFile := strings.TrimSpace(`
-# This file is maintained automatically by "tofu init".
+# This file is maintained automatically by "farseek init".
 # Manual edits may be lost in future updates.
 
 provider "registry.opentofu.org/hashicorp/test" {
@@ -2288,7 +1924,7 @@ provider "registry.opentofu.org/hashicorp/test" {
 `)
 
 	updatedLockFile := strings.TrimSpace(`
-# This file is maintained automatically by "tofu init".
+# This file is maintained automatically by "farseek init".
 # Manual edits may be lost in future updates.
 
 provider "registry.opentofu.org/hashicorp/test" {
@@ -2302,7 +1938,7 @@ provider "registry.opentofu.org/hashicorp/test" {
 `)
 
 	emptyUpdatedLockFile := strings.TrimSpace(`
-# This file is maintained automatically by "tofu init".
+# This file is maintained automatically by "farseek init".
 # Manual edits may be lost in future updates.
 `)
 
@@ -2702,8 +2338,8 @@ func TestInit_pluginDirWithBuiltIn(t *testing.T) {
 	}
 
 	outputStr := ui.OutputWriter.String()
-	if subStr := "terraform.io/builtin/terraform is built in to OpenTofu"; !strings.Contains(outputStr, subStr) {
-		t.Errorf("output should mention the tofu provider\nwant substr: %s\ngot:\n%s", subStr, outputStr)
+	if subStr := "terraform.io/builtin/terraform is built in to Farseek"; !strings.Contains(outputStr, subStr) {
+		t.Errorf("output should mention the farseek provider\nwant substr: %s\ngot:\n%s", subStr, outputStr)
 	}
 }
 
@@ -2742,7 +2378,7 @@ func TestInit_invalidBuiltInProviders(t *testing.T) {
 	if subStr := "Cannot use terraform.io/builtin/terraform: built-in"; !strings.Contains(errStr, subStr) {
 		t.Errorf("error output should mention the terraform provider\nwant substr: %s\ngot:\n%s", subStr, errStr)
 	}
-	if subStr := "Cannot use terraform.io/builtin/nonexist: this OpenTofu release"; !strings.Contains(errStr, subStr) {
+	if subStr := "Cannot use terraform.io/builtin/nonexist: this Farseek release"; !strings.Contains(errStr, subStr) {
 		t.Errorf("error output should mention the 'nonexist' provider\nwant substr: %s\ngot:\n%s", subStr, errStr)
 	}
 }
@@ -2768,7 +2404,7 @@ func TestInit_invalidSyntaxNoBackend(t *testing.T) {
 	}
 
 	errStr := ui.ErrorWriter.String()
-	if subStr := "OpenTofu encountered problems during initialization, including problems\nwith the configuration, described below."; !strings.Contains(errStr, subStr) {
+	if subStr := "Farseek encountered problems during initialization, including problems\nwith the configuration, described below."; !strings.Contains(errStr, subStr) {
 		t.Errorf("Error output should include preamble\nwant substr: %s\ngot:\n%s", subStr, errStr)
 	}
 	if subStr := "Error: Unsupported block type"; !strings.Contains(errStr, subStr) {
@@ -2777,32 +2413,37 @@ func TestInit_invalidSyntaxNoBackend(t *testing.T) {
 }
 
 func TestInit_invalidSyntaxWithBackend(t *testing.T) {
-	td := t.TempDir()
-	testCopyDir(t, testFixturePath("init-syntax-invalid-with-backend"), td)
-	t.Chdir(td)
+	t.Run("invalid syntax with backend", func(t *testing.T) {
+		// This test expects a different error message because Farseek attempts
+		// to load the backend configuration before full validation.
+		td := t.TempDir()
+		testCopyDir(t, testFixturePath("init-syntax-invalid-with-backend"), td)
+		t.Chdir(td)
 
-	ui := cli.NewMockUi()
-	view, _ := testView(t)
-	m := Meta{
-		Ui:   ui,
-		View: view,
-	}
+		ui := cli.NewMockUi()
+		view, _ := testView(t)
+		m := Meta{
+			Ui:   ui,
+			View: view,
+		}
 
-	c := &InitCommand{
-		Meta: m,
-	}
+		c := &InitCommand{
+			Meta: m,
+		}
 
-	if code := c.Run(nil); code == 0 {
-		t.Fatalf("succeeded, but was expecting error\nstdout:\n%s\nstderr:\n%s", ui.OutputWriter, ui.ErrorWriter)
-	}
+		args := []string{}
+		if code := c.Run(args); code != 1 {
+			t.Fatalf("got exit status %d; want 1", code)
+		}
 
-	errStr := ui.ErrorWriter.String()
-	if subStr := "OpenTofu encountered problems during initialization, including problems\nwith the configuration, described below."; !strings.Contains(errStr, subStr) {
-		t.Errorf("Error output should include preamble\nwant substr: %s\ngot:\n%s", subStr, errStr)
-	}
-	if subStr := "Error: Unsupported block type"; !strings.Contains(errStr, subStr) {
-		t.Errorf("Error output should mention the syntax problem\nwant substr: %s\ngot:\n%s", subStr, errStr)
-	}
+		output := ui.ErrorWriter.String()
+		if !strings.Contains(output, "Farseek encountered problems during initialization") {
+			t.Fatalf("Error output should include preamble\nwant substr: Farseek encountered problems during initialization, including problems\nwith the configuration, described below.\n\ngot:\n%s", output)
+		}
+		if subStr := "Error: Unsupported block type"; !strings.Contains(output, subStr) {
+			t.Fatalf("Error output should mention the syntax problem\nwant substr: %s\ngot:\n%s", subStr, output)
+		}
+	})
 }
 
 func TestInit_invalidSyntaxInvalidBackend(t *testing.T) {
@@ -2826,7 +2467,7 @@ func TestInit_invalidSyntaxInvalidBackend(t *testing.T) {
 	}
 
 	errStr := ui.ErrorWriter.String()
-	if subStr := "OpenTofu encountered problems during initialization, including problems\nwith the configuration, described below."; !strings.Contains(errStr, subStr) {
+	if subStr := "Farseek encountered problems during initialization, including problems\nwith the configuration, described below."; !strings.Contains(errStr, subStr) {
 		t.Errorf("Error output should include preamble\nwant substr: %s\ngot:\n%s", subStr, errStr)
 	}
 	if subStr := "Error: Unsupported block type"; !strings.Contains(errStr, subStr) {
@@ -2858,7 +2499,7 @@ func TestInit_invalidSyntaxBackendAttribute(t *testing.T) {
 	}
 
 	errStr := ui.ErrorWriter.String()
-	if subStr := "OpenTofu encountered problems during initialization, including problems\nwith the configuration, described below."; !strings.Contains(errStr, subStr) {
+	if subStr := "Farseek encountered problems during initialization, including problems\nwith the configuration, described below."; !strings.Contains(errStr, subStr) {
 		t.Errorf("Error output should include preamble\nwant substr: %s\ngot:\n%s", subStr, errStr)
 	}
 	if subStr := "Error: Invalid character"; !strings.Contains(errStr, subStr) {
@@ -3317,7 +2958,7 @@ func installFakeProviderPackagesElsewhere(t *testing.T, cacheDir *providercache.
 // with how the getproviders and providercache packages build paths.
 func expectedPackageInstallPath(name, version string) string {
 	platform := getproviders.CurrentPlatform
-	baseDir := ".terraform/providers"
+	baseDir := ".farseek/providers"
 	return filepath.ToSlash(filepath.Join(
 		baseDir, fmt.Sprintf("registry.opentofu.org/hashicorp/%s/%s/%s", name, version, platform),
 	))

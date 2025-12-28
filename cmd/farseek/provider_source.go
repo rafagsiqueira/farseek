@@ -24,7 +24,7 @@ import (
 
 // providerSource constructs a provider source based on a combination of the
 // CLI configuration and some default search locations. This will be the
-// provider source used for provider installation in the "tofu init"
+// provider source used for provider installation in the "farseek init"
 // command, unless overridden by the special -plugin-dir option.
 func providerSource(
 	ctx context.Context,
@@ -306,7 +306,7 @@ func providerDevOverrides(configs []*cliconfig.ProviderInstallation) map[addrs.P
 // [getproviders.Source] all the way down to the [getproviders.PackageLocation]
 // to be able to tweak the configurations of the http clients used there.
 func providerSourceLocationConfig(locationRetries cliconfig.ProviderInstallationMethodRetries) getproviders.LocationConfig {
-	// If there is no configuration for the retries in .tofurc, get the one from env variable
+	// If there is no configuration for the retries in .farseekrc, get the one from env variable
 	retries, configured := locationRetries()
 	if !configured {
 		retries = cliconfig.ProviderDownloadRetries()
@@ -318,7 +318,7 @@ func providerSourceLocationConfig(locationRetries cliconfig.ProviderInstallation
 
 // providerSourceLocationConfigFromEnv is similar to providerSourceLocationConfig but does not
 // take into account the information from the configuration. This is like so because for some
-// commands, there is no specific tofurc configuration for the retry, so we want to use the
+// commands, there is no specific farseekrc configuration for the retry, so we want to use the
 // env variable if defined and if not, its default.
 func providerSourceLocationConfigFromEnv() getproviders.LocationConfig {
 	return getproviders.LocationConfig{

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -294,7 +294,10 @@ func TestFmt_workingDirectory(t *testing.T) {
 	// Consistent order
 	sort.Strings(output)
 
-	for i, expected := range []string{fmtFixture.filename, fmtFixture.altFilename} {
+	expectedList := []string{fmtFixture.filename, fmtFixture.altFilename}
+	sort.Strings(expectedList)
+
+	for i, expected := range expectedList {
 		actual := output[i]
 		if actual != expected {
 			t.Fatalf("got: %q\nexpected: %q", actual, expected)
@@ -323,7 +326,10 @@ func TestFmt_directoryArg(t *testing.T) {
 	// Consistent order
 	sort.Strings(output)
 
-	for i, check := range []string{fmtFixture.filename, fmtFixture.altFilename} {
+	expectedPaths := []string{fmtFixture.filename, fmtFixture.altFilename}
+	sort.Strings(expectedPaths)
+
+	for i, check := range expectedPaths {
 		got, err := filepath.Abs(output[i])
 		if err != nil {
 			t.Fatal(err)
@@ -474,7 +480,7 @@ var fmtFixture = struct {
 	input, golden []byte
 }{
 	"main.tf",
-	"main.tofu",
+	"main.farseek",
 	[]byte(`  foo  =  "bar"
 `),
 	[]byte(`foo = "bar"

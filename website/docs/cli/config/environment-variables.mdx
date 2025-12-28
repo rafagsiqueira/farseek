@@ -12,28 +12,28 @@ when using OpenTofu, but they can be used to change some of OpenTofu's
 default behaviors in unusual situations, or to increase output verbosity
 for debugging.
 
-## FARSEEK_LOG
+## TF_LOG
 
 Enables detailed logs to appear on stderr which is useful for debugging. For example:
 
 ```shell
-export FARSEEK_LOG=trace
+export TF_LOG=trace
 ```
 
 To disable, either unset it, or set it to `off`. For example:
 
 ```shell
-export FARSEEK_LOG=off
+export TF_LOG=off
 ```
 
 For more on debugging OpenTofu, check out the section on [Debugging](../../internals/debugging.mdx).
 
-## FARSEEK_LOG_PATH
+## TF_LOG_PATH
 
-This specifies where the log should persist its output to. Note that even when `FARSEEK_LOG_PATH` is set, `FARSEEK_LOG` must be set in order for any logging to be enabled. For example, to always write the log to the directory you're currently running tofu from:
+This specifies where the log should persist its output to. Note that even when `TF_LOG_PATH` is set, `TF_LOG` must be set in order for any logging to be enabled. For example, to always write the log to the directory you're currently running tofu from:
 
 ```shell
-export FARSEEK_LOG_PATH=./terraform.log
+export TF_LOG_PATH=./terraform.log
 ```
 
 For more on debugging OpenTofu, check out the section on [Debugging](../../internals/debugging.mdx).

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -33,10 +33,10 @@ func TestNewJSONView(t *testing.T) {
 	want := []map[string]interface{}{
 		{
 			"@level":   "info",
-			"@message": fmt.Sprintf("OpenTofu %s", version),
-			"@module":  "tofu.ui",
+			"@message": fmt.Sprintf("Farseek %s", version),
+			"@module":  "farseek.ui",
 			"type":     "version",
-			"tofu":     version,
+			"farseek":     version,
 			"ui":       JSON_UI_VERSION,
 		},
 	}
@@ -57,7 +57,7 @@ func TestJSONView_Log(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "hello, world",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"type":     "log",
 				},
 			},
@@ -69,7 +69,7 @@ func TestJSONView_Log(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "hello, special char, <>&",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"type":     "log",
 				},
 			},
@@ -109,7 +109,7 @@ func TestJSONView_Diagnostics(t *testing.T) {
 		{
 			"@level":   "warn",
 			"@message": `Warning: Improper use of "less"`,
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "diagnostic",
 			"diagnostic": map[string]interface{}{
 				"severity": "warning",
@@ -120,7 +120,7 @@ func TestJSONView_Diagnostics(t *testing.T) {
 		{
 			"@level":   "error",
 			"@message": "Error: Unusually stripey cat detected",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "diagnostic",
 			"diagnostic": map[string]interface{}{
 				"severity": "error",
@@ -154,7 +154,7 @@ func TestJSONView_DiagnosticsWithMetadata(t *testing.T) {
 		{
 			"@level":   "warn",
 			"@message": `Warning: Improper use of "less"`,
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "diagnostic",
 			"diagnostic": map[string]interface{}{
 				"severity": "warning",
@@ -166,7 +166,7 @@ func TestJSONView_DiagnosticsWithMetadata(t *testing.T) {
 		{
 			"@level":   "error",
 			"@message": "Error: Unusually stripey cat detected",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "diagnostic",
 			"diagnostic": map[string]interface{}{
 				"severity": "error",
@@ -201,7 +201,7 @@ func TestJSONView_PlannedChange(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": `module.foo.test_instance.bar["boop"]: Plan to create`,
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "planned_change",
 			"change": map[string]interface{}{
 				"action": "create",
@@ -242,7 +242,7 @@ func TestJSONView_ResourceDrift(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": `module.foo.test_instance.bar["boop"]: Drift detected (update)`,
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "resource_drift",
 			"change": map[string]interface{}{
 				"action": "update",
@@ -276,7 +276,7 @@ func TestJSONView_ChangeSummary(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "Apply complete! Resources: 1 added, 2 changed, 3 destroyed.",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "change_summary",
 			"changes": map[string]interface{}{
 				"add":       float64(1),
@@ -307,7 +307,7 @@ func TestJSONView_ChangeSummaryWithImport(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "Apply complete! Resources: 1 imported, 1 added, 2 changed, 3 destroyed.",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "change_summary",
 			"changes": map[string]interface{}{
 				"add":       float64(1),
@@ -338,7 +338,7 @@ func TestJSONView_ChangeSummaryWithForget(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "Apply complete! Resources: 1 added, 2 changed, 3 destroyed, 1 forgotten.",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "change_summary",
 			"changes": map[string]interface{}{
 				"add":       float64(1),
@@ -371,7 +371,7 @@ func TestJSONView_Hook(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": `module.foo.test_instance.bar["boop"]: Creation complete after 34s [id=boop-beep]`,
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "apply_complete",
 			"hook": map[string]interface{}{
 				"resource": map[string]interface{}{
@@ -414,7 +414,7 @@ func TestJSONView_Outputs(t *testing.T) {
 		{
 			"@level":   "info",
 			"@message": "Outputs: 2",
-			"@module":  "tofu.ui",
+			"@module":  "farseek.ui",
 			"type":     "outputs",
 			"outputs": map[string]interface{}{
 				"boop_count": map[string]interface{}{

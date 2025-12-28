@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -9,7 +9,7 @@ import (
 	"context"
 
 	"github.com/rafagsiqueira/farseek/internal/states"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // LockDisabled implements State and Locker but disables state locking.
@@ -43,7 +43,7 @@ func (s *LockDisabled) RefreshState(ctx context.Context) error {
 	return s.Inner.RefreshState(ctx)
 }
 
-func (s *LockDisabled) PersistState(ctx context.Context, schemas *tofu.Schemas) error {
+func (s *LockDisabled) PersistState(ctx context.Context, schemas *farseek.Schemas) error {
 	return s.Inner.PersistState(ctx, schemas)
 }
 

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -6,7 +6,6 @@
 package command
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -33,7 +32,6 @@ import (
 
 	backendInit "github.com/rafagsiqueira/farseek/internal/backend/init"
 	backendLocal "github.com/rafagsiqueira/farseek/internal/backend/local"
-	backendInmem "github.com/rafagsiqueira/farseek/internal/backend/remote-state/inmem"
 )
 
 // Test empty directory with no config/state creates a local state.
@@ -717,7 +715,7 @@ func TestMetaBackend_configuredUnchangedWithStaticEvalVars(t *testing.T) {
 							"workspace_dir": {
 								Type:     cty.String,
 								Required: true,
-								// We'll treat this one as if it were set with the -backend-config option to "tofu init"
+								// We'll treat this one as if it were set with the -backend-config option to "farseek init"
 							},
 						},
 					}
@@ -2093,31 +2091,6 @@ func TestMetaBackend_configToExtra(t *testing.T) {
 
 	if s.Backend.Hash == backendHash {
 		t.Fatal("state.Backend.Hash was not updated")
-	}
-}
-
-// no config; return inmem backend stored in state
-func TestBackendFromState(t *testing.T) {
-	wd := tempWorkingDirFixture(t, "backend-from-state")
-	t.Chdir(wd.RootModuleDir())
-
-	// Setup the meta
-	m := testMetaBackend(t, nil)
-	m.WorkingDir = wd
-	// tofu caches a small "state" file that stores the backend config.
-	// This test must override m.dataDir so it loads the "farseek.tfstate" file in the
-	// test directory as the backend config cache. This fixture is really a
-	// fixture for the data dir rather than the module dir, so we'll override
-	// them to match just for this test.
-	wd.OverrideDataDir(".")
-
-	stateBackend, diags := m.backendFromState(context.Background(), encryption.StateEncryptionDisabled())
-	if diags.HasErrors() {
-		t.Fatal(diags.Err())
-	}
-
-	if _, ok := stateBackend.(*backendInmem.Backend); !ok {
-		t.Fatal("did not get expected inmem backend")
 	}
 }
 

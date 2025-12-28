@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -10,16 +10,16 @@ import (
 	"net/rpc"
 
 	"github.com/hashicorp/go-plugin"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
-// UIInput is an implementation of tofu.UIInput that communicates
+// UIInput is an implementation of farseek.UIInput that communicates
 // over RPC.
 type UIInput struct {
 	Client *rpc.Client
 }
 
-func (i *UIInput) Input(ctx context.Context, opts *tofu.InputOpts) (string, error) {
+func (i *UIInput) Input(ctx context.Context, opts *farseek.InputOpts) (string, error) {
 	var resp UIInputInputResponse
 	err := i.Client.Call("Plugin.Input", opts, &resp)
 	if err != nil {
@@ -41,11 +41,11 @@ type UIInputInputResponse struct {
 // UIInputServer is a net/rpc compatible structure for serving
 // a UIInputServer. This should not be used directly.
 type UIInputServer struct {
-	UIInput tofu.UIInput
+	UIInput farseek.UIInput
 }
 
 func (s *UIInputServer) Input(
-	opts *tofu.InputOpts,
+	opts *farseek.InputOpts,
 	reply *UIInputInputResponse) error {
 	value, err := s.UIInput.Input(context.Background(), opts)
 	*reply = UIInputInputResponse{

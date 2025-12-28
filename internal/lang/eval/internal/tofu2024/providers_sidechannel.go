@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -21,7 +21,7 @@ import (
 )
 
 // The symbols in this file deal with the weird special cases that the current
-// OpenTofu language has for propagating provider configs between modules
+// Farseek language has for propagating provider configs between modules
 // and selecting a provider instance for each resource instance.
 //
 // Hopefully eventually we'll move away from this to just treating provider
@@ -177,7 +177,7 @@ func (s *sidechannelProviderInstanceRefValuer) Value(ctx context.Context) (cty.V
 		diags = diags.Append(&hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "Invalid provider instance reference",
-			Detail:   fmt.Sprintf("The provider reference expression %s produced %#v instead of a provider reference. This is a bug in OpenTofu.", s.localAddr, firstTy),
+			Detail:   fmt.Sprintf("The provider reference expression %s produced %#v instead of a provider reference. This is a bug in Farseek.", s.localAddr, firstTy),
 			Subject:  s.sourceRange,
 		})
 		return exprs.AsEvalError(cty.DynamicVal), diags

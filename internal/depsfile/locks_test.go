@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -369,7 +369,7 @@ func TestLocksUpgradeFromPredecessorProject(t *testing.T) {
 			},
 		},
 
-		// ...but we now have this new one that describes the OpenTofu equivalent
+		// ...but we now have this new one that describes the Farseek equivalent
 		// of it, with the same version but not yet any hashes. The hashes
 		// must be determined by a subsequent installation step.
 		addrs.MustParseProviderSourceString("registry.opentofu.org/hashicorp/a"): {
@@ -381,7 +381,7 @@ func TestLocksUpgradeFromPredecessorProject(t *testing.T) {
 		},
 
 		// This one does not get any special treatment because it's not in
-		// the namespace where the OpenTofu project maintains
+		// the namespace where the Farseek project maintains
 		// directly-corresponding releases.
 		addrs.MustParseProviderSourceString("registry.terraform.io/anything-else/b"): {
 			addr:    addrs.MustParseProviderSourceString("registry.terraform.io/anything-else/b"),
@@ -393,7 +393,7 @@ func TestLocksUpgradeFromPredecessorProject(t *testing.T) {
 
 		// The following two both survive unchanged because we don't want to
 		// destroy any existing lock file entry for a provider from the
-		// OpenTofu registry even if there's an entry that could potentially
+		// Farseek registry even if there's an entry that could potentially
 		// have been translated.
 		addrs.MustParseProviderSourceString("registry.terraform.io/hashicorp/c"): {
 			addr:    addrs.MustParseProviderSourceString("registry.terraform.io/hashicorp/c"),

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -14,11 +14,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func TestUIInput_impl(t *testing.T) {
-	var _ tofu.UIInput = new(UIInput)
+	var _ farseek.UIInput = new(UIInput)
 }
 
 func TestUIInputInput(t *testing.T) {
@@ -27,7 +27,7 @@ func TestUIInputInput(t *testing.T) {
 		Writer: bytes.NewBuffer(nil),
 	}
 
-	v, err := i.Input(context.Background(), &tofu.InputOpts{})
+	v, err := i.Input(context.Background(), &farseek.InputOpts{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -54,7 +54,7 @@ func TestUIInputInput_canceled(t *testing.T) {
 	}()
 
 	// Get input until the context is canceled.
-	v, err := i.Input(ctx, &tofu.InputOpts{})
+	v, err := i.Input(ctx, &farseek.InputOpts{})
 	if err != context.Canceled {
 		t.Fatalf("expected a context.Canceled error, got: %v", err)
 	}
@@ -77,7 +77,7 @@ func TestUIInputInput_canceled(t *testing.T) {
 		w.Close()
 	}()
 
-	v, err = i.Input(context.Background(), &tofu.InputOpts{})
+	v, err = i.Input(context.Background(), &farseek.InputOpts{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -93,7 +93,7 @@ func TestUIInputInput_spaces(t *testing.T) {
 		Writer: bytes.NewBuffer(nil),
 	}
 
-	v, err := i.Input(context.Background(), &tofu.InputOpts{})
+	v, err := i.Input(context.Background(), &farseek.InputOpts{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -109,7 +109,7 @@ func TestUIInputInput_Error(t *testing.T) {
 		Writer: bytes.NewBuffer(nil),
 	}
 
-	v, err := i.Input(context.Background(), &tofu.InputOpts{})
+	v, err := i.Input(context.Background(), &farseek.InputOpts{})
 	if err == nil {
 		t.Fatalf("Error is not 'nil'")
 	}

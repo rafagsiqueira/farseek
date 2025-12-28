@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -160,7 +160,7 @@ func (s staticScopeData) GetModule(context.Context, addrs.ModuleCall, tfdiags.So
 }
 
 func (s staticScopeData) GetPathAttr(_ context.Context, addr addrs.PathAttr, rng tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
-	// TODO this is copied and trimmed down from tofu/evaluate.go GetPathAttr.  Ideally this should be refactored to a common location.
+	// TODO this is copied and trimmed down from farseek/evaluate.go GetPathAttr.  Ideally this should be refactored to a common location.
 	var diags tfdiags.Diagnostics
 	switch addr.Name {
 	case "cwd":
@@ -209,7 +209,7 @@ func (s staticScopeData) GetPathAttr(_ context.Context, addr addrs.PathAttr, rng
 }
 
 func (s staticScopeData) GetTerraformAttr(_ context.Context, addr addrs.TerraformAttr, rng tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
-	// TODO this is copied and trimmed down from tofu/evaluate.go GetTerraformAttr.  Ideally this should be refactored to a common location.
+	// TODO this is copied and trimmed down from farseek/evaluate.go GetTerraformAttr.  Ideally this should be refactored to a common location.
 	var diags tfdiags.Diagnostics
 	switch addr.Name {
 	case "applying":
@@ -279,7 +279,7 @@ func (s staticScopeData) GetInputVariable(_ context.Context, ident addrs.InputVa
 	// in various ways based on the declaration, so that it conforms to the
 	// requirements expected by the module author.
 	// FIXME: This is currently essentially a duplication of various logic from
-	// internal/tofu/eval_variable.go, prepareFinalInputVariableValue.
+	// internal/farseek/eval_variable.go, prepareFinalInputVariableValue.
 	// We should find some way for both of these codepaths to share this logic.
 
 	convertTy := variable.ConstraintType

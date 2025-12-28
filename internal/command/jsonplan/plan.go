@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -24,7 +24,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/version"
 )
 
@@ -179,7 +179,7 @@ type Variable struct {
 // the part of the plan required by the jsonformat.Plan renderer.
 func MarshalForRenderer(
 	p *plans.Plan,
-	schemas *tofu.Schemas,
+	schemas *farseek.Schemas,
 ) (map[string]Change, []ResourceChange, []ResourceChange, []ResourceAttr, error) {
 	output := newPlan()
 
@@ -226,7 +226,7 @@ func MarshalForLog(
 	config *configs.Config,
 	p *plans.Plan,
 	sf *statefile.File,
-	schemas *tofu.Schemas,
+	schemas *farseek.Schemas,
 ) (*Plan, error) {
 	output := newPlan()
 	output.TerraformVersion = version.String()
@@ -305,12 +305,12 @@ func MarshalForLog(
 	return output, nil
 }
 
-// Marshal returns the json encoding of a tofu plan.
+// Marshal returns the json encoding of a farseek plan.
 func Marshal(
 	config *configs.Config,
 	p *plans.Plan,
 	sf *statefile.File,
-	schemas *tofu.Schemas,
+	schemas *farseek.Schemas,
 ) ([]byte, error) {
 	output, err := MarshalForLog(config, p, sf, schemas)
 	if err != nil {
@@ -380,7 +380,7 @@ func (p *Plan) marshalPlanVariables(vars map[string]plans.DynamicValue, decls ma
 // This function is referenced directly from the structured renderer tests, to
 // ensure parity between the renderers. It probably shouldn't be used anywhere
 // else.
-func MarshalResourceChanges(resources []*plans.ResourceInstanceChangeSrc, schemas *tofu.Schemas) ([]ResourceChange, error) {
+func MarshalResourceChanges(resources []*plans.ResourceInstanceChangeSrc, schemas *farseek.Schemas) ([]ResourceChange, error) {
 	var ret []ResourceChange
 
 	var sortedResources []*plans.ResourceInstanceChangeSrc
@@ -721,7 +721,7 @@ func MarshalOutputChanges(changes *plans.Changes) (map[string]Change, error) {
 	return outputChanges, nil
 }
 
-func (p *Plan) marshalPlannedValues(changes *plans.Changes, schemas *tofu.Schemas) error {
+func (p *Plan) marshalPlannedValues(changes *plans.Changes, schemas *farseek.Schemas) error {
 	// marshal the planned changes into a module
 	plan, err := marshalPlannedValues(changes, schemas)
 	if err != nil {

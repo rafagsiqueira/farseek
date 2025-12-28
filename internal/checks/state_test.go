@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -185,10 +185,10 @@ func TestChecksHappyPath(t *testing.T) {
 
 	/////////////////////////////////////////////////////////////////////////
 
-	// The following are steps that would normally be done by OpenTofu Core
+	// The following are steps that would normally be done by Farseek Core
 	// as part of visiting checkable objects during the graph walk. We're
 	// simulating a likely sequence of calls here for testing purposes, but
-	// OpenTofu Core won't necessarily visit all of these in exactly the
+	// Farseek Core won't necessarily visit all of these in exactly the
 	// same order every time and so this is just one possible valid ordering
 	// of calls.
 

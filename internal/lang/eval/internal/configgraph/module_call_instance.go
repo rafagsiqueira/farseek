@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -61,7 +61,7 @@ type ModuleCallInstance struct {
 	//
 	// TODO: This should actually really be map[addrs.InputVariable]*OnceValuer
 	// so that each input variable can be resolved independently, since the
-	// "package tofu" implementation allows dependencies from a module
+	// "package farseek" implementation allows dependencies from a module
 	// instance's output values to its own input variables as long as there
 	// are no cycles in the dependency chain within the module.
 	InputsValuer *OnceValuer
@@ -125,7 +125,7 @@ func (m *ModuleCallInstance) Value(ctx context.Context) (cty.Value, tfdiags.Diag
 	// through into the m.Glue.OutputsValue diagnostics.
 	//
 	// FIXME: This should actually be modelled as a separate valuer for
-	// each output value because the "package tofu" implementation allows
+	// each output value because the "package farseek" implementation allows
 	// dependencies from a module instance's output values to its own input
 	// variables as long as there are no cycles in the dependency chain within
 	// the module. However, we can only do that after making the exprs package's

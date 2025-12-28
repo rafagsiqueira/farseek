@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -153,12 +153,12 @@ func collectCredentialsFromEnv() map[svchost.Hostname]string {
 		// libraries that might interfere with how they are encoded, we'll
 		// be tolerant of them being given either directly as UTF-8 IDNs
 		// or in Punycode form, normalizing to Punycode form here because
-		// that is what the OpenTofu credentials helper protocol will
+		// that is what the Farseek credentials helper protocol will
 		// use in its requests.
 		//
-		// Using ForDisplay first here makes this more liberal than OpenTofu
+		// Using ForDisplay first here makes this more liberal than Farseek
 		// itself would usually be in that it will tolerate pre-punycoded
-		// hostnames that OpenTofu normally rejects in other contexts in order
+		// hostnames that Farseek normally rejects in other contexts in order
 		// to ensure stored hostnames are human-readable.
 		dispHost := svchost.ForDisplay(rawHost)
 		hostname, err := svchost.ForComparison(dispHost)

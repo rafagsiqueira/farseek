@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -52,7 +52,7 @@ type CreateArgs struct {
 // file that might already exist there.
 //
 // A plan file contains both a snapshot of the configuration and of the latest
-// state file in addition to the plan itself, so that OpenTofu can detect
+// state file in addition to the plan itself, so that Farseek can detect
 // if the world has changed since the plan was created and thus refuse to
 // apply it.
 func Create(filename string, args CreateArgs, enc encryption.PlanEncryption) error {

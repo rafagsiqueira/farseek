@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -16,11 +16,11 @@ import (
 	"github.com/zclconf/go-cty/cty"
 
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
 func TestProvider_impl(t *testing.T) {
-	var _ tofu.ResourceProvider = new(Provider)
+	var _ farseek.ResourceProvider = new(Provider)
 }
 
 func TestProviderGetSchema(t *testing.T) {
@@ -55,7 +55,7 @@ func TestProviderGetSchema(t *testing.T) {
 		},
 	}
 
-	want := &tofu.ProviderSchema{
+	want := &farseek.ProviderSchema{
 		Provider: &configschema.Block{
 			Attributes: map[string]*configschema.Attribute{
 				"bar": &configschema.Attribute{
@@ -88,7 +88,7 @@ func TestProviderGetSchema(t *testing.T) {
 			}),
 		},
 	}
-	got, err := p.GetSchema(&tofu.ProviderSchemaRequest{
+	got, err := p.GetSchema(&farseek.ProviderSchemaRequest{
 		ResourceTypes: []string{"foo", "bar"},
 		DataSources:   []string{"baz", "bar"},
 	})
@@ -161,7 +161,7 @@ func TestProviderConfigure(t *testing.T) {
 	}
 
 	for i, tc := range cases {
-		c := tofu.NewResourceConfigRaw(tc.Config)
+		c := farseek.NewResourceConfigRaw(tc.Config)
 		err := tc.P.Configure(c)
 		if err != nil != tc.Err {
 			t.Fatalf("%d: %s", i, err)
@@ -172,11 +172,11 @@ func TestProviderConfigure(t *testing.T) {
 func TestProviderResources(t *testing.T) {
 	cases := []struct {
 		P      *Provider
-		Result []tofu.ResourceType
+		Result []farseek.ResourceType
 	}{
 		{
 			P:      &Provider{},
-			Result: []tofu.ResourceType{},
+			Result: []farseek.ResourceType{},
 		},
 
 		{
@@ -186,9 +186,9 @@ func TestProviderResources(t *testing.T) {
 					"bar": nil,
 				},
 			},
-			Result: []tofu.ResourceType{
-				tofu.ResourceType{Name: "bar", SchemaAvailable: true},
-				tofu.ResourceType{Name: "foo", SchemaAvailable: true},
+			Result: []farseek.ResourceType{
+				farseek.ResourceType{Name: "bar", SchemaAvailable: true},
+				farseek.ResourceType{Name: "foo", SchemaAvailable: true},
 			},
 		},
 
@@ -200,10 +200,10 @@ func TestProviderResources(t *testing.T) {
 					"baz": nil,
 				},
 			},
-			Result: []tofu.ResourceType{
-				tofu.ResourceType{Name: "bar", Importable: true, SchemaAvailable: true},
-				tofu.ResourceType{Name: "baz", SchemaAvailable: true},
-				tofu.ResourceType{Name: "foo", SchemaAvailable: true},
+			Result: []farseek.ResourceType{
+				farseek.ResourceType{Name: "bar", Importable: true, SchemaAvailable: true},
+				farseek.ResourceType{Name: "baz", SchemaAvailable: true},
+				farseek.ResourceType{Name: "foo", SchemaAvailable: true},
 			},
 		},
 	}
@@ -219,11 +219,11 @@ func TestProviderResources(t *testing.T) {
 func TestProviderDataSources(t *testing.T) {
 	cases := []struct {
 		P      *Provider
-		Result []tofu.DataSource
+		Result []farseek.DataSource
 	}{
 		{
 			P:      &Provider{},
-			Result: []tofu.DataSource{},
+			Result: []farseek.DataSource{},
 		},
 
 		{
@@ -233,9 +233,9 @@ func TestProviderDataSources(t *testing.T) {
 					"bar": nil,
 				},
 			},
-			Result: []tofu.DataSource{
-				tofu.DataSource{Name: "bar", SchemaAvailable: true},
-				tofu.DataSource{Name: "foo", SchemaAvailable: true},
+			Result: []farseek.DataSource{
+				farseek.DataSource{Name: "bar", SchemaAvailable: true},
+				farseek.DataSource{Name: "foo", SchemaAvailable: true},
 			},
 		},
 	}
@@ -266,7 +266,7 @@ func TestProviderValidate(t *testing.T) {
 	}
 
 	for i, tc := range cases {
-		c := tofu.NewResourceConfigRaw(tc.Config)
+		c := farseek.NewResourceConfigRaw(tc.Config)
 		_, es := tc.P.Validate(c)
 		if len(es) > 0 != tc.Err {
 			t.Fatalf("%d: %#v", i, es)
@@ -299,9 +299,9 @@ func TestProviderDiff_legacyTimeoutType(t *testing.T) {
 			},
 		},
 	}
-	ic := tofu.NewResourceConfigRaw(invalidCfg)
+	ic := farseek.NewResourceConfigRaw(invalidCfg)
 	_, err := p.Diff(
-		&tofu.InstanceInfo{
+		&farseek.InstanceInfo{
 			Type: "blah",
 		},
 		nil,
@@ -335,9 +335,9 @@ func TestProviderDiff_timeoutInvalidValue(t *testing.T) {
 			"create": "invalid",
 		},
 	}
-	ic := tofu.NewResourceConfigRaw(invalidCfg)
+	ic := farseek.NewResourceConfigRaw(invalidCfg)
 	_, err := p.Diff(
-		&tofu.InstanceInfo{
+		&farseek.InstanceInfo{
 			Type: "blah",
 		},
 		nil,
@@ -381,7 +381,7 @@ func TestProviderValidateResource(t *testing.T) {
 	}
 
 	for i, tc := range cases {
-		c := tofu.NewResourceConfigRaw(tc.Config)
+		c := farseek.NewResourceConfigRaw(tc.Config)
 		_, es := tc.P.ValidateResource(tc.Type, c)
 		if len(es) > 0 != tc.Err {
 			t.Fatalf("%d: %#v", i, es)
@@ -398,7 +398,7 @@ func TestProviderImportState_default(t *testing.T) {
 		},
 	}
 
-	states, err := p.ImportState(&tofu.InstanceInfo{
+	states, err := p.ImportState(&farseek.InstanceInfo{
 		Type: "foo",
 	}, "bar")
 	if err != nil {
@@ -430,7 +430,7 @@ func TestProviderImportState_setsId(t *testing.T) {
 		},
 	}
 
-	_, err := p.ImportState(&tofu.InstanceInfo{
+	_, err := p.ImportState(&farseek.InstanceInfo{
 		Type: "foo",
 	}, "bar")
 	if err != nil {
@@ -460,7 +460,7 @@ func TestProviderImportState_setsType(t *testing.T) {
 		},
 	}
 
-	_, err := p.ImportState(&tofu.InstanceInfo{
+	_, err := p.ImportState(&farseek.InstanceInfo{
 		Type: "foo",
 	}, "bar")
 	if err != nil {

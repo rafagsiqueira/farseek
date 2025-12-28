@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -30,7 +30,7 @@ type Scope struct {
 	// ParseRef is a function that the scope uses to extract references from
 	// a hcl.Traversal. This controls the type of references the scope currently
 	// supports. As an example, the testing scope can reference outputs directly
-	// while the main OpenTofu context scope can not. This means that this
+	// while the main Farseek context scope can not. This means that this
 	// function for the testing scope will happily return outputs, while the
 	// main context scope would fail if a user attempts to reference an output.
 	ParseRef ParseRef

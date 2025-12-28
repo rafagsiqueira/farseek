@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/gocty"
 )
@@ -28,9 +28,9 @@ import (
 type ResourceData struct {
 	// Settable (internally)
 	schema       map[string]*Schema
-	config       *tofu.ResourceConfig
-	state        *tofu.InstanceState
-	diff         *tofu.InstanceDiff
+	config       *farseek.ResourceConfig
+	state        *farseek.InstanceState
+	diff         *farseek.InstanceDiff
 	meta         map[string]interface{}
 	timeouts     *ResourceTimeout
 	providerMeta cty.Value
@@ -38,7 +38,7 @@ type ResourceData struct {
 	// Don't set
 	multiReader *MultiLevelFieldReader
 	setWriter   *MapFieldWriter
-	newState    *tofu.InstanceState
+	newState    *farseek.InstanceState
 	partial     bool
 	partialMap  map[string]struct{}
 	once        sync.Once
@@ -291,8 +291,8 @@ func (d *ResourceData) SetType(t string) {
 
 // State returns the new InstanceState after the diff and any Set
 // calls.
-func (d *ResourceData) State() *tofu.InstanceState {
-	var result tofu.InstanceState
+func (d *ResourceData) State() *farseek.InstanceState {
+	var result farseek.InstanceState
 	result.ID = d.Id()
 	result.Meta = d.meta
 
@@ -427,7 +427,7 @@ func (d *ResourceData) Timeout(key string) time.Duration {
 
 func (d *ResourceData) init() {
 	// Initialize the field that will store our new state
-	var copyState tofu.InstanceState
+	var copyState farseek.InstanceState
 	if d.state != nil {
 		copyState = *d.state.DeepCopy()
 	}

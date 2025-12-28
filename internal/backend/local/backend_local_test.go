@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -21,6 +21,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/configs/configload"
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
 	"github.com/rafagsiqueira/farseek/internal/encryption"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/internal/initwd"
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/plans/planfile"
@@ -29,7 +30,6 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 	"github.com/rafagsiqueira/farseek/internal/terminal"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
 )
 
 func TestLocalRun(t *testing.T) {
@@ -75,40 +75,6 @@ func TestLocalRun_error(t *testing.T) {
 	op := &backend.Operation{
 		ConfigDir:    configDir,
 		ConfigLoader: configLoader,
-		Workspace:    backend.DefaultStateName,
-		StateLocker:  stateLocker,
-	}
-
-	_, _, diags := b.LocalRun(context.Background(), op)
-	if !diags.HasErrors() {
-		t.Fatal("unexpected success")
-	}
-
-	// LocalRun() unlocks the state on failure
-	assertBackendStateUnlocked(t, b)
-}
-
-func TestLocalRun_cloudPlan(t *testing.T) {
-	configDir := "./testdata/apply"
-	b := TestLocal(t)
-
-	_, configLoader := initwd.MustLoadConfigForTests(t, configDir, "tests")
-
-	planPath := "./testdata/plan-bookmark/bookmark.json"
-
-	planFile, err := planfile.OpenWrapped(planPath, encryption.PlanEncryptionDisabled())
-	if err != nil {
-		t.Fatalf("unexpected error reading planfile: %s", err)
-	}
-
-	streams, _ := terminal.StreamsForTesting(t)
-	view := views.NewView(streams)
-	stateLocker := clistate.NewLocker(0, views.NewStateLocker(arguments.ViewHuman, view))
-
-	op := &backend.Operation{
-		ConfigDir:    configDir,
-		ConfigLoader: configLoader,
-		PlanFile:     planFile,
 		Workspace:    backend.DefaultStateName,
 		StateLocker:  stateLocker,
 	}
@@ -278,6 +244,6 @@ func (s *stateStorageThatFailsRefresh) RefreshState(_ context.Context) error {
 	return fmt.Errorf("intentionally failing for testing purposes")
 }
 
-func (s *stateStorageThatFailsRefresh) PersistState(_ context.Context, schemas *tofu.Schemas) error {
+func (s *stateStorageThatFailsRefresh) PersistState(_ context.Context, schemas *farseek.Schemas) error {
 	return fmt.Errorf("unimplemented")
 }

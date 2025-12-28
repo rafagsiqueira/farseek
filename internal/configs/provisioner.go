@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -41,7 +41,7 @@ func decodeProvisionerBlock(block *hcl.Block) (*Provisioner, hcl.Diagnostics) {
 		diags = append(diags, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  fmt.Sprintf("The \"%s\" provisioner has been removed", pv.Type),
-			Detail:   fmt.Sprintf("The \"%s\" provisioner is deprecated and has been removed from OpenTofu.", pv.Type),
+			Detail:   fmt.Sprintf("The \"%s\" provisioner is deprecated and has been removed from Farseek.", pv.Type),
 			Subject:  &pv.TypeRange,
 		})
 		return nil, diags
@@ -142,7 +142,7 @@ func decodeProvisionerBlock(block *hcl.Block) (*Provisioner, hcl.Diagnostics) {
 			diags = append(diags, &hcl.Diagnostic{
 				Severity: hcl.DiagError,
 				Summary:  "Reserved block type name in provisioner block",
-				Detail:   fmt.Sprintf("The block type name %q is reserved for use by OpenTofu in a future version.", block.Type),
+				Detail:   fmt.Sprintf("The block type name %q is reserved for use by Farseek in a future version.", block.Type),
 				Subject:  &block.TypeRange,
 			})
 		}
@@ -163,7 +163,7 @@ func onlySelfRefs(body hcl.Body) hcl.Diagnostics {
 		for _, v := range attr.Expr.Variables() {
 			valid := false
 			switch v.RootName() {
-			case "self", "path", "terraform", "tofu":
+			case "self", "path", "terraform", "farseek":
 				valid = true
 			case "count":
 				// count must use "index"

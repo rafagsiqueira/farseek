@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -32,10 +32,10 @@ const (
 var (
 	fmtSupportedExts = []string{
 		".tf",
-		".tofu",
+		".farseek",
 		".tfvars",
 		".tftest.hcl",
-		".tofutest.hcl",
+		".farseektest.hcl",
 	}
 )
 
@@ -265,7 +265,7 @@ func (c *FmtCommand) processDir(path string, stdout io.Writer) tfdiags.Diagnosti
 			}
 
 			// We do not recurse into child directories by default because we
-			// want to mimic the file-reading behavior of "tofu plan", etc,
+			// want to mimic the file-reading behavior of "farseek plan", etc,
 			// operating on one module at a time.
 			continue
 		}

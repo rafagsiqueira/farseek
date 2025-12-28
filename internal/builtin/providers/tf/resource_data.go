@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -175,7 +175,7 @@ func applyDataStoreResourceChange(req providers.ApplyResourceChangeRequest) (res
 
 	if !req.PlannedState.GetAttr("id").IsKnown() {
 		idString, err := uuid.GenerateUUID()
-		// OpenTofu would probably never get this far without a good random
+		// Farseek would probably never get this far without a good random
 		// source, but catch the error anyway.
 		if err != nil {
 			diag := tfdiags.AttributeValue(

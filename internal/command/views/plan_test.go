@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -15,7 +15,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/terminal"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -172,17 +172,17 @@ func testPlanWithEphemeral(t *testing.T) *plans.Plan {
 	return plan
 }
 
-func testSchemas() *tofu.Schemas {
+func testSchemas() *farseek.Schemas {
 	provider := testProvider()
-	return &tofu.Schemas{
+	return &farseek.Schemas{
 		Providers: map[addrs.Provider]providers.ProviderSchema{
 			addrs.NewDefaultProvider("test"): provider.GetProviderSchema(context.TODO()),
 		},
 	}
 }
 
-func testProvider() *tofu.MockProvider {
-	p := new(tofu.MockProvider)
+func testProvider() *farseek.MockProvider {
+	p := new(farseek.MockProvider)
 	p.ReadResourceFn = func(req providers.ReadResourceRequest) providers.ReadResourceResponse {
 		return providers.ReadResourceResponse{NewState: req.PriorState}
 	}

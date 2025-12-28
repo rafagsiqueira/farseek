@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -17,7 +17,7 @@ import (
 //
 // Returns at least one error diagnostic if the configuration call is not valid.
 //
-// This is exposed for use by "validation-only" callers like the "tofu validate"
+// This is exposed for use by "validation-only" callers like the "farseek validate"
 // command, but does NOT need to be called before other methods like
 // [ConfigInstance.DrivePlanning] because equivalent checks occur within those
 // operations.

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -13,7 +13,7 @@ import (
 // attempting to discover configuration files.
 //
 // Implementers of this interface expose information about the environment
-// in which OpenTofu is running, which can potentially affect which
+// in which Farseek is running, which can potentially affect which
 // configuration files are found and selected.
 type ConfigDiscoveryEnvironment interface {
 	// EnvironmentVariableVal returns the value of the environment variable

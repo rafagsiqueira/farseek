@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -47,8 +47,8 @@ func prepareStateV4(sV4 *stateV4) (*File, tfdiags.Diagnostics) {
 		if err != nil {
 			diags = diags.Append(tfdiags.Sourceless(
 				tfdiags.Error,
-				"Invalid OpenTofu version string",
-				fmt.Sprintf("State file claims to have been written by OpenTofu version %q, which is not a valid version string.", sV4.TerraformVersion),
+				"Invalid Farseek version string",
+				fmt.Sprintf("State file claims to have been written by Farseek version %q, which is not a valid version string.", sV4.TerraformVersion),
 			))
 		}
 	}
@@ -349,7 +349,7 @@ func prepareStateV4(sV4 *stateV4) (*File, tfdiags.Diagnostics) {
 
 	// Saved check results from the previous run, if any.
 	// We differentiate absence from an empty array here so that we can
-	// recognize if the previous run was with a version of OpenTofu that
+	// recognize if the previous run was with a version of Farseek that
 	// didn't support checks yet, or if there just weren't any checkable
 	// objects to record, in case that's important for certain messaging.
 	if sV4.CheckResults != nil {
@@ -497,7 +497,7 @@ func writeStateV4(file *File, w io.Writer, enc encryption.StateEncryption) tfdia
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			"Failed to serialize state",
-			fmt.Sprintf("An error occurred while serializing the state to save it. This is a bug in OpenTofu and should be reported: %s.", err),
+			fmt.Sprintf("An error occurred while serializing the state to save it. This is a bug in Farseek and should be reported: %s.", err),
 		))
 		return diags
 	}
@@ -698,7 +698,7 @@ func decodeCheckStatusV4(in string) checks.Status {
 		return checks.StatusError
 	default:
 		// We'll treat anything else as unknown just as a concession to
-		// forward-compatible parsing, in case a later version of OpenTofu
+		// forward-compatible parsing, in case a later version of Farseek
 		// introduces a new status.
 		return checks.StatusUnknown
 	}
@@ -731,7 +731,7 @@ func decodeCheckableObjectKindV4(in string) addrs.CheckableKind {
 		return addrs.CheckableInputVariable
 	default:
 		// We'll treat anything else as invalid just as a concession to
-		// forward-compatible parsing, in case a later version of OpenTofu
+		// forward-compatible parsing, in case a later version of Farseek
 		// introduces a new status.
 		return addrs.CheckableKindInvalid
 	}

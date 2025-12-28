@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -15,14 +15,14 @@ import (
 )
 
 // The tests in this file are for the following sequence:
-// tofu init
-// tofu plan
+// farseek init
+// farseek plan
 
 func TestPlanConsolidatedWarningsForDeprecatedMarks(t *testing.T) {
 	t.Parallel()
 
 	implicitFixturePath := filepath.Join("testdata", "consolidated-warnings-for-deprecated-marks")
-	tf := e2e.NewBinary(t, tofuBin, implicitFixturePath)
+	tf := e2e.NewBinary(t, farseekBin, implicitFixturePath)
 
 	t.Run("consolidated warnings for deprecated marks", func(t *testing.T) {
 		_, initErr, err := tf.Run("init")
@@ -38,7 +38,7 @@ func TestPlanConsolidatedWarningsForDeprecatedMarks(t *testing.T) {
 		expectedOutput := `
 No changes. Your infrastructure matches the configuration.
 
-OpenTofu has compared your real infrastructure against your configuration and
+Farseek has compared your real infrastructure against your configuration and
 found no differences, so no changes are needed.
 ╷
 │ Warning: Variable marked as deprecated by the module author
@@ -99,7 +99,7 @@ func TestPlanOnDeprecated(t *testing.T) {
 	t.Parallel()
 
 	fixturePath := filepath.Join("testdata", "deprecated-values")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	//// INIT
 	_, stderr, err := tf.Run("init", "-input=false")
@@ -136,7 +136,7 @@ func TestPlanOnMultipleDeprecatedMarksSliceBug(t *testing.T) {
 	// pathMarks slice during iteration would cause slice bounds errors when multiple 
 	// deprecated marks exist
 	fixturePath := filepath.Join("testdata", "multiple-deprecated-marks-slice-bug")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	t.Run("multiple deprecated marks slice bug", func(t *testing.T) {
 		_, initErr, err := tf.Run("init")

@@ -1,4 +1,0 @@
-.terraform*
-farseek.tfstate*
-certs.pfx
-test.env

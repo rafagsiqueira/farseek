@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -93,19 +93,19 @@ type moduleStateV1 struct {
 	// existing to remain intact. For example: an module may depend
 	// on a VPC ID given by an aws_vpc resource.
 	//
-	// OpenTofu uses this information to build valid destruction
+	// Farseek uses this information to build valid destruction
 	// orders and to warn the user if they're destroying a module that
 	// another resource depends on.
 	//
 	// Things can be put into this list that may not be managed by
-	// OpenTofu. If OpenTofu doesn't find a matching ID in the
+	// Farseek. If Farseek doesn't find a matching ID in the
 	// overall state, then it assumes it isn't managed and doesn't
 	// worry about it.
 	Dependencies []string `json:"depends_on,omitempty"`
 }
 
 type resourceStateV1 struct {
-	// This is filled in and managed by OpenTofu, and is the resource
+	// This is filled in and managed by Farseek, and is the resource
 	// type itself such as "mycloud_instance". If a resource provider sets
 	// this value, it won't be persisted.
 	Type string `json:"type"`
@@ -115,12 +115,12 @@ type resourceStateV1 struct {
 	// depend on a subnet (which itself might depend on a VPC, and so
 	// on).
 	//
-	// OpenTofu uses this information to build valid destruction
+	// Farseek uses this information to build valid destruction
 	// orders and to warn the user if they're destroying a resource that
 	// another resource depends on.
 	//
 	// Things can be put into this list that may not be managed by
-	// OpenTofu. If OpenTofu doesn't find a matching ID in the
+	// Farseek. If Farseek doesn't find a matching ID in the
 	// overall state, then it assumes it isn't managed and doesn't
 	// worry about it.
 	Dependencies []string `json:"depends_on,omitempty"`
@@ -144,7 +144,7 @@ type resourceStateV1 struct {
 	// Deposed instance is cleaned up. If there were problems creating the
 	// replacement, the instance remains in the Deposed list so it can be
 	// destroyed in a future run. Functionally, Deposed instances are very
-	// similar to Tainted instances in that OpenTofu is only tracking them in
+	// similar to Tainted instances in that Farseek is only tracking them in
 	// order to remember to destroy them.
 	Deposed []*instanceStateV1 `json:"deposed,omitempty"`
 
@@ -156,17 +156,17 @@ type resourceStateV1 struct {
 }
 
 type instanceStateV1 struct {
-	// A unique ID for this resource. This is opaque to OpenTofu
+	// A unique ID for this resource. This is opaque to Farseek
 	// and is only meant as a lookup mechanism for the providers.
 	ID string `json:"id"`
 
 	// Attributes are basic information about the resource. Any keys here
-	// are accessible in variable format within OpenTofu configurations:
+	// are accessible in variable format within Farseek configurations:
 	// ${resourcetype.name.attribute}.
 	Attributes map[string]string `json:"attributes,omitempty"`
 
 	// Meta is a simple K/V map that is persisted to the State but otherwise
-	// ignored by OpenTofu core. It's meant to be used for accounting by
+	// ignored by Farseek core. It's meant to be used for accounting by
 	// external client code.
 	Meta map[string]string `json:"meta,omitempty"`
 }

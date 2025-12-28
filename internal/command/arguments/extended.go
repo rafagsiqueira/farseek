@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -6,11 +6,8 @@
 package arguments
 
 import (
-	"bufio"
-	"bytes"
 	"flag"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/hashicorp/hcl/v2"
@@ -21,11 +18,11 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
 )
 
-// DefaultParallelism is the limit OpenTofu places on total parallel
+// DefaultParallelism is the limit Farseek places on total parallel
 // operations as it walks the dependency graph.
 const DefaultParallelism = 10
 
-// State describes arguments which are used to define how OpenTofu interacts
+// State describes arguments which are used to define how Farseek interacts
 // with state.
 type State struct {
 	// Lock controls whether or not the state manager is used to lock state
@@ -52,7 +49,7 @@ type State struct {
 	BackupPath string
 }
 
-// Operation describes arguments which are used to configure how a OpenTofu
+// Operation describes arguments which are used to configure how a Farseek
 // operation such as a plan or apply executes.
 type Operation struct {
 	// PlanMode selects one of the mutually-exclusive planning modes that
@@ -60,7 +57,7 @@ type Operation struct {
 	// only for an operation that produces a plan.
 	PlanMode plans.Mode
 
-	// Parallelism is the limit OpenTofu places on total parallel operations
+	// Parallelism is the limit Farseek places on total parallel operations
 	// as it walks the dependency graph.
 	Parallelism int
 
@@ -68,15 +65,7 @@ type Operation struct {
 	// state before proceeding. Default is true.
 	Refresh bool
 
-	// Targets allow limiting an operation to a set of resource addresses and
-	// their dependencies.
-	Targets []addrs.Targetable
-
-	// Excludes allow limiting an operation to execute on all resources other
-	// than a set of excluded resource addresses and resources dependent on them.
-	Excludes []addrs.Targetable
-
-	// ForceReplace addresses cause OpenTofu to force a particular set of
+	// ForceReplace addresses cause Farseek to force a particular set of
 	// resource instances to generate "replace" actions in any plan where they
 	// would normally have generated "no-op" or "update" actions.
 	//
@@ -91,125 +80,9 @@ type Operation struct {
 	// These private fields are used only temporarily during decoding. Use
 	// method Parse to populate the exported fields from these, validating
 	// the raw values in the process.
-	targetsRaw       []string
-	targetsFilesRaw  []string
-	excludesRaw      []string
-	excludesFilesRaw []string
-	forceReplaceRaw  []string
-	destroyRaw       bool
-	refreshOnlyRaw   bool
-}
-
-// parseDirectTargetables gets a list of strings passed from directly from the CLI
-// with each representing a targetable object, and returns a list of addrs.Targetable
-// This is used for parsing the input of -target and -exclude flags
-func parseDirectTargetables(rawTargetables []string, flag string) ([]addrs.Targetable, tfdiags.Diagnostics) {
-	var targetables []addrs.Targetable
-	var diags tfdiags.Diagnostics
-
-	for _, tr := range rawTargetables {
-		traversal, syntaxDiags := hclsyntax.ParseTraversalAbs([]byte(tr), "", hcl.Pos{Line: 1, Column: 1})
-		if syntaxDiags.HasErrors() {
-			diags = diags.Append(tfdiags.Sourceless(
-				tfdiags.Error,
-				fmt.Sprintf("Invalid %s %q", flag, tr),
-				syntaxDiags[0].Detail,
-			))
-			continue
-		}
-
-		target, targetDiags := addrs.ParseTarget(traversal)
-		if targetDiags.HasErrors() {
-			diags = diags.Append(tfdiags.Sourceless(
-				tfdiags.Error,
-				fmt.Sprintf("Invalid %s %q", flag, tr),
-				targetDiags[0].Description().Detail,
-			))
-			continue
-		}
-
-		targetables = append(targetables, target.Subject)
-	}
-	return targetables, diags
-}
-
-// parseFile gets a filePath and reads the file, which contains a list of targets
-// with each line in the file representating a targeted object, and returns
-// a list of addrs.Targetable. This is used for parsing the input of -target-file
-// and -exclude-file flags
-func parseFileTargetables(filePaths []string, flag string) ([]addrs.Targetable, tfdiags.Diagnostics) {
-
-	// If no file passed, no targets
-	if len(filePaths) <= 0 {
-		return nil, nil
-	}
-	var targetables []addrs.Targetable
-	var diags tfdiags.Diagnostics
-
-	for _, filePath := range filePaths {
-		b, err := os.ReadFile(filePath)
-		if err != nil {
-			diags = diags.Append(err)
-			continue
-		}
-
-		sc := hcl.NewRangeScanner(b, filePath, bufio.ScanLines)
-		for sc.Scan() {
-			lineBytes := sc.Bytes()
-			lineRange := sc.Range()
-			if isComment(lineBytes) {
-				continue
-			}
-			traversal, syntaxDiags := hclsyntax.ParseTraversalAbs(lineBytes, lineRange.Filename, lineRange.Start)
-			diags = diags.Append(syntaxDiags)
-			if syntaxDiags.HasErrors() {
-				continue
-			}
-			target, targetDiags := addrs.ParseTarget(traversal)
-			diags = diags.Append(targetDiags)
-			if targetDiags.HasErrors() {
-				continue
-			}
-			targetables = append(targetables, target.Subject)
-		}
-
-	}
-	return targetables, diags
-}
-
-func isComment(b []byte) bool {
-	return bytes.HasPrefix(bytes.TrimSpace(b), []byte("#"))
-}
-
-func parseRawTargetsAndExcludes(targetsDirect, excludesDirect []string, targetFiles, excludeFiles []string) ([]addrs.Targetable, []addrs.Targetable, tfdiags.Diagnostics) {
-	var allParsedTargets, allParsedExcludes, parsedTargets []addrs.Targetable
-	var parseDiags, diags tfdiags.Diagnostics
-
-	// Cannot exclude and target in same command
-	if (len(targetsDirect) > 0 || len(targetFiles) > 0) && (len(excludesDirect) > 0 || len(excludeFiles) > 0) {
-		diags = diags.Append(tfdiags.Sourceless(
-			tfdiags.Error,
-			"Invalid combination of arguments",
-			"The target and exclude planning options are mutually-exclusive. Each plan must use either only the target options or only the exclude options.",
-		))
-		return allParsedTargets, allParsedExcludes, diags
-	}
-
-	parsedTargets, parseDiags = parseDirectTargetables(targetsDirect, "target")
-	diags = diags.Append(parseDiags)
-	allParsedTargets = append(allParsedTargets, parsedTargets...)
-	parsedTargets, parseDiags = parseFileTargetables(targetFiles, "target")
-	diags = diags.Append(parseDiags)
-	allParsedTargets = append(allParsedTargets, parsedTargets...)
-
-	parsedTargets, parseDiags = parseDirectTargetables(excludesDirect, "exclude")
-	diags = diags.Append(parseDiags)
-	allParsedExcludes = append(allParsedExcludes, parsedTargets...)
-	parsedTargets, parseDiags = parseFileTargetables(excludeFiles, "exclude")
-	diags = diags.Append(parseDiags)
-	allParsedExcludes = append(allParsedExcludes, parsedTargets...)
-
-	return allParsedTargets, allParsedExcludes, diags
+	forceReplaceRaw []string
+	destroyRaw      bool
+	refreshOnlyRaw  bool
 }
 
 // Parse must be called on Operation after initial flag parse. This processes
@@ -217,10 +90,6 @@ func parseRawTargetsAndExcludes(targetsDirect, excludesDirect []string, targetFi
 // invalid.
 func (o *Operation) Parse() tfdiags.Diagnostics {
 	var diags tfdiags.Diagnostics
-
-	var parseDiags tfdiags.Diagnostics
-	o.Targets, o.Excludes, parseDiags = parseRawTargetsAndExcludes(o.targetsRaw, o.excludesRaw, o.targetsFilesRaw, o.excludesFilesRaw)
-	diags = diags.Append(parseDiags)
 
 	for _, raw := range o.forceReplaceRaw {
 		traversal, syntaxDiags := hclsyntax.ParseTraversalAbs([]byte(raw), "", hcl.Pos{Line: 1, Column: 1})
@@ -329,10 +198,6 @@ func extendedFlagSet(name string, state *State, operation *Operation, vars *Vars
 		f.BoolVar(&operation.Refresh, "refresh", true, "refresh")
 		f.BoolVar(&operation.destroyRaw, "destroy", false, "destroy")
 		f.BoolVar(&operation.refreshOnlyRaw, "refresh-only", false, "refresh-only")
-		f.Var((*flagStringSlice)(&operation.targetsRaw), "target", "target")
-		f.Var((*flagStringSlice)(&operation.targetsFilesRaw), "target-file", "target-file")
-		f.Var((*flagStringSlice)(&operation.excludesRaw), "exclude", "exclude")
-		f.Var((*flagStringSlice)(&operation.excludesFilesRaw), "exclude-file", "exclude-file")
 		f.Var((*flagStringSlice)(&operation.forceReplaceRaw), "replace", "replace")
 	}
 

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -63,7 +63,7 @@ func (m *Meta) providerInstaller() *providercache.Installer {
 // The result of providerInstallerCustomSource differs from
 // providerInstaller only in how it determines package installation locations
 // during EnsureProviderVersions. A caller that doesn't call
-// EnsureProviderVersions (anything other than "tofu init") can safely
+// EnsureProviderVersions (anything other than "farseek init") can safely
 // just use the providerInstaller method unconditionally.
 func (m *Meta) providerInstallerCustomSource(source getproviders.Source) *providercache.Installer {
 	targetDir := m.providerLocalCacheDir()
@@ -89,7 +89,7 @@ func (m *Meta) providerInstallerCustomSource(source getproviders.Source) *provid
 // providerCustomLocalDirectorySource produces a provider source that consults
 // only the given local filesystem directories for plugins to install.
 //
-// This is used to implement the -plugin-dir option for "tofu init", where
+// This is used to implement the -plugin-dir option for "farseek init", where
 // the result of this method is used instead of what would've been returned
 // from m.providerInstallSource.
 //
@@ -107,10 +107,10 @@ func (m *Meta) providerCustomLocalDirectorySource(ctx context.Context, dirs []st
 
 // providerLocalCacheDir returns an object representing the
 // configuration-specific local cache directory. This is the
-// only location consulted for provider plugin packages for OpenTofu
+// only location consulted for provider plugin packages for Farseek
 // operations other than provider installation.
 //
-// Only the provider installer (in "tofu init") is permitted to make
+// Only the provider installer (in "farseek init") is permitted to make
 // modifications to this cache directory. All other commands must treat it
 // as read-only.
 //
@@ -142,12 +142,12 @@ func (m *Meta) providerGlobalCacheDir() *providercache.Dir {
 
 // providerInstallSource returns an object that knows how to consult one or
 // more external sources to determine the availability of and package
-// locations for versions of OpenTofu providers that are available for
+// locations for versions of Farseek providers that are available for
 // automatic installation.
 //
 // This returns the standard provider install source that consults a number
 // of directories selected either automatically or via the CLI configuration.
-// Users may choose to override this during a "tofu init" command by
+// Users may choose to override this during a "farseek init" command by
 // specifying one or more -plugin-dir options, in which case the installation
 // process will construct its own source consulting only those directories
 // and use that instead.
@@ -248,7 +248,7 @@ func (m *Meta) providerFactories() (map[addrs.Provider]providers.Factory, error)
 	errs := make(map[addrs.Provider]error)
 
 	// For the providers from the lock file, we expect them to be already
-	// available in the provider cache because "tofu init" should already
+	// available in the provider cache because "farseek init" should already
 	// have put them there.
 	providerLocks := locks.AllProviders()
 	cacheDir := m.providerLocalCacheDir()

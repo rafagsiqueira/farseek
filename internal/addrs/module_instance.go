@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -176,7 +176,7 @@ func parseModuleInstancePrefix(traversal hcl.Traversal) (ModuleInstance, hcl.Tra
 // equivalent ModuleInstance address that assumes that no modules have
 // keyed instances.
 //
-// This is a temporary allowance for the fact that OpenTofu does not presently
+// This is a temporary allowance for the fact that Farseek does not presently
 // support "count" and "for_each" on modules, and thus graph building code that
 // derives graph nodes from configuration must just assume unkeyed modules
 // in order to construct the graph. At a later time when "count" and "for_each"

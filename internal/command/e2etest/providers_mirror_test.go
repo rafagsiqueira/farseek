@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -15,21 +15,21 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/e2e"
 )
 
-// The tests in this file are for the "tofu providers mirror" command,
+// The tests in this file are for the "farseek providers mirror" command,
 // which is tested in an e2etest mode rather than a unit test mode because it
-// interacts directly with OpenTofu Registry and the full details of that are
+// interacts directly with Farseek Registry and the full details of that are
 // tricky to mock. Such a mock is _possible_, but we're using e2etest as a
 // compromise for now to keep these tests relatively simple.
 
-func TestOpenTofuProvidersMirror(t *testing.T) {
-	testOpenTofuProvidersMirror(t, "tofu-providers-mirror")
+func TestFarseekProvidersMirror(t *testing.T) {
+	testFarseekProvidersMirror(t, "farseek-providers-mirror")
 }
 
-func TestOpenTofuProvidersMirrorWithLockFile(t *testing.T) {
-	testOpenTofuProvidersMirror(t, "tofu-providers-mirror-with-lock-file")
+func TestFarseekProvidersMirrorWithLockFile(t *testing.T) {
+	testFarseekProvidersMirror(t, "farseek-providers-mirror-with-lock-file")
 }
 
-func testOpenTofuProvidersMirror(t *testing.T, fixture string) {
+func testFarseekProvidersMirror(t *testing.T, fixture string) {
 	// This test reaches out to registry.opentofu.org to download the
 	// template and null providers, so it can only run if network access is
 	// allowed.
@@ -39,7 +39,7 @@ func testOpenTofuProvidersMirror(t *testing.T, fixture string) {
 	t.Logf("creating mirror directory in %s", outputDir)
 
 	fixturePath := filepath.Join("testdata", fixture)
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	stdout, stderr, err := tf.Run("providers", "mirror", "-platform=linux_amd64", "-platform=windows_386", outputDir)
 	if err != nil {
@@ -85,8 +85,8 @@ func testOpenTofuProvidersMirror(t *testing.T, fixture string) {
 	}
 }
 
-// this test is based on testOpenTofuProvidersMirror above.
-func TestOpenTofuProvidersMirrorBadLockfile(t *testing.T) {
+// this test is based on testFarseekProvidersMirror above.
+func TestFarseekProvidersMirrorBadLockfile(t *testing.T) {
 	// This test reaches out to registry.opentofu.org to download the
 	// template and null providers, so it can only run if network access is
 	// allowed.
@@ -95,8 +95,8 @@ func TestOpenTofuProvidersMirrorBadLockfile(t *testing.T) {
 	outputDir := t.TempDir()
 	t.Logf("creating mirror directory in %s", outputDir)
 
-	fixturePath := filepath.Join("testdata", "tofu-providers-mirror-with-bad-lock-file")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	fixturePath := filepath.Join("testdata", "farseek-providers-mirror-with-bad-lock-file")
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	stdout, stderr, err := tf.Run("providers", "mirror", outputDir)
 	if err == nil {

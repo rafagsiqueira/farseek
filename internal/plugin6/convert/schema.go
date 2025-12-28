@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -115,7 +115,7 @@ func ProtoToEphemeralProviderSchema(s *proto.Schema) providers.Schema {
 }
 
 // ProtoToConfigSchema takes the Schema_Block from a grpc response and converts it
-// to a tofu *configschema.Block.
+// to a farseek *configschema.Block.
 func ProtoToConfigSchema(b *proto.Schema_Block) *configschema.Block {
 	block := &configschema.Block{
 		Attributes: make(map[string]*configschema.Attribute),

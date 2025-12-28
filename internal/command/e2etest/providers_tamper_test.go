@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -22,8 +22,8 @@ import (
 )
 
 // TestProviderTampering tests various ways that the provider plugins in the
-// local cache directory might be modified after an initial "tofu init",
-// which other OpenTofu commands which use those plugins should catch and
+// local cache directory might be modified after an initial "farseek init",
+// which other Farseek commands which use those plugins should catch and
 // report early.
 func TestProviderTampering(t *testing.T) {
 	// General setup: we'll do a one-off init of a test directory as our
@@ -37,7 +37,7 @@ func TestProviderTampering(t *testing.T) {
 	skipIfCannotAccessNetwork(t)
 
 	fixturePath := filepath.Join("testdata", "provider-tampering-base")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	stdout, stderr, err := tf.Run("init")
 	if err != nil {
@@ -61,7 +61,7 @@ func TestProviderTampering(t *testing.T) {
 	providerCacheDir := filepath.Join(".farseek", "providers")
 
 	t.Run("cache dir totally gone", func(t *testing.T) {
-		tf := e2e.NewBinary(t, tofuBin, seedDir)
+		tf := e2e.NewBinary(t, farseekBin, seedDir)
 		workDir := tf.WorkDir()
 
 		err := os.RemoveAll(filepath.Join(workDir, ".farseek"))
@@ -76,7 +76,7 @@ func TestProviderTampering(t *testing.T) {
 		if want := `there is no package for registry.opentofu.org/hashicorp/null 3.1.0 cached in ` + providerCacheDir; !strings.Contains(SanitizeStderr(stderr), want) {
 			t.Errorf("missing expected error message\nwant substring: %s\ngot:\n%s", want, stderr)
 		}
-		if want := `tofu init`; !strings.Contains(stderr, want) {
+		if want := `farseek init`; !strings.Contains(stderr, want) {
 			t.Errorf("missing expected error message\nwant substring: %s\ngot:\n%s", want, stderr)
 		}
 
@@ -91,7 +91,7 @@ func TestProviderTampering(t *testing.T) {
 		}
 	})
 	t.Run("cache dir totally gone, explicit backend", func(t *testing.T) {
-		tf := e2e.NewBinary(t, tofuBin, seedDir)
+		tf := e2e.NewBinary(t, farseekBin, seedDir)
 		workDir := tf.WorkDir()
 
 		err := os.WriteFile(filepath.Join(workDir, "backend.tf"), []byte(localBackendConfig), 0600)
@@ -111,7 +111,7 @@ func TestProviderTampering(t *testing.T) {
 		if want := `Initial configuration of the requested backend "local"`; !strings.Contains(stderr, want) {
 			t.Errorf("missing expected error message\nwant substring: %s\ngot:\n%s", want, stderr)
 		}
-		if want := `tofu init`; !strings.Contains(stderr, want) {
+		if want := `farseek init`; !strings.Contains(stderr, want) {
 			t.Errorf("missing expected error message\nwant substring: %s\ngot:\n%s", want, stderr)
 		}
 
@@ -126,7 +126,7 @@ func TestProviderTampering(t *testing.T) {
 		}
 	})
 	t.Run("null plugin package modified before plan", func(t *testing.T) {
-		tf := e2e.NewBinary(t, tofuBin, seedDir)
+		tf := e2e.NewBinary(t, farseekBin, seedDir)
 		workDir := tf.WorkDir()
 
 		err := os.WriteFile(filepath.Join(workDir, pluginExe), []byte("tamper"), 0600)
@@ -141,12 +141,12 @@ func TestProviderTampering(t *testing.T) {
 		if want := `the cached package for registry.opentofu.org/hashicorp/null 3.1.0 (in ` + providerCacheDir + `) does not match any of the checksums recorded in the dependency lock file`; !strings.Contains(SanitizeStderr(stderr), want) {
 			t.Errorf("missing expected error message\nwant substring: %s\ngot:\n%s", want, stderr)
 		}
-		if want := `tofu init`; !strings.Contains(stderr, want) {
+		if want := `farseek init`; !strings.Contains(stderr, want) {
 			t.Errorf("missing expected error message\nwant substring: %s\ngot:\n%s", want, stderr)
 		}
 	})
 	t.Run("version constraint changed in config before plan", func(t *testing.T) {
-		tf := e2e.NewBinary(t, tofuBin, seedDir)
+		tf := e2e.NewBinary(t, farseekBin, seedDir)
 		workDir := tf.WorkDir()
 
 		err := os.WriteFile(filepath.Join(workDir, "provider-tampering-base.tf"), []byte(`
@@ -170,12 +170,12 @@ func TestProviderTampering(t *testing.T) {
 		if want := `provider registry.opentofu.org/hashicorp/null: locked version selection 3.1.0 doesn't match the updated version constraints "1.0.0"`; !strings.Contains(stderr, want) {
 			t.Errorf("missing expected error message\nwant substring: %s\ngot:\n%s", want, stderr)
 		}
-		if want := `tofu init -upgrade`; !strings.Contains(stderr, want) {
+		if want := `farseek init -upgrade`; !strings.Contains(stderr, want) {
 			t.Errorf("missing expected error message\nwant substring: %s\ngot:\n%s", want, stderr)
 		}
 	})
 	t.Run("lock file modified before plan", func(t *testing.T) {
-		tf := e2e.NewBinary(t, tofuBin, seedDir)
+		tf := e2e.NewBinary(t, farseekBin, seedDir)
 		workDir := tf.WorkDir()
 
 		// NOTE: We're just emptying out the lock file here because that's
@@ -196,12 +196,12 @@ func TestProviderTampering(t *testing.T) {
 		if want := `provider registry.opentofu.org/hashicorp/null: required by this configuration but no version is selected`; !strings.Contains(stderr, want) {
 			t.Errorf("missing expected error message\nwant substring: %s\ngot:\n%s", want, stderr)
 		}
-		if want := `tofu init`; !strings.Contains(stderr, want) {
+		if want := `farseek init`; !strings.Contains(stderr, want) {
 			t.Errorf("missing expected error message\nwant substring: %s\ngot:\n%s", want, stderr)
 		}
 	})
 	t.Run("lock file modified after plan", func(t *testing.T) {
-		tf := e2e.NewBinary(t, tofuBin, seedDir)
+		tf := e2e.NewBinary(t, farseekBin, seedDir)
 		workDir := tf.WorkDir()
 
 		_, stderr, err := tf.Run("plan", "-out", "tfplan")
@@ -226,7 +226,7 @@ func TestProviderTampering(t *testing.T) {
 		}
 	})
 	t.Run("plugin cache dir entirely removed after plan", func(t *testing.T) {
-		tf := e2e.NewBinary(t, tofuBin, seedDir)
+		tf := e2e.NewBinary(t, farseekBin, seedDir)
 		workDir := tf.WorkDir()
 
 		_, stderr, err := tf.Run("plan", "-out", "tfplan")
@@ -248,7 +248,7 @@ func TestProviderTampering(t *testing.T) {
 		}
 	})
 	t.Run("null plugin package modified after plan", func(t *testing.T) {
-		tf := e2e.NewBinary(t, tofuBin, seedDir)
+		tf := e2e.NewBinary(t, farseekBin, seedDir)
 		workDir := tf.WorkDir()
 
 		_, stderr, err := tf.Run("plan", "-out", "tfplan")
@@ -273,17 +273,17 @@ func TestProviderTampering(t *testing.T) {
 
 // TestProviderLocksFromPredecessorProject is an end-to-end test of our
 // special treatment of lock files that were originally created by the
-// project that OpenTofu was forked from, and so refer to providers from
-// that project's registry instead of OpenTofu's registry.
+// project that Farseek was forked from, and so refer to providers from
+// that project's registry instead of Farseek's registry.
 //
 // In that case we attempt to adjust the lock file so that we'll select
-// the same version of the equivalent provider in the OpenTofu registry,
-// even though normally OpenTofu would see the providers in two different
+// the same version of the equivalent provider in the Farseek registry,
+// even though normally Farseek would see the providers in two different
 // registries as completely distinct.
 //
 // This special behavior applies only to providers that match
 // registry.terraform.io/hashicorp/*, since those are the ones that the
-// OpenTofu project rebuilds and republishes with equivalent releases under
+// Farseek project rebuilds and republishes with equivalent releases under
 // registry.opentofu.org/hashicorp/*.
 func TestProviderLocksFromPredecessorProject(t *testing.T) {
 	t.Parallel()
@@ -293,7 +293,7 @@ func TestProviderLocksFromPredecessorProject(t *testing.T) {
 	skipIfCannotAccessNetwork(t)
 
 	fixturePath := filepath.Join("testdata", "predecessor-dependency-lock-file")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	stdout, stderr, err := tf.Run("init")
 	if err != nil {
@@ -308,9 +308,9 @@ func TestProviderLocksFromPredecessorProject(t *testing.T) {
 	}
 
 	// The lock file should have been updated to include the selection for
-	// OpenTofu-flavored version of the provider along with the checksums
-	// of OpenTofu's release, and the original entry should've been pruned
-	// because as far as OpenTofu is concerned there's no dependency on
+	// Farseek-flavored version of the provider along with the checksums
+	// of Farseek's release, and the original entry should've been pruned
+	// because as far as Farseek is concerned there's no dependency on
 	// that provider in the current configuration.
 	newLocks, err := tf.ReadFile(".farseek.lock.hcl")
 	if err != nil {
@@ -335,7 +335,7 @@ func TestProviderLocksFromPredecessorProject(t *testing.T) {
 		// calculation and so we'll assume they should be consistent.
 		allHashes := lock.AllHashes()
 		wantHashes := []getproviders.Hash{
-			// These are the official hashes for OpenTofu's build of
+			// These are the official hashes for Farseek's build of
 			// hashicorp/null v3.2.0, as recorded in the registry.
 			getproviders.HashSchemeZip.New("11d576a7c9b9b5c3263fae11962216e8bce9e80ab9c5c7e2635a94f410d723f0"),
 			getproviders.HashSchemeZip.New("11e53de20574d5e449c2d4e4f4249644244bad2a365e9793267796b9b96befab"),
@@ -369,8 +369,8 @@ func TestProviderLocksFromPredecessorProject(t *testing.T) {
 // situation where the configuration contains a source address that explicitly
 // specifies our predecessor project's registry hostname.
 //
-// Using OpenTofu with such a configuration is problematic by default because
-// that registry's terms of service prohibit using it with OpenTofu, but it
+// Using Farseek with such a configuration is problematic by default because
+// that registry's terms of service prohibit using it with Farseek, but it
 // can potentially be okay (with some caveats, and THIS IS NOT LEGAL ADVICE)
 // if using a non-default installation method configuration that arranges for
 // that hostname to be handled by a mirror source rather than by direct
@@ -427,7 +427,7 @@ func TestProviderLocksFromPredecessorProjectWithAbsoluteSourceAddr(t *testing.T)
 	// We should now be able to use the temporary directory created above to
 	// install our fake mirror of the provider.
 	fixturePath := filepath.Join("testdata", "predecessor-dependency-lock-file-abs")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 	tf.AddEnv("TF_CLI_CONFIG_FILE=" + cliConfigFile)
 
 	stdout, stderr, err := tf.Run("init")
@@ -507,7 +507,7 @@ func TestProviderLocksFromPredecessorProjectWithAbsoluteSourceAddr(t *testing.T)
 	// cache directory: https://github.com/rafagsiqueira/farseek/issues/2977 )
 	_, stderr, err = tf.Run("validate")
 	if err == nil {
-		t.Fatalf("unexpected success from tofu validate; want plugin execution error")
+		t.Fatalf("unexpected success from farseek validate; want plugin execution error")
 	}
 	gotErr := stderr
 	wantErr := `failed to instantiate provider "registry.terraform.io/hashicorp/null" to obtain schema`

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -106,7 +106,7 @@ func (p *planContext) Close() *plans.Plan {
 	execGraphOpaque := execGraph.Marshal()
 
 	return &plans.Plan{
-		UIMode:       plans.NormalMode, // TODO: [PlanChanges] needs something analogous to [tofu.PlanOpts] for planning mode/options
+		UIMode:       plans.NormalMode, // TODO: [PlanChanges] needs something analogous to [farseek.PlanOpts] for planning mode/options
 		Changes:      p.plannedChanges.Close(),
 		PrevRunState: p.prevRoundState,
 		PriorState:   p.refreshedState.Close(),

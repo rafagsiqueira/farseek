@@ -1,0 +1,12 @@
+{
+  "extends": "@docusaurus/tsconfig",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM"],
+    "baseUrl": ".",
+    "resolveJsonModule": true,
+    "paths": {
+      "@theme/*": ["src/theme/*"],
+      "@site/*": ["*"]
+    }
+  }
+}

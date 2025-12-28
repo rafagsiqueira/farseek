@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
 // newValueWriter is a minor re-implementation of MapFieldWriter to include
@@ -117,16 +117,16 @@ type ResourceDiff struct {
 	schema map[string]*Schema
 
 	// The current config for this resource.
-	config *tofu.ResourceConfig
+	config *farseek.ResourceConfig
 
 	// The state for this resource as it exists post-refresh, after the initial
 	// diff.
-	state *tofu.InstanceState
+	state *farseek.InstanceState
 
 	// The diff created by Tofu. This diff is used, along with state,
 	// config, and custom-set diff data, to provide a multi-level reader
 	// experience similar to ResourceData.
-	diff *tofu.InstanceDiff
+	diff *farseek.InstanceDiff
 
 	// The internal reader structure that contains the state, config, the default
 	// diff, and the new diff.
@@ -146,7 +146,7 @@ type ResourceDiff struct {
 }
 
 // newResourceDiff creates a new ResourceDiff instance.
-func newResourceDiff(schema map[string]*Schema, config *tofu.ResourceConfig, state *tofu.InstanceState, diff *tofu.InstanceDiff) *ResourceDiff {
+func newResourceDiff(schema map[string]*Schema, config *farseek.ResourceConfig, state *farseek.InstanceState, diff *farseek.InstanceDiff) *ResourceDiff {
 	d := &ResourceDiff{
 		config: config,
 		state:  state,

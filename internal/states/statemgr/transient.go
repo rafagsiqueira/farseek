@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -12,7 +12,7 @@ import "github.com/rafagsiqueira/farseek/internal/states"
 //
 // Transient snapshots are ones that are generally retained only locally and
 // to not create any historical version record when updated. Transient
-// snapshots are not expected to outlive a particular OpenTofu process,
+// snapshots are not expected to outlive a particular Farseek process,
 // and are not shared with any other process.
 //
 // A state manager type that is primarily concerned with persistent storage

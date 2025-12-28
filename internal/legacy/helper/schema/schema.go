@@ -1,10 +1,10 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
 // schema is a high-level framework for easily writing new providers
-// for OpenTofu. Usage of schema is recommended over attempting to write
+// for Farseek. Usage of schema is recommended over attempting to write
 // to the low-level plugin interfaces manually.
 //
 // schema breaks down provider creation into simple CRUD operations for
@@ -30,7 +30,7 @@ import (
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/mitchellh/copystructure"
 	"github.com/rafagsiqueira/farseek/internal/legacy/hcl2shim"
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
 // Name of ENV variable which (if not empty) prefers panic over error
@@ -249,7 +249,7 @@ type Schema struct {
 
 	// Sensitive ensures that the attribute's value does not get displayed in
 	// logs or regular output. It should be used for passwords or other
-	// secret fields. Future versions of OpenTofu may encrypt these
+	// secret fields. Future versions of Farseek may encrypt these
 	// values.
 	Sensitive bool
 }
@@ -362,7 +362,7 @@ func (s *Schema) ZeroValue() interface{} {
 	}
 }
 
-func (s *Schema) finalizeDiff(d *tofu.ResourceAttrDiff, customized bool) *tofu.ResourceAttrDiff {
+func (s *Schema) finalizeDiff(d *farseek.ResourceAttrDiff, customized bool) *farseek.ResourceAttrDiff {
 	if d == nil {
 		return d
 	}
@@ -449,8 +449,8 @@ func (m schemaMap) panicOnError() bool {
 //
 // The diff is optional.
 func (m schemaMap) Data(
-	s *tofu.InstanceState,
-	d *tofu.InstanceDiff) (*ResourceData, error) {
+	s *farseek.InstanceState,
+	d *farseek.InstanceDiff) (*ResourceData, error) {
 	return &ResourceData{
 		schema:       m,
 		state:        s,
@@ -472,13 +472,13 @@ func (m *schemaMap) DeepCopy() schemaMap {
 // Diff returns the diff for a resource given the schema map,
 // state, and configuration.
 func (m schemaMap) Diff(
-	s *tofu.InstanceState,
-	c *tofu.ResourceConfig,
+	s *farseek.InstanceState,
+	c *farseek.ResourceConfig,
 	customizeDiff CustomizeDiffFunc,
 	meta interface{},
-	handleRequiresNew bool) (*tofu.InstanceDiff, error) {
-	result := new(tofu.InstanceDiff)
-	result.Attributes = make(map[string]*tofu.ResourceAttrDiff)
+	handleRequiresNew bool) (*farseek.InstanceDiff, error) {
+	result := new(farseek.InstanceDiff)
+	result.Attributes = make(map[string]*farseek.ResourceAttrDiff)
 
 	// Make sure to mark if the resource is tainted
 	if s != nil {
@@ -529,8 +529,8 @@ func (m schemaMap) Diff(
 		// caused that.
 		if result.RequiresNew() {
 			// Create the new diff
-			result2 := new(tofu.InstanceDiff)
-			result2.Attributes = make(map[string]*tofu.ResourceAttrDiff)
+			result2 := new(farseek.InstanceDiff)
+			result2.Attributes = make(map[string]*farseek.ResourceAttrDiff)
 
 			// Preserve the DestroyTainted flag
 			result2.DestroyTainted = result.DestroyTainted
@@ -615,11 +615,11 @@ func (m schemaMap) Diff(
 	return result, nil
 }
 
-// Input implements the tofu.ResourceProvider method by asking
+// Input implements the farseek.ResourceProvider method by asking
 // for input for required configuration keys that don't have a value.
 func (m schemaMap) Input(
-	input tofu.UIInput,
-	c *tofu.ResourceConfig) (*tofu.ResourceConfig, error) {
+	input farseek.UIInput,
+	c *farseek.ResourceConfig) (*farseek.ResourceConfig, error) {
 	keys := make([]string, 0, len(m))
 	for k, _ := range m {
 		keys = append(keys, k)
@@ -678,7 +678,7 @@ func (m schemaMap) Input(
 }
 
 // Validate validates the configuration against this schema mapping.
-func (m schemaMap) Validate(c *tofu.ResourceConfig) ([]string, []error) {
+func (m schemaMap) Validate(c *farseek.ResourceConfig) ([]string, []error) {
 	return m.validateObject("", m, c)
 }
 
@@ -870,12 +870,12 @@ type resourceDiffer interface {
 func (m schemaMap) diff(
 	k string,
 	schema *Schema,
-	diff *tofu.InstanceDiff,
+	diff *farseek.InstanceDiff,
 	d resourceDiffer,
 	all bool) error {
 
-	unsuppressedDiff := new(tofu.InstanceDiff)
-	unsuppressedDiff.Attributes = make(map[string]*tofu.ResourceAttrDiff)
+	unsuppressedDiff := new(farseek.InstanceDiff)
+	unsuppressedDiff.Attributes = make(map[string]*farseek.ResourceAttrDiff)
 
 	var err error
 	switch schema.Type {
@@ -903,7 +903,7 @@ func (m schemaMap) diff(
 					continue
 				}
 
-				attrV = &tofu.ResourceAttrDiff{
+				attrV = &farseek.ResourceAttrDiff{
 					Old: attrV.Old,
 					New: attrV.Old,
 				}
@@ -918,7 +918,7 @@ func (m schemaMap) diff(
 func (m schemaMap) diffList(
 	k string,
 	schema *Schema,
-	diff *tofu.InstanceDiff,
+	diff *farseek.InstanceDiff,
 	d resourceDiffer,
 	all bool) error {
 	o, n, _, computedList, customized := d.diffChange(k)
@@ -963,7 +963,7 @@ func (m schemaMap) diffList(
 
 	// If the whole list is computed, then say that the # is computed
 	if computedList {
-		diff.Attributes[k+".#"] = &tofu.ResourceAttrDiff{
+		diff.Attributes[k+".#"] = &farseek.ResourceAttrDiff{
 			Old:         oldStr,
 			NewComputed: true,
 			RequiresNew: schema.ForceNew,
@@ -989,7 +989,7 @@ func (m schemaMap) diffList(
 		}
 
 		diff.Attributes[k+".#"] = countSchema.finalizeDiff(
-			&tofu.ResourceAttrDiff{
+			&farseek.ResourceAttrDiff{
 				Old: oldStr,
 				New: newStr,
 			},
@@ -1040,7 +1040,7 @@ func (m schemaMap) diffList(
 func (m schemaMap) diffMap(
 	k string,
 	schema *Schema,
-	diff *tofu.InstanceDiff,
+	diff *farseek.InstanceDiff,
 	d resourceDiffer,
 	all bool) error {
 	prefix := k + "."
@@ -1095,7 +1095,7 @@ func (m schemaMap) diffMap(
 		}
 
 		diff.Attributes[k+".%"] = countSchema.finalizeDiff(
-			&tofu.ResourceAttrDiff{
+			&farseek.ResourceAttrDiff{
 				Old: oldStr,
 				New: newStr,
 			},
@@ -1118,7 +1118,7 @@ func (m schemaMap) diffMap(
 		}
 
 		diff.Attributes[prefix+k] = schema.finalizeDiff(
-			&tofu.ResourceAttrDiff{
+			&farseek.ResourceAttrDiff{
 				Old: old,
 				New: v,
 			},
@@ -1127,7 +1127,7 @@ func (m schemaMap) diffMap(
 	}
 	for k, v := range stateMap {
 		diff.Attributes[prefix+k] = schema.finalizeDiff(
-			&tofu.ResourceAttrDiff{
+			&farseek.ResourceAttrDiff{
 				Old:        v,
 				NewRemoved: true,
 			},
@@ -1141,7 +1141,7 @@ func (m schemaMap) diffMap(
 func (m schemaMap) diffSet(
 	k string,
 	schema *Schema,
-	diff *tofu.InstanceDiff,
+	diff *farseek.InstanceDiff,
 	d resourceDiffer,
 	all bool) error {
 
@@ -1205,7 +1205,7 @@ func (m schemaMap) diffSet(
 		}
 
 		diff.Attributes[k+".#"] = countSchema.finalizeDiff(
-			&tofu.ResourceAttrDiff{
+			&farseek.ResourceAttrDiff{
 				Old:         countStr,
 				NewComputed: true,
 			},
@@ -1218,7 +1218,7 @@ func (m schemaMap) diffSet(
 	changed := oldLen != newLen
 	if changed || all {
 		diff.Attributes[k+".#"] = countSchema.finalizeDiff(
-			&tofu.ResourceAttrDiff{
+			&farseek.ResourceAttrDiff{
 				Old: oldStr,
 				New: newStr,
 			},
@@ -1268,7 +1268,7 @@ func (m schemaMap) diffSet(
 func (m schemaMap) diffString(
 	k string,
 	schema *Schema,
-	diff *tofu.InstanceDiff,
+	diff *farseek.InstanceDiff,
 	d resourceDiffer,
 	all bool) error {
 	var originalN interface{}
@@ -1311,7 +1311,7 @@ func (m schemaMap) diffString(
 	}
 
 	diff.Attributes[k] = schema.finalizeDiff(
-		&tofu.ResourceAttrDiff{
+		&farseek.ResourceAttrDiff{
 			Old:         os,
 			New:         ns,
 			NewExtra:    originalN,
@@ -1325,10 +1325,10 @@ func (m schemaMap) diffString(
 }
 
 func (m schemaMap) inputString(
-	input tofu.UIInput,
+	input farseek.UIInput,
 	k string,
 	schema *Schema) (interface{}, error) {
-	result, err := input.Input(context.Background(), &tofu.InputOpts{
+	result, err := input.Input(context.Background(), &farseek.InputOpts{
 		Id:          k,
 		Query:       k,
 		Description: schema.Description,
@@ -1341,7 +1341,7 @@ func (m schemaMap) inputString(
 func (m schemaMap) validate(
 	k string,
 	schema *Schema,
-	c *tofu.ResourceConfig) ([]string, []error) {
+	c *farseek.ResourceConfig) ([]string, []error) {
 	raw, ok := c.Get(k)
 	if !ok && schema.DefaultFunc != nil {
 		// We have a dynamic default. Check if we have a value.
@@ -1415,7 +1415,7 @@ func isWhollyKnown(raw interface{}) bool {
 func (m schemaMap) validateConflictingAttributes(
 	k string,
 	schema *Schema,
-	c *tofu.ResourceConfig) error {
+	c *farseek.ResourceConfig) error {
 
 	if len(schema.ConflictsWith) == 0 {
 		return nil
@@ -1440,7 +1440,7 @@ func (m schemaMap) validateList(
 	k string,
 	raw interface{},
 	schema *Schema,
-	c *tofu.ResourceConfig) ([]string, []error) {
+	c *farseek.ResourceConfig) ([]string, []error) {
 	// first check if the list is wholly unknown
 	if s, ok := raw.(string); ok {
 		if s == hcl2shim.UnknownVariableValue {
@@ -1532,7 +1532,7 @@ func (m schemaMap) validateMap(
 	k string,
 	raw interface{},
 	schema *Schema,
-	c *tofu.ResourceConfig) ([]string, []error) {
+	c *farseek.ResourceConfig) ([]string, []error) {
 	// first check if the list is wholly unknown
 	if s, ok := raw.(string); ok {
 		if s == hcl2shim.UnknownVariableValue {
@@ -1668,7 +1668,7 @@ func getValueType(k string, schema *Schema) (ValueType, error) {
 func (m schemaMap) validateObject(
 	k string,
 	schema map[string]*Schema,
-	c *tofu.ResourceConfig) ([]string, []error) {
+	c *farseek.ResourceConfig) ([]string, []error) {
 	raw, _ := c.Get(k)
 
 	// schemaMap can't validate nil
@@ -1719,7 +1719,7 @@ func (m schemaMap) validatePrimitive(
 	k string,
 	raw interface{},
 	schema *Schema,
-	c *tofu.ResourceConfig) ([]string, []error) {
+	c *farseek.ResourceConfig) ([]string, []error) {
 
 	// a nil value shouldn't happen in the old protocol, and in the new
 	// protocol the types have already been validated. Either way, we can't
@@ -1807,7 +1807,7 @@ func (m schemaMap) validateType(
 	k string,
 	raw interface{},
 	schema *Schema,
-	c *tofu.ResourceConfig) ([]string, []error) {
+	c *farseek.ResourceConfig) ([]string, []error) {
 	var ws []string
 	var es []error
 	switch schema.Type {

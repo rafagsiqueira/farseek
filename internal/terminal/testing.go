@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -19,7 +19,7 @@ import (
 //
 // This particular function is for the simple case of a function that only
 // produces output: the returned input stream is connected to the system's
-// "null device", as if a user had run OpenTofu with I/O redirection like
+// "null device", as if a user had run Farseek with I/O redirection like
 // </dev/null on Unix. It also configures the output as a pipe rather than
 // as a terminal, and so can't be used to test whether code is able to adapt
 // to different terminal widths.

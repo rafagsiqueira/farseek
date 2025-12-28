@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -6,7 +6,7 @@
 package response
 
 // ModuleVersions is the response format that contains all metadata about module
-// versions needed for tofu CLI to resolve version constraints. See RFC
+// versions needed for farseek CLI to resolve version constraints. See RFC
 // TF-042 for details on this format.
 type ModuleVersions struct {
 	Modules []*ModuleProviderVersions `json:"modules"`

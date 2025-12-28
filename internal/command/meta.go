@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -35,15 +35,15 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/command/workdir"
 	"github.com/rafagsiqueira/farseek/internal/configs"
 	"github.com/rafagsiqueira/farseek/internal/configs/configload"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/internal/getmodules"
 	"github.com/rafagsiqueira/farseek/internal/getproviders"
-	legacy "github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	legacy "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/provisioners"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/terminal"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
 )
 
 // Meta are the meta-options that are available on all or most commands.
@@ -54,7 +54,7 @@ type Meta struct {
 
 	// WorkingDir is an object representing the "working directory" where we're
 	// running commands. In the normal case this literally refers to the
-	// working directory of the OpenTofu process, though this can take on
+	// working directory of the Farseek process, though this can take on
 	// a more symbolic meaning when the user has overridden default behavior
 	// to specify a different working directory or to override the special
 	// data directory where we'll persist settings that must survive between
@@ -82,7 +82,7 @@ type Meta struct {
 	Ui               cli.Ui   // Ui for output
 
 	// Services provides access to remote endpoint information for
-	// 'tofu-native' services running at a specific user-facing hostname.
+	// 'farseek-native' services running at a specific user-facing hostname.
 	Services *disco.Disco
 
 	// RunningInAutomation indicates that commands are being run by an
@@ -93,7 +93,7 @@ type Meta struct {
 	// commands, since the user consuming the output will not be
 	// in a position to run such commands.
 	//
-	// The intended use-case of this flag is when OpenTofu is running in
+	// The intended use-case of this flag is when Farseek is running in
 	// some sort of workflow orchestration tool which is abstracting away
 	// the specific commands being run.
 	RunningInAutomation bool
@@ -117,7 +117,7 @@ type Meta struct {
 	// This is an accommodation for those who currently essentially ignore the
 	// dependency lock file -- treating it only as transient working directory
 	// state -- and therefore don't care if the plugin cache dir causes the
-	// checksums inside to only be sufficient for the computer where OpenTofu
+	// checksums inside to only be sufficient for the computer where Farseek
 	// is currently running.
 	//
 	// We intend to remove this exception again (making the CLI configuration
@@ -174,16 +174,16 @@ type Meta struct {
 	ProviderDevOverrides map[addrs.Provider]getproviders.PackageLocalDir
 
 	// UnmanagedProviders are a set of providers that exist as processes
-	// predating OpenTofu, which OpenTofu should use but not worry about the
+	// predating Farseek, which Farseek should use but not worry about the
 	// lifecycle of.
 	//
 	// This is essentially a more extreme version of ProviderDevOverrides where
-	// OpenTofu doesn't even worry about how the provider server gets launched,
-	// just trusting that someone else did it before running OpenTofu.
+	// Farseek doesn't even worry about how the provider server gets launched,
+	// just trusting that someone else did it before running Farseek.
 	UnmanagedProviders map[addrs.Provider]*plugin.ReattachConfig
 
 	// AllowExperimentalFeatures controls whether a command that embeds this
-	// Meta is permitted to make use of experimental OpenTofu features.
+	// Meta is permitted to make use of experimental Farseek features.
 	//
 	// Set this field only during the initial creation of Meta. If you change
 	// this field after calling methods of type Meta then the resulting
@@ -296,7 +296,7 @@ type Meta struct {
 	consolidateErrors   bool
 
 	// Used with commands which write state to allow users to write remote
-	// state even if the remote and local OpenTofu versions don't match.
+	// state even if the remote and local Farseek versions don't match.
 	ignoreRemoteVersion bool
 
 	outputInJSON bool
@@ -382,8 +382,8 @@ const (
 )
 
 // InputMode returns the type of input we should ask for in the form of
-// tofu.InputMode which is passed directly to Context.Input.
-func (m *Meta) InputMode() tofu.InputMode {
+// farseek.InputMode which is passed directly to Context.Input.
+func (m *Meta) InputMode() farseek.InputMode {
 	if test || !m.input {
 		return 0
 	}
@@ -396,14 +396,14 @@ func (m *Meta) InputMode() tofu.InputMode {
 		}
 	}
 
-	var mode tofu.InputMode
-	mode |= tofu.InputModeProvider
+	var mode farseek.InputMode
+	mode |= farseek.InputModeProvider
 
 	return mode
 }
 
 // UIInput returns a UIInput object to be used for asking for input.
-func (m *Meta) UIInput() tofu.UIInput {
+func (m *Meta) UIInput() farseek.UIInput {
 	return &UIInput{
 		Colorize: m.Colorize(),
 	}
@@ -490,7 +490,7 @@ func (m *Meta) InterruptibleContext(base context.Context) (context.Context, cont
 //
 // This method is just a substitute for passing a context directly to the
 // "Run" method of a command, which we can't do because that API is owned by
-// mitchellh/cli rather than by OpenTofu. Use this only in situations
+// mitchellh/cli rather than by Farseek. Use this only in situations
 // comparable to the context having been passed in as an argument to Run.
 //
 // If the caller (e.g. "package main") provided a context when it instantiated
@@ -573,15 +573,15 @@ func (m *Meta) RunOperation(ctx context.Context, b backend.Enhanced, opReq *back
 	return op, diags
 }
 
-// contextOpts returns the options to use to initialize a OpenTofu
+// contextOpts returns the options to use to initialize a Farseek
 // context with the settings from this Meta.
-func (m *Meta) contextOpts(ctx context.Context) (*tofu.ContextOpts, error) {
+func (m *Meta) contextOpts(ctx context.Context) (*farseek.ContextOpts, error) {
 	workspace, err := m.Workspace(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var opts tofu.ContextOpts
+	var opts farseek.ContextOpts
 
 	opts.UIInput = m.UIInput()
 	opts.Parallelism = m.parallelism
@@ -599,7 +599,7 @@ func (m *Meta) contextOpts(ctx context.Context) (*tofu.ContextOpts, error) {
 		opts.Provisioners = m.provisionerFactories()
 	}
 
-	opts.Meta = &tofu.ContextMeta{
+	opts.Meta = &farseek.ContextMeta{
 		Env:                workspace,
 		OriginalWorkingDir: m.WorkingDir.OriginalWorkingDir(),
 	}
@@ -620,14 +620,14 @@ func (m *Meta) defaultFlagSet(n string) *flag.FlagSet {
 }
 
 // ignoreRemoteVersionFlagSet add the ignore-remote version flag to suppress
-// the error when the configured OpenTofu version on the remote workspace
-// does not match the local OpenTofu version.
+// the error when the configured Farseek version on the remote workspace
+// does not match the local Farseek version.
 func (m *Meta) ignoreRemoteVersionFlagSet(n string) *flag.FlagSet {
 	f := m.defaultFlagSet(n)
 
 	m.varFlagSet(f)
 
-	f.BoolVar(&m.ignoreRemoteVersion, "ignore-remote-version", false, "continue even if remote and local OpenTofu versions are incompatible")
+	f.BoolVar(&m.ignoreRemoteVersion, "ignore-remote-version", false, "continue even if remote and local Farseek versions are incompatible")
 
 	return f
 }
@@ -719,7 +719,7 @@ func (m *Meta) uiHook() *views.UiHook {
 }
 
 // confirm asks a yes/no confirmation.
-func (m *Meta) confirm(opts *tofu.InputOpts) (bool, error) {
+func (m *Meta) confirm(opts *farseek.InputOpts) (bool, error) {
 	if !m.Input() {
 		return false, errors.New("input is disabled")
 	}
@@ -817,11 +817,11 @@ func (m *Meta) showDiagnostics(vals ...interface{}) {
 }
 
 // WorkspaceNameEnvVar is the name of the environment variable that can be used
-// to set the name of the OpenTofu workspace, overriding the workspace chosen
-// by `tofu workspace select`.
+// to set the name of the Farseek workspace, overriding the workspace chosen
+// by `farseek workspace select`.
 //
-// Note that this environment variable is ignored by `tofu workspace new`
-// and `tofu workspace delete`.
+// Note that this environment variable is ignored by `farseek workspace new`
+// and `farseek workspace delete`.
 const WorkspaceNameEnvVar = "TF_WORKSPACE"
 
 var errInvalidWorkspaceNameEnvVar = fmt.Errorf("Invalid workspace name set using %s", WorkspaceNameEnvVar)
@@ -919,7 +919,7 @@ func (m *Meta) checkRequiredVersion(ctx context.Context) tfdiags.Diagnostics {
 		return diags
 	}
 
-	versionDiags := tofu.CheckCoreVersionRequirements(config)
+	versionDiags := farseek.CheckCoreVersionRequirements(config)
 	if versionDiags.HasErrors() {
 		diags = diags.Append(versionDiags)
 		return diags
@@ -933,19 +933,19 @@ func (m *Meta) checkRequiredVersion(ctx context.Context) tfdiags.Diagnostics {
 // it could potentially return nil without errors. It is the
 // responsibility of the caller to handle the lack of schema
 // information accordingly
-func (c *Meta) MaybeGetSchemas(ctx context.Context, state *states.State, config *configs.Config) (*tofu.Schemas, tfdiags.Diagnostics) {
+func (c *Meta) MaybeGetSchemas(ctx context.Context, state *states.State, config *configs.Config) (*farseek.Schemas, tfdiags.Diagnostics) {
 	var diags tfdiags.Diagnostics
 
 	path, err := os.Getwd()
 	if err != nil {
-		diags.Append(tfdiags.SimpleWarning(failedToLoadSchemasMessage))
+		diags.Append(tfdiags.SimpleWarning("Failed to load schemas"))
 		return nil, diags
 	}
 
 	if config == nil {
 		config, diags = c.loadConfig(ctx, path)
 		if diags.HasErrors() {
-			diags.Append(tfdiags.SimpleWarning(failedToLoadSchemasMessage))
+			diags.Append(tfdiags.SimpleWarning("Failed to load schemas"))
 			return nil, diags
 		}
 	}
@@ -956,7 +956,7 @@ func (c *Meta) MaybeGetSchemas(ctx context.Context, state *states.State, config 
 			diags = diags.Append(err)
 			return nil, diags
 		}
-		tfCtx, ctxDiags := tofu.NewContext(opts)
+		tfCtx, ctxDiags := farseek.NewContext(opts)
 		diags = diags.Append(ctxDiags)
 		if ctxDiags.HasErrors() {
 			return nil, diags

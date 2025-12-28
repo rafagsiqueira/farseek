@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -50,12 +50,12 @@ func TestSourceAvailableVersions(t *testing.T) {
 		{
 			"not.example.com/foo/bar",
 			nil,
-			`host not.example.com does not offer a OpenTofu provider registry`,
+			`host not.example.com does not offer a Farseek provider registry`,
 		},
 		{
 			"too-new.example.com/foo/bar",
 			nil,
-			`host too-new.example.com does not support the provider registry protocol required by this OpenTofu version, but may be compatible with a different OpenTofu version`,
+			`host too-new.example.com does not support the provider registry protocol required by this Farseek version, but may be compatible with a different Farseek version`,
 		},
 		{
 			"fails.example.com/foo/bar",
@@ -176,14 +176,14 @@ func TestSourcePackageMeta(t *testing.T) {
 			"1.2.0",
 			"linux", "amd64",
 			PackageMeta{},
-			`host not.example.com does not offer a OpenTofu provider registry`,
+			`host not.example.com does not offer a Farseek provider registry`,
 		},
 		{
 			"too-new.example.com/awesomesauce/happycloud",
 			"1.2.0",
 			"linux", "amd64",
 			PackageMeta{},
-			`host too-new.example.com does not support the provider registry protocol required by this OpenTofu version, but may be compatible with a different OpenTofu version`,
+			`host too-new.example.com does not support the provider registry protocol required by this Farseek version, but may be compatible with a different Farseek version`,
 		},
 		{
 			"fails.example.com/awesomesauce/happycloud",

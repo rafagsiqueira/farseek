@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -104,7 +104,7 @@ func New(v cty.Value) (*Communicator, error) {
 	// Set up the random number generator once. The seed value is the
 	// time multiplied by the PID. This can overflow the int64 but that
 	// is okay. We multiply by the PID in case we have multiple processes
-	// grabbing this at the same time. This is possible with OpenTofu and
+	// grabbing this at the same time. This is possible with Farseek and
 	// if we communicate to the same host at the same instance, we could
 	// overwrite the same files. Multiplying by the PID prevents this.
 	randLock.Lock()

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -19,7 +19,7 @@ const (
 // Block represents a configuration block.
 //
 // "Block" here is a logical grouping construct, though it happens to map
-// directly onto the physical block syntax of OpenTofu's native configuration
+// directly onto the physical block syntax of Farseek's native configuration
 // syntax. It may be a more a matter of convention in other syntaxes, such as
 // JSON.
 //
@@ -94,7 +94,7 @@ type Attribute struct {
 	//
 	// At present nothing is done with this information, but callers are
 	// encouraged to set it where appropriate so that it may be used in the
-	// future to help OpenTofu mask sensitive information. (OpenTofu
+	// future to help Farseek mask sensitive information. (Farseek
 	// currently achieves this in a limited sense via other mechanisms.)
 	Sensitive bool
 
@@ -102,7 +102,7 @@ type Attribute struct {
 
 	// WriteOnly indicates that such an attribute can receive ephemeral values.
 	// When configured as true, these attributes cannot have values returned by
-	// the provider, and an error will be returned if OpenTofu detects such a thing.
+	// the provider, and an error will be returned if Farseek detects such a thing.
 	WriteOnly bool
 }
 

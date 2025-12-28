@@ -1,0 +1,201 @@
+/* latin-ext */
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/dmsans-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF,
+    U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/dmsans-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/dmsans-bold-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF,
+    U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/dmsans-bold-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html[data-theme="dark"],
+html[data-theme="light"] {
+  --ifm-spacing-horizontal: 0;
+  --ifm-navbar-background-color: transparent;
+  --ifm-heading-font-family: theme("fontFamily.sans");
+  --ifm-navbar-height: 0;
+  --ifm-navbar-shadow: none;
+}
+
+html[data-theme="dark"] {
+  --ifm-color-primary: theme("colors.brand.500");
+  --ifm-background-color: theme("colors.gray.950");
+  --ifm-font-color-base: theme("colors.gray.100");
+  --prism-background-color: theme("colors.gray.900");
+  --ifm-pre-background: var(--prism-background-color);
+}
+
+html[data-theme="light"] {
+  --ifm-color-primary: theme("colors.brand.700");
+  --ifm-background-color: theme("colors.gray.50");
+  --ifm-font-color-base: theme("colors.gray.900");
+  --prism-background-color: theme("colors.white");
+  --ifm-pre-background: var(--prism-background-color);
+}
+
+body {
+  @apply antialiased;
+}
+
+.list-none::-webkit-details-marker {
+  display: none;
+}
+
+[data-theme="light"] .DocSearch {
+  --docsearch-text-color: theme("colors.gray.600");
+  --docsearch-muted-color: theme("colors.gray.600");
+  --docsearch-searchbox-background: theme("colors.gray.150");
+  --docsearch-highlight-color: theme("colors.gray.600");
+  --docsearch-highlight-background-selected: theme("colors.gray.500");
+  --docsearch-highlight-mark-color: theme("colors.brand.700");
+}
+
+[data-theme="dark"] .DocSearch {
+  --docsearch-text-color: theme("colors.gray.500");
+  --docsearch-muted-color: theme("colors.gray.500");
+  --docsearch-searchbox-background: theme("colors.gray.800");
+  --docsearch-highlight-color: theme("colors.gray.500");
+  --docsearch-highlight-background-selected: theme("colors.gray.700");
+  --docsearch-highlight-mark-color: theme("colors.brand.500");
+}
+
+.DocSearch .DocSearch-Button-Key {
+  display: none;
+}
+
+.DocSearch-Button {
+  border-radius: 4px !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+  margin: 0 !important;
+  border: 1px solid transparent !important;
+  transition: all 0.2s ease !important;
+}
+
+.DocSearch-Button:hover {
+  background: var(--docsearch-searchbox-background) !important;
+  box-shadow: 0 0 0 0 !important;
+  border: 1px solid rgba(125, 125, 125, 0.2) !important;
+}
+
+.DocSearch-Button-Placeholder {
+  font-size: 14px !important;
+  padding: 0 8px 0 6px !important;
+}
+
+.DocSearch .DocSearch-Hit[aria-selected="true"] a {
+  background-color: var(--docsearch-highlight-background-selected);
+}
+
+.link:hover {
+  filter: drop-shadow(0.5px 0.5px 0.5px rgba(12, 25, 43, 1));
+}
+
+.menu-text:hover {
+  text-shadow:
+    -1px -1px 0 rgba(0, 0, 0, 0.25),
+    1px -1px 0 rgba(0, 0, 0, 0.25),
+    -1px 1px 0 rgba(0, 0, 0, 0.25),
+    1px 1px 0 rgba(0, 0, 0, 0.25);
+}
+
+h1 {
+  text-wrap: balance;
+}
+
+div[class*="announcementBar"] {
+  position: relative !important;
+  top: 6px !important;
+  border-bottom: none !important;
+}
+
+.announcement-bar {
+  min-height: 48px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+html[data-theme="dark"] .announcement-bar-link {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+html[data-theme="dark"] .announcement-bar-link:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+html[data-theme="light"] .announcement-bar-link {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+html[data-theme="light"] .announcement-bar-link:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.announcement-bar-link {
+  display: block;
+  width: 100%;
+  text-decoration: none !important;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.announcement-bar-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 15px;
+  padding: 6px 0;
+}
+
+.announcement-arrow {
+  display: inline-flex;
+  align-items: center;
+  font-weight: bold;
+  margin-left: 4px;
+  transition: transform 0.2s ease;
+}
+
+.announcement-bar-link:hover .announcement-arrow {
+  transform: translateX(0.25rem);
+}

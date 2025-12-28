@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -60,7 +60,7 @@ func (c *ProvidersCommand) Run(args []string) int {
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			"Error validating configuration directory",
-			fmt.Sprintf("OpenTofu encountered an unexpected error while verifying that the given configuration directory is valid: %s.", err),
+			fmt.Sprintf("Farseek encountered an unexpected error while verifying that the given configuration directory is valid: %s.", err),
 		))
 		c.showDiagnostics(diags)
 		return 1
@@ -73,7 +73,7 @@ func (c *ProvidersCommand) Run(args []string) int {
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			"No configuration files",
-			fmt.Sprintf("The directory %s contains no OpenTofu configuration files.", absPath),
+			fmt.Sprintf("The directory %s contains no Farseek configuration files.", absPath),
 		))
 		c.showDiagnostics(diags)
 		return 1
@@ -105,7 +105,6 @@ func (c *ProvidersCommand) Run(args []string) int {
 	}
 
 	// This is a read-only command
-	c.ignoreRemoteVersionConflict(b)
 
 	// Get the state
 	env, err := c.Workspace(ctx)
@@ -189,7 +188,7 @@ func (c *ProvidersCommand) populateTreeNode(tree treeprint.Tree, node *configs.M
 }
 
 const providersCommandHelp = `
-Usage: tofu [global options] providers [options] [DIR]
+Usage: farseek [global options] providers [options] [DIR]
 
   Prints out a tree of modules in the referenced configuration annotated with
   their provider requirements.
@@ -200,7 +199,7 @@ Usage: tofu [global options] providers [options] [DIR]
 
 Options:
 
-  -test-directory=path  Set the OpenTofu test directory, defaults to "tests". When set, the
+  -test-directory=path  Set the Farseek test directory, defaults to "tests". When set, the
                         test command will search for test files in the current directory and
                         in the one specified by the flag.
 

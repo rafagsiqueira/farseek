@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -6,11 +6,8 @@
 package command
 
 import (
-	"bufio"
 	"bytes"
 	"context"
-	"crypto/md5"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -18,7 +15,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"runtime"
@@ -38,13 +34,13 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/command/workdir"
 	"github.com/rafagsiqueira/farseek/internal/configs"
 	"github.com/rafagsiqueira/farseek/internal/configs/configload"
-	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
 	"github.com/rafagsiqueira/farseek/internal/copy"
 	"github.com/rafagsiqueira/farseek/internal/depsfile"
 	"github.com/rafagsiqueira/farseek/internal/encryption"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/internal/getproviders"
 	"github.com/rafagsiqueira/farseek/internal/initwd"
-	legacy "github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	legacy "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 	_ "github.com/rafagsiqueira/farseek/internal/logging"
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/plans/planfile"
@@ -54,7 +50,6 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 	"github.com/rafagsiqueira/farseek/internal/terminal"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
 	"github.com/rafagsiqueira/farseek/version"
 )
 
@@ -450,26 +445,6 @@ func testStateFileWorkspaceDefault(t *testing.T, workspace string, s *states.Sta
 
 // testStateFileRemote writes the state out to the remote statefile
 // in the cwd. Use `testCwd` to change into a temp cwd.
-func testStateFileRemote(t *testing.T, s *legacy.State) string {
-	t.Helper()
-
-	path := filepath.Join(DefaultDataDir, DefaultStateFilename)
-	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
-		t.Fatalf("err: %s", err)
-	}
-
-	f, err := os.Create(path)
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
-	defer f.Close()
-
-	if err := legacy.WriteState(s, f); err != nil {
-		t.Fatalf("err: %s", err)
-	}
-
-	return path
-}
 
 // testStateRead reads the state from a file
 func testStateRead(t *testing.T, path string) *states.State {
@@ -524,8 +499,8 @@ func testStateOutput(t *testing.T, path string, expected string) {
 	}
 }
 
-func testProvider() *tofu.MockProvider {
-	p := new(tofu.MockProvider)
+func testProvider() *farseek.MockProvider {
+	p := new(farseek.MockProvider)
 	p.PlanResourceChangeFn = func(req providers.PlanResourceChangeRequest) (resp providers.PlanResourceChangeResponse) {
 		resp.PlannedState = req.ProposedNewState
 		return resp
@@ -695,204 +670,6 @@ func testInputMap(t *testing.T, answers map[string]string) func() {
 			t.Fatalf("expected no unused answers provided to command.testInputMap, got: %v", unusedAnswers)
 		}
 	}
-}
-
-// testBackendState is used to make a test HTTP server to test a configured
-// backend. This returns the complete state that can be saved. Use
-// `testStateFileRemote` to write the returned state.
-//
-// When using this function, the configuration fixture for the test must
-// include an empty configuration block for the HTTP backend, like this:
-//
-//	terraform {
-//	  backend "http" {
-//	  }
-//	}
-//
-// If such a block isn't present, or if it isn't empty, then an error will
-// be returned about the backend configuration having changed and that
-// "tofu init" must be run, since the test backend config cache created
-// by this function contains the hash for an empty configuration.
-func testBackendState(t *testing.T, s *states.State, c int) (*legacy.State, *httptest.Server) {
-	t.Helper()
-
-	var b64md5 string
-	buf := bytes.NewBuffer(nil)
-
-	cb := func(resp http.ResponseWriter, req *http.Request) {
-		if req.Method == "PUT" {
-			resp.WriteHeader(c)
-			return
-		}
-		if s == nil {
-			resp.WriteHeader(404)
-			return
-		}
-
-		resp.Header().Set("Content-MD5", b64md5)
-		if _, err := resp.Write(buf.Bytes()); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	// If a state was given, make sure we calculate the proper b64md5
-	if s != nil {
-		err := statefile.Write(&statefile.File{State: s}, buf, encryption.StateEncryptionDisabled())
-		if err != nil {
-			t.Fatalf("err: %v", err)
-		}
-		md5 := md5.Sum(buf.Bytes())
-		b64md5 = base64.StdEncoding.EncodeToString(md5[:16])
-	}
-
-	srv := httptest.NewServer(http.HandlerFunc(cb))
-
-	backendConfig := &configs.Backend{
-		Type:   "http",
-		Config: configs.SynthBody("<testBackendState>", map[string]cty.Value{}),
-		Eval:   configs.NewStaticEvaluator(nil, configs.RootModuleCallForTesting()),
-	}
-	httpBackendInit, _ := backendInit.Backend("http")
-	b := httpBackendInit(encryption.StateEncryptionDisabled())
-	configSchema := b.ConfigSchema()
-	hash, _ := backendConfig.Hash(t.Context(), configSchema)
-
-	state := legacy.NewState()
-	state.Backend = &legacy.BackendState{
-		Type:      "http",
-		ConfigRaw: json.RawMessage(fmt.Sprintf(`{"address":%q}`, srv.URL)),
-		Hash:      uint64(hash),
-	}
-
-	return state, srv
-}
-
-// testRemoteState is used to make a test HTTP server to return a given
-// state file that can be used for testing legacy remote state.
-//
-// The return values are a *legacy.State instance that should be written
-// as the "data state" (really: backend state) and the server that the
-// returned data state refers to.
-func testRemoteState(t *testing.T, s *states.State, c int) (*legacy.State, *httptest.Server) {
-	t.Helper()
-
-	var b64md5 string
-	buf := bytes.NewBuffer(nil)
-
-	cb := func(resp http.ResponseWriter, req *http.Request) {
-		if req.Method == "PUT" {
-			resp.WriteHeader(c)
-			return
-		}
-		if s == nil {
-			resp.WriteHeader(404)
-			return
-		}
-
-		resp.Header().Set("Content-MD5", b64md5)
-		if _, err := resp.Write(buf.Bytes()); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	retState := legacy.NewState()
-
-	srv := httptest.NewServer(http.HandlerFunc(cb))
-	b := &legacy.BackendState{
-		Type: "http",
-	}
-	if err := b.SetConfig(cty.ObjectVal(map[string]cty.Value{
-		"address": cty.StringVal(srv.URL),
-	}), &configschema.Block{
-		Attributes: map[string]*configschema.Attribute{
-			"address": {
-				Type:     cty.String,
-				Required: true,
-			},
-		},
-	}); err != nil {
-		t.Fatal(err)
-	}
-	retState.Backend = b
-
-	if s != nil {
-		err := statefile.Write(&statefile.File{State: s}, buf, encryption.StateEncryptionDisabled())
-		if err != nil {
-			t.Fatalf("failed to write initial state: %v", err)
-		}
-	}
-
-	return retState, srv
-}
-
-// testLockState calls a separate process to the lock the state file at path.
-// deferFunc should be called in the caller to properly unlock the file.
-// Since many tests change the working directory, the sourceDir argument must be
-// supplied to locate the statelocker.go source.
-func testLockState(t *testing.T, sourceDir, path string) (func(), error) {
-	// build and run the binary ourselves so we can quickly terminate it for cleanup
-	buildDir := t.TempDir()
-
-	source := filepath.Join(sourceDir, "statelocker.go")
-	lockBin := filepath.Join(buildDir, "statelocker")
-
-	if runtime.GOOS == "windows" {
-		lockBin = lockBin + ".exe"
-	}
-
-	cmd := exec.Command("go", "build", "-o", lockBin, source)
-
-	cmd.Dir = filepath.Dir(sourceDir)
-
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return nil, fmt.Errorf("%w %s", err, out)
-	}
-
-	locker := exec.Command(lockBin, path)
-	stdin, err := locker.StdinPipe()
-	if err != nil {
-		return nil, err
-	}
-	stdout, err := locker.StdoutPipe()
-	if err != nil {
-		return nil, err
-	}
-
-	if err := locker.Start(); err != nil {
-		return nil, err
-	}
-
-	reader := bufio.NewReader(stdout)
-
-	// callback function to unlock the state file
-	cbFunc := func() {
-		stdin.Close()
-		stdout.Close()
-
-		_ = locker.Wait()
-
-		t.Logf("closed statelocker stdin and finished.")
-
-		// Trigger garbage collection to ensure that all open file handles are closed.
-		// This prevents TempDir RemoveAll cleanup errors on Windows.
-		if runtime.GOOS == "windows" {
-			runtime.GC()
-		}
-	}
-
-	// wait for the process to lock
-	buf, err := reader.ReadString('\n')
-	if err != nil {
-		return cbFunc, fmt.Errorf("read from statelocker returned: %w", err)
-	}
-
-	output := string(buf)
-	if !strings.HasPrefix(output, "LOCKID") {
-		return cbFunc, fmt.Errorf("statelocker wrote: %s", output)
-	}
-	t.Logf("statelocker locked %s", output)
-	return cbFunc, nil
 }
 
 // testCopyDir recursively copies a directory tree, attempting to preserve
@@ -1135,11 +912,11 @@ func checkGoldenReference(t *testing.T, output *terminal.TestOutput, fixturePath
 
 	// Verify that the log starts with a version message
 	type versionMessage struct {
-		Level    string `json:"@level"`
-		Message  string `json:"@message"`
-		Type     string `json:"type"`
-		OpenTofu string `json:"tofu"`
-		UI       string `json:"ui"`
+		Level   string `json:"@level"`
+		Message string `json:"@message"`
+		Type    string `json:"type"`
+		Farseek string `json:"farseek"`
+		UI      string `json:"ui"`
 	}
 	var gotVersion versionMessage
 	if err := json.Unmarshal([]byte(gotLines[0]), &gotVersion); err != nil {
@@ -1147,7 +924,7 @@ func checkGoldenReference(t *testing.T, output *terminal.TestOutput, fixturePath
 	}
 	wantVersion := versionMessage{
 		"info",
-		fmt.Sprintf("OpenTofu %s", version.String()),
+		fmt.Sprintf("Farseek %s", version.String()),
 		"version",
 		version.String(),
 		views.JSON_UI_VERSION,

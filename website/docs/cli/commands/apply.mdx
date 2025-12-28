@@ -17,7 +17,6 @@ Usage: `tofu apply [options] [plan file]`
 
 ### Automatic Plan Mode
 
-When you run `tofu apply` without passing a saved plan file, OpenTofu automatically creates a new execution plan as if you had run [`tofu plan`](plan.mdx), prompts you to approve that plan, and takes the indicated actions. You can use all of the [planning modes](plan.mdx#planning-modes) and
 [planning options](plan.mdx#planning-options) to customize how OpenTofu will create the plan.
 
 You can pass the `-auto-approve` option to instruct OpenTofu to apply the plan without asking for confirmation.
@@ -47,7 +46,6 @@ If required ephemeral variables are not provided to the apply command, OpenTofu 
 
 Without a saved plan file, `tofu apply` supports all planning modes and planning options available for `tofu plan`.
 
-- **[Planning Modes](plan.mdx#planning-modes):** These include `-destroy`, which creates a plan to destroy all remote objects, and `-refresh-only`, which creates a plan to update OpenTofu state and root module output values.
 - **[Planning Options](plan.mdx#planning-options):** These include specifying which resource instances OpenTofu should replace, setting OpenTofu input variables, etc.
 
 ### Apply Options
@@ -107,6 +105,8 @@ The following options change how the apply command executes and reports on the a
 - `-var-file=foo` - Set variables in the OpenTofu configuration from a file.
   If "terraform.tfvars" or any ".auto.tfvars" files are present, they will
   be automatically loaded.
+
+- `-uncommitted` - Includes unstaged and uncommitted local changes in the drift calculation. By default, Farseek calculates drift by comparing the last applied SHA against `HEAD`. This flag changes the comparison to be against the working directory, including any local modifications that haven't been committed yet.
 
 - `-show-sensitive` - If specified, sensitive values will not be
   redacted in te UI output.

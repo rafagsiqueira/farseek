@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -32,7 +32,7 @@ func TestInitProviders(t *testing.T) {
 	skipIfCannotAccessNetwork(t)
 
 	fixturePath := filepath.Join("testdata", "template-provider")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	stdout, stderr, err := tf.Run("init")
 	if err != nil {
@@ -43,7 +43,7 @@ func TestInitProviders(t *testing.T) {
 		t.Errorf("unexpected stderr output:\n%s", stderr)
 	}
 
-	if !strings.Contains(stdout, "OpenTofu has been successfully initialized!") {
+	if !strings.Contains(stdout, "Farseek has been successfully initialized!") {
 		t.Errorf("success message is missing from output:\n%s", stdout)
 	}
 
@@ -52,7 +52,7 @@ func TestInitProviders(t *testing.T) {
 		t.Logf("(this can happen if you have a copy of the plugin in one of the global plugin search dirs)")
 	}
 
-	if !strings.Contains(stdout, "OpenTofu has created a lock file") {
+	if !strings.Contains(stdout, "Farseek has created a lock file") {
 		t.Errorf("lock file notification is missing from output:\n%s", stdout)
 	}
 
@@ -62,11 +62,11 @@ func TestInitProvidersInternal(t *testing.T) {
 	t.Parallel()
 
 	// This test should _not_ reach out anywhere because the "terraform"
-	// provider is internal to the core tofu binary.
+	// provider is internal to the core farseek binary.
 
 	t.Run("output in human readable format", func(t *testing.T) {
 		fixturePath := filepath.Join("testdata", "tf-provider")
-		tf := e2e.NewBinary(t, tofuBin, fixturePath)
+		tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 		stdout, stderr, err := tf.Run("init")
 		if err != nil {
@@ -77,7 +77,7 @@ func TestInitProvidersInternal(t *testing.T) {
 			t.Errorf("unexpected stderr output:\n%s", stderr)
 		}
 
-		if !strings.Contains(stdout, "OpenTofu has been successfully initialized!") {
+		if !strings.Contains(stdout, "Farseek has been successfully initialized!") {
 			t.Errorf("success message is missing from output:\n%s", stdout)
 		}
 
@@ -96,7 +96,7 @@ func TestInitProvidersInternal(t *testing.T) {
 
 	t.Run("output in machine readable format", func(t *testing.T) {
 		fixturePath := filepath.Join("testdata", "tf-provider")
-		tf := e2e.NewBinary(t, tofuBin, fixturePath)
+		tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 		stdout, stderr, err := tf.Run("init", "-json")
 		if err != nil {
@@ -108,7 +108,7 @@ func TestInitProvidersInternal(t *testing.T) {
 		}
 
 		// we can not check timestamp, so the sub string is not a valid json object
-		if !strings.Contains(stdout, `{"@level":"info","@message":"OpenTofu has been successfully initialized!","@module":"tofu.ui"`) {
+		if !strings.Contains(stdout, `{"@level":"info","@message":"Farseek has been successfully initialized!","@module":"farseek.ui"`) {
 			t.Errorf("success message is missing from output:\n%s", stdout)
 		}
 
@@ -138,7 +138,7 @@ func TestInitProvidersVendored(t *testing.T) {
 	skipIfCannotAccessNetwork(t)
 
 	fixturePath := filepath.Join("testdata", "vendored-provider")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	// Our fixture dir has a generic os_arch dir, which we need to customize
 	// to the actual OS/arch where this test is running in order to get the
@@ -159,7 +159,7 @@ func TestInitProvidersVendored(t *testing.T) {
 		t.Errorf("unexpected stderr output:\n%s", stderr)
 	}
 
-	if !strings.Contains(stdout, "OpenTofu has been successfully initialized!") {
+	if !strings.Contains(stdout, "Farseek has been successfully initialized!") {
 		t.Errorf("success message is missing from output:\n%s", stdout)
 	}
 
@@ -182,9 +182,9 @@ func TestInitProvidersLocalOnly(t *testing.T) {
 
 	t.Run("output in human readable format", func(t *testing.T) {
 		fixturePath := filepath.Join("testdata", "local-only-provider")
-		tf := e2e.NewBinary(t, tofuBin, fixturePath)
+		tf := e2e.NewBinary(t, farseekBin, fixturePath)
 		// If you run this test on a workstation with a plugin-cache directory
-		// configured, it will leave a bad directory behind and tofu init will
+		// configured, it will leave a bad directory behind and farseek init will
 		// not work until you remove it.
 		//
 		// To avoid this, we will  "zero out" any existing cli config file.
@@ -209,7 +209,7 @@ func TestInitProvidersLocalOnly(t *testing.T) {
 			t.Errorf("unexpected stderr output:\n%s", stderr)
 		}
 
-		if !strings.Contains(stdout, "OpenTofu has been successfully initialized!") {
+		if !strings.Contains(stdout, "Farseek has been successfully initialized!") {
 			t.Errorf("success message is missing from output:\n%s", stdout)
 		}
 
@@ -221,9 +221,9 @@ func TestInitProvidersLocalOnly(t *testing.T) {
 
 	t.Run("output in machine readable format", func(t *testing.T) {
 		fixturePath := filepath.Join("testdata", "local-only-provider")
-		tf := e2e.NewBinary(t, tofuBin, fixturePath)
+		tf := e2e.NewBinary(t, farseekBin, fixturePath)
 		// If you run this test on a workstation with a plugin-cache directory
-		// configured, it will leave a bad directory behind and tofu init will
+		// configured, it will leave a bad directory behind and farseek init will
 		// not work until you remove it.
 		//
 		// To avoid this, we will  "zero out" any existing cli config file.
@@ -249,11 +249,11 @@ func TestInitProvidersLocalOnly(t *testing.T) {
 		}
 
 		// we can not check timestamp, so the sub string is not a valid json object
-		if !strings.Contains(stdout, `{"@level":"info","@message":"OpenTofu has been successfully initialized!","@module":"tofu.ui"`) {
+		if !strings.Contains(stdout, `{"@level":"info","@message":"Farseek has been successfully initialized!","@module":"farseek.ui"`) {
 			t.Errorf("success message is missing from output:\n%s", stdout)
 		}
 
-		if !strings.Contains(stdout, `{"@level":"info","@message":"- Installing example.com/awesomecorp/happycloud v1.2.0...","@module":"tofu.ui"`) {
+		if !strings.Contains(stdout, `{"@level":"info","@message":"- Installing example.com/awesomecorp/happycloud v1.2.0...","@module":"farseek.ui"`) {
 			t.Errorf("provider download message is missing from output:\n%s", stdout)
 			t.Logf("(this can happen if you have a conflicting copy of the plugin in one of the global plugin search dirs)")
 		}
@@ -274,7 +274,7 @@ func TestInitProvidersCustomMethod(t *testing.T) {
 	for _, configFile := range []string{"cliconfig.tfrc", "cliconfig.tfrc.json"} {
 		t.Run(configFile, func(t *testing.T) {
 			fixturePath := filepath.Join("testdata", "custom-provider-install-method")
-			tf := e2e.NewBinary(t, tofuBin, fixturePath)
+			tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 			// Our fixture dir has a generic os_arch dir, which we need to customize
 			// to the actual OS/arch where this test is running in order to get the
@@ -299,7 +299,7 @@ func TestInitProvidersCustomMethod(t *testing.T) {
 				t.Errorf("unexpected stderr output:\n%s", stderr)
 			}
 
-			if !strings.Contains(stdout, "OpenTofu has been successfully initialized!") {
+			if !strings.Contains(stdout, "Farseek has been successfully initialized!") {
 				t.Errorf("success message is missing from output:\n%s", stdout)
 			}
 
@@ -319,7 +319,7 @@ func TestInitProviders_pluginCache(t *testing.T) {
 	skipIfCannotAccessNetwork(t)
 
 	fixturePath := filepath.Join("testdata", "plugin-cache")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	// Our fixture dir has a generic os_arch dir, which we need to customize
 	// to the actual OS/arch where this test is running in order to get the
@@ -383,7 +383,7 @@ func TestInit_fromModule(t *testing.T) {
 	skipIfCannotAccessNetwork(t)
 
 	fixturePath := filepath.Join("testdata", "empty")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	cmd := tf.Cmd("init", "-from-module=hashicorp/vault/aws")
 	cmd.Stdin = nil
@@ -416,7 +416,7 @@ func TestInitProviderNotFound(t *testing.T) {
 	skipIfCannotAccessNetwork(t)
 
 	fixturePath := filepath.Join("testdata", "provider-not-found")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	t.Run("registry provider not found", func(t *testing.T) {
 		_, stderr, err := tf.Run("init", "-no-color")
@@ -441,7 +441,7 @@ func TestInitProviderNotFound(t *testing.T) {
 		}
 
 		oneLineStdout := strings.ReplaceAll(stdout, "\n", " ")
-		if !strings.Contains(oneLineStdout, `"diagnostic":{"severity":"error","summary":"Failed to query available provider packages","detail":"Could not retrieve the list of available versions for provider hashicorp/nonexist: provider registry registry.opentofu.org does not have a provider named registry.opentofu.org/hashicorp/nonexist\n\nAll modules should specify their required_providers so that external consumers will get the correct providers when using a module. To see which modules are currently depending on hashicorp/nonexist, run the following command:\n    tofu providers\n\nIf you believe this provider is missing from the registry, please submit a issue on the OpenTofu Registry https://github.com/opentofu/registry/issues/new/choose"},"type":"diagnostic"}`) {
+		if !strings.Contains(oneLineStdout, `"diagnostic":{"severity":"error","summary":"Failed to query available provider packages","detail":"Could not retrieve the list of available versions for provider hashicorp/nonexist: provider registry registry.opentofu.org does not have a provider named registry.opentofu.org/hashicorp/nonexist\n\nAll modules should specify their required_providers so that external consumers will get the correct providers when using a module. To see which modules are currently depending on hashicorp/nonexist, run the following command:\n    farseek providers\n\nIf you believe this provider is missing from the registry, please submit a issue on the Farseek Registry https://github.com/opentofu/registry/issues/new/choose"},"type":"diagnostic"}`) {
 			t.Errorf("expected error message is missing from output:\n%s", stdout)
 		}
 	})
@@ -499,10 +499,10 @@ func TestInitProviderNotFound(t *testing.T) {
 │ consumers will get the correct providers when using a module. To see which
 │ modules are currently depending on hashicorp/nonexist, run the following
 │ command:
-│     tofu providers
+│     farseek providers
 │ 
 │ If you believe this provider is missing from the registry, please submit a
-│ issue on the OpenTofu Registry
+│ issue on the Farseek Registry
 │ https://github.com/opentofu/registry/issues/new/choose
 ╵
 
@@ -514,7 +514,7 @@ func TestInitProviderNotFound(t *testing.T) {
 
 	t.Run("implicit provider resource and data not found", func(t *testing.T) {
 		implicitFixturePath := filepath.Join("testdata", "provider-implicit-ref-not-found/implicit-by-resource-and-data")
-		tf := e2e.NewBinary(t, tofuBin, implicitFixturePath)
+		tf := e2e.NewBinary(t, farseekBin, implicitFixturePath)
 		stdout, _, err := tf.Run("init")
 		if err == nil {
 			t.Fatal("expected error, got success")
@@ -531,13 +531,13 @@ func TestInitProviderNotFound(t *testing.T) {
 │   on main.tf line 2:
 │    2: resource "nonexistingProv_res" "test1" {
 │ 
-│ Due to the prefix of the resource type name OpenTofu guessed that you
+│ Due to the prefix of the resource type name Farseek guessed that you
 │ intended to associate nonexistingProv_res.test1 with a provider whose local
 │ name is "nonexistingprov", but that name is not declared in this module's
-│ required_providers block. OpenTofu therefore guessed that you intended to
+│ required_providers block. Farseek therefore guessed that you intended to
 │ use hashicorp/nonexistingprov, but that provider does not exist.
 │ 
-│ Make at least one of the following changes to tell OpenTofu which provider
+│ Make at least one of the following changes to tell Farseek which provider
 │ to use:
 │ 
 │ - Add a declaration for local name "nonexistingprov" to this module's
@@ -546,7 +546,7 @@ func TestInitProviderNotFound(t *testing.T) {
 │ - Verify that "nonexistingProv_res" is the correct resource type name to
 │ use. Did you omit a prefix which would imply the correct provider?
 │ - Use a "provider" argument within this resource block to override
-│ OpenTofu's automatic selection of the local name "nonexistingprov".
+│ Farseek's automatic selection of the local name "nonexistingprov".
 │`}
 		for _, expectedOutput := range expectedContentInOutput {
 			if cleanOut := strings.TrimSpace(stripAnsi(stdout)); !strings.Contains(cleanOut, expectedOutput) {
@@ -557,7 +557,7 @@ func TestInitProviderNotFound(t *testing.T) {
 
 	t.Run("resource pointing to a not configured provider does not warn on implicit reference", func(t *testing.T) {
 		implicitFixturePath := filepath.Join("testdata", "provider-implicit-ref-not-found/resource-with-provider-attribute")
-		tf := e2e.NewBinary(t, tofuBin, implicitFixturePath)
+		tf := e2e.NewBinary(t, farseekBin, implicitFixturePath)
 		stdout, _, err := tf.Run("init")
 		if err == nil {
 			t.Fatal("expected error, got success")
@@ -575,7 +575,7 @@ Initializing provider plugins...
 	})
 }
 
-// The following test is temporarily removed until the OpenTofu registry returns a deprecation warning
+// The following test is temporarily removed until the Farseek registry returns a deprecation warning
 // https://github.com/opentofu/registry/issues/108
 //func TestInitProviderWarnings(t *testing.T) {
 //	t.Parallel()
@@ -585,7 +585,7 @@ Initializing provider plugins...
 //	skipIfCannotAccessNetwork(t)
 //
 //	fixturePath := filepath.Join("testdata", "provider-warnings")
-//	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+//	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 //
 //	stdout, _, err := tf.Run("init")
 //	if err == nil {
@@ -619,7 +619,7 @@ func escapeStringJSON(v string) string {
 	return string(marshaledV[1 : len(marshaledV)-2])
 }
 
-// TestTelemetrySchemaConflict reproduces the issue where OpenTofu fails to initialize
+// TestTelemetrySchemaConflict reproduces the issue where Farseek fails to initialize
 // telemetry due to conflicting OpenTelemetry schema URLs from different semconv versions.
 //
 // The issue occurs because different parts of the codebase import different versions
@@ -632,7 +632,7 @@ func TestTelemetrySchemaConflict(t *testing.T) {
 	t.Parallel()
 
 	fixturePath := filepath.Join("testdata", "empty")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	// Set the environment variable that triggers telemetry initialization errors
 	tf.AddEnv("OTEL_TRACES_EXPORTER=otlp")

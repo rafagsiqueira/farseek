@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -62,7 +62,7 @@ func (p *GRPCProviderPlugin) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Serve
 
 // GRPCProvider handles the client, or core side of the plugin rpc connection.
 // The GRPCProvider methods are mostly a translation layer between the
-// tofu providers types and the grpc proto types, directly converting
+// farseek providers types and the grpc proto types, directly converting
 // between the two.
 type GRPCProvider struct {
 	// PluginClient provides a reference to the plugin.Client which controls the plugin process.
@@ -1032,7 +1032,7 @@ func (p *GRPCProvider) CallFunction(ctx context.Context, r providers.CallFunctio
 	return
 }
 
-// closing the grpc connection is final, and tofu will call it at the end of every phase.
+// closing the grpc connection is final, and farseek will call it at the end of every phase.
 func (p *GRPCProvider) Close(_ context.Context) error {
 	logger.Trace("GRPCProvider.v6: Close")
 

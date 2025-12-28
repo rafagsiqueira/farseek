@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -34,7 +34,7 @@ const UnknownVariableValue = "74D93920-ED26-11E3-AC10-0800200C9A66"
 // function will panic or produce incorrect results.
 //
 // This is primarily useful for the final transition from new-style values to
-// tofu.ResourceConfig before calling to a legacy provider, since
+// farseek.ResourceConfig before calling to a legacy provider, since
 // helper/schema (the old provider SDK) is particularly sensitive to these
 // subtle differences within its validation code.
 func ConfigValueFromHCL2Block(v cty.Value, schema *configschema.Block) map[string]interface{} {

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -59,7 +59,7 @@ type moduleVersion struct {
 // "loader" is the configuration loader to use to traverse the module tree
 // of the configuration whose modules are being installed.
 //
-// "registryClient" is the client for the OpenTofu module registry protocol,
+// "registryClient" is the client for the Farseek module registry protocol,
 // used to fetch package metadata when installing remote modules indirectly
 // through a registry-style module source address. This may be nil only if
 // "remotePackageFetcher" is also nil, since registry source addresses are
@@ -68,7 +68,7 @@ type moduleVersion struct {
 // "remotePackageFetcher" is the client used for fetching actual module packages
 // from concrete physical source locations, which can be either specified
 // directly in the configuration or returned dynamically as part of the metadata
-// fetched from an OpenTofu module registry. This argument can be nil, in which
+// fetched from an Farseek module registry. This argument can be nil, in which
 // case no remote package sources are supported; this facility is included
 // primarily for unit testing where only local modules are needed.
 func NewModuleInstaller(modsDir string, loader *configload.Loader, registryClient *registry.Client, remotePackageFetcher *getmodules.PackageFetcher) *ModuleInstaller {
@@ -84,7 +84,7 @@ func NewModuleInstaller(modsDir string, loader *configload.Loader, registryClien
 
 // isSubDirNonExistent checks if the error is due to a non-existent subdirectory
 // within an otherwise valid module. This helps distinguish between a genuine
-// OpenTofu bug when failing to get the module and a user configuration error where they've specified a
+// Farseek bug when failing to get the module and a user configuration error where they've specified a
 // submodule path that doesn't exist.
 func isSubDirNonExistent(modDir string) (isNonExistent bool, missingDir string) {
 	modDir = filepath.Clean(modDir)
@@ -169,7 +169,7 @@ func (i *ModuleInstaller) InstallModules(ctx context.Context, rootDir, testsDir 
 	} else if vDiags := rootMod.CheckCoreVersionRequirements(nil, nil); vDiags.HasErrors() {
 		// If the core version requirements are not met, we drop any other
 		// diagnostics, as they may reflect language changes from future
-		// OpenTofu versions.
+		// Farseek versions.
 		diags = diags.Append(vDiags)
 	} else {
 		diags = diags.Append(mDiags)
@@ -302,7 +302,7 @@ func (i *ModuleInstaller) moduleInstallWalker(_ context.Context, manifest modsdi
 						Severity: hcl.DiagError,
 						Summary:  "Failed to remove local module cache",
 						Detail: fmt.Sprintf(
-							"OpenTofu tried to remove %s in order to reinstall this module, but encountered an error: %s",
+							"Farseek tried to remove %s in order to reinstall this module, but encountered an error: %s",
 							instPath, err,
 						),
 					})
@@ -322,7 +322,7 @@ func (i *ModuleInstaller) moduleInstallWalker(_ context.Context, manifest modsdi
 					} else if vDiags := mod.CheckCoreVersionRequirements(req.Path, req.SourceAddr); vDiags.HasErrors() {
 						// If the core version requirements are not met, we drop any other
 						// diagnostics, as they may reflect language changes from future
-						// OpenTofu versions.
+						// Farseek versions.
 						diags = diags.Extend(vDiags)
 					} else {
 						diags = diags.Extend(mDiags)
@@ -476,7 +476,7 @@ func (i *ModuleInstaller) installLocalModule(ctx context.Context, req *configs.M
 	} else if vDiags := mod.CheckCoreVersionRequirements(req.Path, req.SourceAddr); vDiags.HasErrors() {
 		// If the core version requirements are not met, we drop any other
 		// diagnostics, as they may reflect language changes from future
-		// OpenTofu versions.
+		// Farseek versions.
 		diags = diags.Extend(vDiags)
 	} else {
 		diags = diags.Extend(mDiags)
@@ -548,7 +548,7 @@ func (i *ModuleInstaller) installRegistryModule(ctx context.Context, req *config
 			if registry.IsModuleNotFound(err) {
 				suggestion := ""
 				if hostname == addrs.DefaultModuleRegistryHost {
-					suggestion = "\n\nIf you believe this module is missing from the registry, please submit a issue on the OpenTofu Registry https://github.com/opentofu/registry/issues/new/choose"
+					suggestion = "\n\nIf you believe this module is missing from the registry, please submit a issue on the Farseek Registry https://github.com/opentofu/registry/issues/new/choose"
 				}
 
 				diags = diags.Append(&hcl.Diagnostic{
@@ -587,7 +587,7 @@ func (i *ModuleInstaller) installRegistryModule(ctx context.Context, req *config
 		diags = diags.Append(&hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "Invalid response from remote module registry",
-			Detail:   fmt.Sprintf("The registry at %s returned an invalid response when OpenTofu requested available versions for module %q (%s:%d).", hostname, req.Name, req.CallRange.Filename, req.CallRange.Start.Line),
+			Detail:   fmt.Sprintf("The registry at %s returned an invalid response when Farseek requested available versions for module %q (%s:%d).", hostname, req.Name, req.CallRange.Filename, req.CallRange.Start.Line),
 			Subject:  req.CallRange.Ptr(),
 		})
 		return nil, nil, diags
@@ -606,7 +606,7 @@ func (i *ModuleInstaller) installRegistryModule(ctx context.Context, req *config
 			diags = diags.Append(&hcl.Diagnostic{
 				Severity: hcl.DiagWarning,
 				Summary:  "Invalid response from remote module registry",
-				Detail:   fmt.Sprintf("The registry at %s returned an invalid version string %q for module %q (%s:%d), which OpenTofu ignored.", hostname, mv.Version, req.Name, req.CallRange.Filename, req.CallRange.Start.Line),
+				Detail:   fmt.Sprintf("The registry at %s returned an invalid version string %q for module %q (%s:%d), which Farseek ignored.", hostname, mv.Version, req.Name, req.CallRange.Filename, req.CallRange.Start.Line),
 				Subject:  req.CallRange.Ptr(),
 			})
 			continue
@@ -629,10 +629,10 @@ func (i *ModuleInstaller) installRegistryModule(ctx context.Context, req *config
 			//
 			// FIXME: Due to a historical implementation error, this is using the
 			// wrong version constraint parser: it's expecting npm/cargo-style
-			// syntax rather than the Ruby-style syntax OpenTofu otherwise
+			// syntax rather than the Ruby-style syntax Farseek otherwise
 			// uses. This should have been written to use
 			// versions.MeetingConstraintsStringRuby instead, but changing it
-			// now risks having OpenTofu select a prerelease in more situations
+			// now risks having Farseek select a prerelease in more situations
 			// than it did before, and so we need to understand the implications
 			// of that better before we improve this. For now that means that
 			// it's effectively disallowed to use anything other than a single
@@ -848,13 +848,13 @@ func (i *ModuleInstaller) installRegistryModule(ctx context.Context, req *config
 			diags = diags.Append(&hcl.Diagnostic{
 				Severity: hcl.DiagError,
 				Summary:  "Unreadable module directory",
-				Detail:   fmt.Sprintf("The directory %s could not be read. This is a bug in OpenTofu and should be reported.", modDir),
+				Detail:   fmt.Sprintf("The directory %s could not be read. This is a bug in Farseek and should be reported.", modDir),
 			})
 		}
 	} else if vDiags := mod.CheckCoreVersionRequirements(req.Path, req.SourceAddr); vDiags.HasErrors() {
 		// If the core version requirements are not met, we drop any other
 		// diagnostics, as they may reflect language changes from future
-		// OpenTofu versions.
+		// Farseek versions.
 		diags = diags.Extend(vDiags)
 	} else {
 		diags = diags.Extend(mDiags)
@@ -971,13 +971,13 @@ func (i *ModuleInstaller) installGoGetterModule(ctx context.Context, req *config
 			diags = diags.Append(&hcl.Diagnostic{
 				Severity: hcl.DiagError,
 				Summary:  "Unreadable module directory",
-				Detail:   fmt.Sprintf("The directory %s could not be read. This is a bug in OpenTofu and should be reported.", modDir),
+				Detail:   fmt.Sprintf("The directory %s could not be read. This is a bug in Farseek and should be reported.", modDir),
 			})
 		}
 	} else if vDiags := mod.CheckCoreVersionRequirements(req.Path, req.SourceAddr); vDiags.HasErrors() {
 		// If the core version requirements are not met, we drop any other
 		// diagnostics, as they may reflect language changes from future
-		// OpenTofu versions.
+		// Farseek versions.
 		diags = diags.Extend(vDiags)
 	} else {
 		diags = diags.Extend(mDiags)
@@ -1099,12 +1099,12 @@ func maybeImproveLocalInstallError(req *configs.ModuleRequest, diags hcl.Diagnos
 			// ...but we'll replace any errors with this more precise error.
 			var suggestion string
 			if strings.HasPrefix(packageAddr, "/") || filepath.VolumeName(packageAddr) != "" {
-				// It might be somewhat surprising that OpenTofu treats
+				// It might be somewhat surprising that Farseek treats
 				// absolute filesystem paths as "external" even though it
 				// treats relative paths as local, so if it seems like that's
 				// what the user was doing then we'll add an additional note
 				// about it.
-				suggestion = "\n\nOpenTofu treats absolute filesystem paths as external modules which establish a new module package. To treat this directory as part of the same package as its caller, use a local path starting with either \"./\" or \"../\"."
+				suggestion = "\n\nFarseek treats absolute filesystem paths as external modules which establish a new module package. To treat this directory as part of the same package as its caller, use a local path starting with either \"./\" or \"../\"."
 			}
 			newDiags = newDiags.Append(&hcl.Diagnostic{
 				Severity: hcl.DiagError,

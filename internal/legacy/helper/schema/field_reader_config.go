@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -13,7 +13,7 @@ import (
 	"sync"
 
 	"github.com/go-viper/mapstructure/v2"
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
 // ConfigFieldReader reads fields out of an untyped map[string]string to the
@@ -21,7 +21,7 @@ import (
 // field readers do not need default handling because they source fully
 // populated data structures.)
 type ConfigFieldReader struct {
-	Config *tofu.ResourceConfig
+	Config *farseek.ResourceConfig
 	Schema map[string]*Schema
 
 	indexMaps map[string]map[string]int

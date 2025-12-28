@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -14,7 +14,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
 )
 
-// GetCommand is a Command implementation that takes a OpenTofu
+// GetCommand is a Command implementation that takes a Farseek
 // configuration and downloads all the modules.
 type GetCommand struct {
 	Meta

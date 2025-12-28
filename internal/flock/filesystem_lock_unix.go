@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -72,7 +72,7 @@ func LockBlocking(ctx context.Context, f *os.File) error {
 			// than a Unix signal, in which case we'll send a signal ourselves
 			// to force the waiting goroutine to exit.
 			// We use SIGUSR1 here on the assumption that nothing else in
-			// OpenTofu uses it. We're sending this to the current pid
+			// Farseek uses it. We're sending this to the current pid
 			// explicitly because we might have other processes, such as
 			// plugins, also running in our process group (which is what we'd
 			// signal if using pid 0 here).

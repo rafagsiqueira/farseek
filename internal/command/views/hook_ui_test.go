@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -21,7 +21,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/terminal"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // Test the PreApply hook for creating a new resource
@@ -57,7 +57,7 @@ func TestUiHookPreApply_create(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if action != tofu.HookActionContinue {
+	if action != farseek.HookActionContinue {
 		t.Fatalf("Expected hook to continue, given: %#v", action)
 	}
 
@@ -115,7 +115,7 @@ func TestUiHookPreApply_periodicTimer(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if action != tofu.HookActionContinue {
+	if action != farseek.HookActionContinue {
 		t.Fatalf("Expected hook to continue, given: %#v", action)
 	}
 
@@ -154,16 +154,16 @@ func TestUiHook_ephemeral(t *testing.T) {
 
 	cases := []struct {
 		name       string
-		preF       func(hook tofu.Hook) (tofu.HookAction, error)
-		postF      func(hook tofu.Hook) (tofu.HookAction, error)
+		preF       func(hook farseek.Hook) (farseek.HookAction, error)
+		postF      func(hook farseek.Hook) (farseek.HookAction, error)
 		wantOutput string
 	}{
 		{
 			name: "opening",
-			preF: func(hook tofu.Hook) (tofu.HookAction, error) {
+			preF: func(hook farseek.Hook) (farseek.HookAction, error) {
 				return hook.PreOpen(addr)
 			},
-			postF: func(hook tofu.Hook) (tofu.HookAction, error) {
+			postF: func(hook farseek.Hook) (farseek.HookAction, error) {
 				return hook.PostOpen(addr, nil)
 			},
 			wantOutput: `ephemeral\.test_instance\.foo: Opening\.\.\.
@@ -172,10 +172,10 @@ ephemeral\.test_instance\.foo: Still opening\.\.\. \[\ds elapsed\]
 		},
 		{
 			name: "renewing",
-			preF: func(hook tofu.Hook) (tofu.HookAction, error) {
+			preF: func(hook farseek.Hook) (farseek.HookAction, error) {
 				return hook.PreRenew(addr)
 			},
-			postF: func(hook tofu.Hook) (tofu.HookAction, error) {
+			postF: func(hook farseek.Hook) (farseek.HookAction, error) {
 				return hook.PostRenew(addr, nil)
 			},
 			wantOutput: `ephemeral\.test_instance\.foo: Renewing\.\.\.
@@ -185,10 +185,10 @@ ephemeral\.test_instance\.foo: Renew complete after \ds
 		},
 		{
 			name: "closing",
-			preF: func(hook tofu.Hook) (tofu.HookAction, error) {
+			preF: func(hook farseek.Hook) (farseek.HookAction, error) {
 				return hook.PreClose(addr)
 			},
-			postF: func(hook tofu.Hook) (tofu.HookAction, error) {
+			postF: func(hook farseek.Hook) (farseek.HookAction, error) {
 				return hook.PostClose(addr, nil)
 			},
 			wantOutput: `ephemeral\.test_instance\.foo: Closing\.\.\.
@@ -208,7 +208,7 @@ ephemeral\.test_instance\.foo: Close complete after \ds
 			if err != nil {
 				t.Fatal(err)
 			}
-			if action != tofu.HookActionContinue {
+			if action != farseek.HookActionContinue {
 				t.Fatalf("Expected hook to continue, given: %#v", action)
 			}
 
@@ -221,7 +221,7 @@ ephemeral\.test_instance\.foo: Close complete after \ds
 			if err != nil {
 				t.Fatal(err)
 			}
-			if action != tofu.HookActionContinue {
+			if action != farseek.HookActionContinue {
 				t.Errorf("Expected hook to continue, given: %#v", action)
 			}
 			// wait for the waiting to stop completely
@@ -277,7 +277,7 @@ func TestUiHookPreApply_destroy(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if action != tofu.HookActionContinue {
+	if action != farseek.HookActionContinue {
 		t.Fatalf("Expected hook to continue, given: %#v", action)
 	}
 
@@ -328,7 +328,7 @@ func TestUiHookPostApply_colorInterpolation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if action != tofu.HookActionContinue {
+	if action != farseek.HookActionContinue {
 		t.Fatalf("Expected hook to continue, given: %#v", action)
 	}
 	result := done(t)
@@ -381,7 +381,7 @@ func TestUiHookPostApply_emptyState(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if action != tofu.HookActionContinue {
+	if action != farseek.HookActionContinue {
 		t.Fatalf("Expected hook to continue, given: %#v", action)
 	}
 	result := done(t)
@@ -414,7 +414,7 @@ func TestPreProvisionInstanceStep(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if action != tofu.HookActionContinue {
+	if action != farseek.HookActionContinue {
 		t.Fatalf("Expected hook to continue, given: %#v", action)
 	}
 	result := done(t)
@@ -530,7 +530,7 @@ func TestPreRefresh(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if action != tofu.HookActionContinue {
+	if action != farseek.HookActionContinue {
 		t.Fatalf("Expected hook to continue, given: %#v", action)
 	}
 	result := done(t)
@@ -562,7 +562,7 @@ func TestPreRefresh_noID(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if action != tofu.HookActionContinue {
+	if action != farseek.HookActionContinue {
 		t.Fatalf("Expected hook to continue, given: %#v", action)
 	}
 	result := done(t)
@@ -589,7 +589,7 @@ func TestPreImportState(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if action != tofu.HookActionContinue {
+	if action != farseek.HookActionContinue {
 		t.Fatalf("Expected hook to continue, given: %#v", action)
 	}
 	result := done(t)
@@ -637,7 +637,7 @@ func TestPostImportState(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if action != tofu.HookActionContinue {
+	if action != farseek.HookActionContinue {
 		t.Fatalf("Expected hook to continue, given: %#v", action)
 	}
 	result := done(t)

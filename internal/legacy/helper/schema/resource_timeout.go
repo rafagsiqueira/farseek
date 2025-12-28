@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -12,7 +12,7 @@ import (
 
 	"github.com/mitchellh/copystructure"
 	"github.com/rafagsiqueira/farseek/internal/legacy/hcl2shim"
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
 const TimeoutKey = "e2bfb730-ecaa-11e6-8f88-34363bc7c4c0"
@@ -58,7 +58,7 @@ type ResourceTimeout struct {
 
 // ConfigDecode takes a schema and the configuration (available in Diff) and
 // validates, parses the timeouts into `t`
-func (t *ResourceTimeout) ConfigDecode(s *Resource, c *tofu.ResourceConfig) error {
+func (t *ResourceTimeout) ConfigDecode(s *Resource, c *farseek.ResourceConfig) error {
 	if s.Timeouts != nil {
 		raw, err := copystructure.Copy(s.Timeouts)
 		if err != nil {
@@ -158,18 +158,18 @@ func unsupportedTimeoutKeyError(key string) error {
 //
 // StateEncode encodes the timeout into the ResourceData's InstanceState for
 // saving to state
-func (t *ResourceTimeout) DiffEncode(id *tofu.InstanceDiff) error {
+func (t *ResourceTimeout) DiffEncode(id *farseek.InstanceDiff) error {
 	return t.metaEncode(id)
 }
 
-func (t *ResourceTimeout) StateEncode(is *tofu.InstanceState) error {
+func (t *ResourceTimeout) StateEncode(is *farseek.InstanceState) error {
 	return t.metaEncode(is)
 }
 
 // metaEncode encodes the ResourceTimeout into a map[string]interface{} format
 // and stores it in the Meta field of the interface it's given.
-// Assumes the interface is either *tofu.InstanceState or
-// *tofu.InstanceDiff, returns an error otherwise
+// Assumes the interface is either *farseek.InstanceState or
+// *farseek.InstanceDiff, returns an error otherwise
 func (t *ResourceTimeout) metaEncode(ids interface{}) error {
 	m := make(map[string]interface{})
 
@@ -199,12 +199,12 @@ func (t *ResourceTimeout) metaEncode(ids interface{}) error {
 	// only add the Timeout to the Meta if we have values
 	if len(m) > 0 {
 		switch instance := ids.(type) {
-		case *tofu.InstanceDiff:
+		case *farseek.InstanceDiff:
 			if instance.Meta == nil {
 				instance.Meta = make(map[string]interface{})
 			}
 			instance.Meta[TimeoutKey] = m
-		case *tofu.InstanceState:
+		case *farseek.InstanceState:
 			if instance.Meta == nil {
 				instance.Meta = make(map[string]interface{})
 			}
@@ -217,10 +217,10 @@ func (t *ResourceTimeout) metaEncode(ids interface{}) error {
 	return nil
 }
 
-func (t *ResourceTimeout) StateDecode(id *tofu.InstanceState) error {
+func (t *ResourceTimeout) StateDecode(id *farseek.InstanceState) error {
 	return t.metaDecode(id)
 }
-func (t *ResourceTimeout) DiffDecode(is *tofu.InstanceDiff) error {
+func (t *ResourceTimeout) DiffDecode(is *farseek.InstanceDiff) error {
 	return t.metaDecode(is)
 }
 
@@ -228,12 +228,12 @@ func (t *ResourceTimeout) metaDecode(ids interface{}) error {
 	var rawMeta interface{}
 	var ok bool
 	switch rawInstance := ids.(type) {
-	case *tofu.InstanceDiff:
+	case *farseek.InstanceDiff:
 		rawMeta, ok = rawInstance.Meta[TimeoutKey]
 		if !ok {
 			return nil
 		}
-	case *tofu.InstanceState:
+	case *farseek.InstanceState:
 		rawMeta, ok = rawInstance.Meta[TimeoutKey]
 		if !ok {
 			return nil

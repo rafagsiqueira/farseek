@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -173,7 +173,7 @@ func (o *Object) ValueMarks(val cty.Value, path cty.Path) []cty.PathValueMarks {
 // Write-only arguments are the only managed resource's attribute type
 // that can reference ephemeral values.
 // Also, the provider framework sdk is responsible with nullify these attributes
-// before returning back to OpenTofu.
+// before returning back to Farseek.
 //
 // Therefore, before writing the changes/state of a managed resource to its store,
 // we want to be sure that the nil value of the attribute is not marked as ephemeral

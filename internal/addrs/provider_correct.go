@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -16,11 +16,11 @@ import (
 //
 // The types without the "Correct" suffix are all a little confusing for
 // various historical reasons related to how providers are treated in special,
-// strange ways throughout OpenTofu.
+// strange ways throughout Farseek.
 //
 // The types in this file are currently used only by experimental new code in
 // packages like lang/eval. If you are working on the current code in
-// "package tofu"/etc then the types in this file are not for you yet.
+// "package farseek"/etc then the types in this file are not for you yet.
 
 type ProviderConfigCorrect struct {
 	Provider Provider

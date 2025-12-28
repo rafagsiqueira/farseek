@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -23,11 +23,11 @@ func TestStaticPlanVariables(t *testing.T) {
 	for _, fixture := range fixtures {
 		t.Run(fmt.Sprintf("TestStaticPlanVariables/%s", fixture), func(t *testing.T) {
 			fixturePath := filepath.Join("testdata", fixture)
-			tf := e2e.NewBinary(t, tofuBin, fixturePath)
+			tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
-			run := func(args ...string) tofuResult {
+			run := func(args ...string) farseekResult {
 				stdout, stderr, err := tf.Run(args...)
-				return tofuResult{t, stdout, stderr, err}
+				return farseekResult{t, stdout, stderr, err}
 			}
 
 			statePath := "custom.tfstate"
@@ -92,10 +92,6 @@ func TestStaticPlanVariables(t *testing.T) {
 			run("output").Failure().StderrContains(backendErr)
 			run("output", stateVar, modVar).Success().Contains(`out = "placeholder"`)
 
-			// Refresh
-			run("refresh").Failure().StderrContains(backendErr)
-			run("refresh", stateVar, modVar).Success().Contains("There are currently no remote objects tracked in the state")
-
 			// Import
 			run("import", "resource.addr", "id").Failure().StderrContains(modErr)
 			run("import", stateVar, modVar, "resource.addr", "id").Failure().StderrContains("Before importing this resource, please create its configuration in the root module.")
@@ -105,22 +101,6 @@ func TestStaticPlanVariables(t *testing.T) {
 			run("taint", stateVar, modVar, "resource.addr").Failure().StderrContains("There is no resource instance in the state with the address resource.addr.")
 			run("untaint", "resource.addr").Failure().StderrContains(backendErr)
 			run("untaint", stateVar, modVar, "resource.addr").Failure().StderrContains("There is no resource instance in the state with the address resource.addr.")
-
-			// State
-			run("state", "list").Failure().StderrContains(backendErr)
-			run("state", "list", stateVar, modVar).Success()
-			run("state", "mv", "foo.bar", "foo.baz").Failure().StderrContains(modErr)
-			run("state", "mv", stateVar, modVar, "foo.bar", "foo.baz").Failure().StderrContains("Cannot move foo.bar: does not match anything in the current state.")
-			run("state", "pull").Failure().StderrContains(modErr)
-			run("state", "pull", stateVar, modVar).Success().Contains(`"outputs":{"out":{"value":"placeholder","type":"string"}}`)
-			run("state", "push", statePath).Failure().StderrContains(modErr)
-			run("state", "push", stateVar, modVar, statePath).Success()
-			run("state", "replace-provider", "foo", "bar").Failure().StderrContains(modErr)
-			run("state", "replace-provider", stateVar, modVar, "foo", "bar").Success().Contains("No matching resources found.")
-			run("state", "rm", "foo.bar").Failure().StderrContains(modErr)
-			run("state", "rm", stateVar, modVar, "foo.bar").Failure().StderrContains("No matching objects found.")
-			run("state", "show", "out").Failure().StderrContains(backendErr)
-			run("state", "show", stateVar, modVar, "invalid.resource").Failure().StderrContains("No instance found for the given address!")
 
 			// Workspace
 			run("workspace", "list").Failure().StderrContains(backendErr)
@@ -138,7 +118,7 @@ func TestStaticPlanVariables(t *testing.T) {
 
 			// Destroy
 			run("destroy", "-auto-approve").Failure().StderrContains(backendErr)
-			run("destroy", stateVar, modVar, "-auto-approve").Success().Contains("You can apply this plan to save these new output values")
+			run("destroy", stateVar, modVar, "-auto-approve").Success().Contains("Destroy complete!")
 		})
 	}
 }

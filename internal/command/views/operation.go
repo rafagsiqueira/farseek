@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -22,7 +22,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 type Operation interface {
@@ -34,7 +34,7 @@ type Operation interface {
 	EmergencyDumpState(stateFile *statefile.File, enc encryption.StateEncryption) error
 
 	PlannedChange(change *plans.ResourceInstanceChangeSrc)
-	Plan(plan *plans.Plan, schemas *tofu.Schemas)
+	Plan(plan *plans.Plan, schemas *farseek.Schemas)
 	PlanNextStep(planPath string, genConfigPath string)
 
 	Diagnostics(diags tfdiags.Diagnostics)
@@ -56,7 +56,7 @@ type OperationHuman struct {
 	// automated system rather than directly at a command prompt.
 	//
 	// This is a hint not to produce messages that expect that a user can
-	// run a follow-up command, perhaps because OpenTofu is running in
+	// run a follow-up command, perhaps because Farseek is running in
 	// some sort of workflow automation tool that abstracts away the
 	// exact commands that are being run.
 	inAutomation bool
@@ -95,7 +95,7 @@ func (v *OperationHuman) EmergencyDumpState(stateFile *statefile.File, enc encry
 	return nil
 }
 
-func (v *OperationHuman) Plan(plan *plans.Plan, schemas *tofu.Schemas) {
+func (v *OperationHuman) Plan(plan *plans.Plan, schemas *farseek.Schemas) {
 	outputs, changed, drift, attrs, err := jsonplan.MarshalForRenderer(plan, schemas)
 	if err != nil {
 		v.view.streams.Eprintf("Failed to marshal plan to json: %s", err)
@@ -215,7 +215,7 @@ func (v *OperationJSON) EmergencyDumpState(stateFile *statefile.File, enc encryp
 
 // Log a change summary and a series of "planned" messages for the changes in
 // the plan.
-func (v *OperationJSON) Plan(plan *plans.Plan, schemas *tofu.Schemas) {
+func (v *OperationJSON) Plan(plan *plans.Plan, schemas *farseek.Schemas) {
 	for _, dr := range plan.DriftedResources {
 		// In refresh-only mode, we output all resources marked as drifted,
 		// including those which have moved without other changes. In other plan

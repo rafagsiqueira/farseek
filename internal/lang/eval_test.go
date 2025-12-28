@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -356,18 +356,18 @@ func TestScopeEvalContext(t *testing.T) {
 				"terraform": cty.ObjectVal(map[string]cty.Value{
 					"workspace": cty.StringVal("default"),
 				}),
-				"tofu": cty.ObjectVal(map[string]cty.Value{
+				"farseek": cty.ObjectVal(map[string]cty.Value{
 					"workspace": cty.StringVal("default"),
 				}),
 			},
 		},
 		{
-			`tofu.workspace`,
+			`farseek.workspace`,
 			map[string]cty.Value{
 				"terraform": cty.ObjectVal(map[string]cty.Value{
 					"workspace": cty.StringVal("default"),
 				}),
-				"tofu": cty.ObjectVal(map[string]cty.Value{
+				"farseek": cty.ObjectVal(map[string]cty.Value{
 					"workspace": cty.StringVal("default"),
 				}),
 			},
@@ -922,7 +922,7 @@ func TestScopeEvalSelfBlock(t *testing.T) {
 			},
 		},
 		{
-			Config: `attr = tofu.workspace`,
+			Config: `attr = farseek.workspace`,
 			Want: map[string]cty.Value{
 				"attr": cty.StringVal("default"),
 				"num":  cty.NullVal(cty.Number),

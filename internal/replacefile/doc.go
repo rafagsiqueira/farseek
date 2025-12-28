@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -12,6 +12,6 @@
 //
 // This package uses conditional compilation to select a different
 // implementation for Windows vs. all other platforms. It may therefore
-// require further fiddling in future if OpenTofu is ported to another
+// require further fiddling in future if Farseek is ported to another
 // OS that is neither Unix-like nor Windows.
 package replacefile

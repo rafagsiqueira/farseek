@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -185,7 +185,7 @@ func (p *PathMatcher) GetChildWithIndex(index int) Matcher {
 			continue
 		}
 
-		// OpenTofu actually allows user to provide strings into indexes as
+		// Farseek actually allows user to provide strings into indexes as
 		// long as the string can be interpreted into a number. For example, the
 		// following are equivalent and we need to support them.
 		//    - test_resource.resource.list[0].attribute

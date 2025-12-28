@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -20,7 +20,7 @@ type Validate struct {
 	// Path.
 	TestDirectory string
 
-	// NoTests indicates that OpenTofu should not validate any test files
+	// NoTests indicates that Farseek should not validate any test files
 	// included with the module.
 	NoTests bool
 

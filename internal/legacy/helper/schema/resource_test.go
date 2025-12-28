@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -15,7 +15,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/rafagsiqueira/farseek/internal/legacy/hcl2shim"
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 
 	"github.com/zclconf/go-cty/cty"
 	ctyjson "github.com/zclconf/go-cty/cty/json"
@@ -39,11 +39,11 @@ func TestResourceApply_create(t *testing.T) {
 		return nil
 	}
 
-	var s *tofu.InstanceState = nil
+	var s *farseek.InstanceState = nil
 
-	d := &tofu.InstanceDiff{
-		Attributes: map[string]*tofu.ResourceAttrDiff{
-			"foo": &tofu.ResourceAttrDiff{
+	d := &farseek.InstanceDiff{
+		Attributes: map[string]*farseek.ResourceAttrDiff{
+			"foo": &farseek.ResourceAttrDiff{
 				New: "42",
 			},
 		},
@@ -58,7 +58,7 @@ func TestResourceApply_create(t *testing.T) {
 		t.Fatal("not called")
 	}
 
-	expected := &tofu.InstanceState{
+	expected := &farseek.InstanceState{
 		ID: "foo",
 		Attributes: map[string]string{
 			"id":  "foo",
@@ -97,11 +97,11 @@ func TestResourceApply_Timeout_state(t *testing.T) {
 		return nil
 	}
 
-	var s *tofu.InstanceState = nil
+	var s *farseek.InstanceState = nil
 
-	d := &tofu.InstanceDiff{
-		Attributes: map[string]*tofu.ResourceAttrDiff{
-			"foo": &tofu.ResourceAttrDiff{
+	d := &farseek.InstanceDiff{
+		Attributes: map[string]*farseek.ResourceAttrDiff{
+			"foo": &farseek.ResourceAttrDiff{
 				New: "42",
 			},
 		},
@@ -126,7 +126,7 @@ func TestResourceApply_Timeout_state(t *testing.T) {
 		t.Fatal("not called")
 	}
 
-	expected := &tofu.InstanceState{
+	expected := &farseek.InstanceState{
 		ID: "foo",
 		Attributes: map[string]string{
 			"id":  "foo",
@@ -171,7 +171,7 @@ func TestResourceApply_Timeout_destroy(t *testing.T) {
 		return nil
 	}
 
-	s := &tofu.InstanceState{
+	s := &farseek.InstanceState{
 		ID: "bar",
 	}
 
@@ -179,7 +179,7 @@ func TestResourceApply_Timeout_destroy(t *testing.T) {
 		t.Fatalf("Error encoding to state: %s", err)
 	}
 
-	d := &tofu.InstanceDiff{
+	d := &farseek.InstanceDiff{
 		Destroy: true,
 	}
 
@@ -221,7 +221,7 @@ func TestResourceDiff_Timeout_diff(t *testing.T) {
 		return nil
 	}
 
-	conf := tofu.NewResourceConfigRaw(
+	conf := farseek.NewResourceConfigRaw(
 		map[string]interface{}{
 			"foo": 42,
 			TimeoutsConfigKey: map[string]interface{}{
@@ -229,16 +229,16 @@ func TestResourceDiff_Timeout_diff(t *testing.T) {
 			},
 		},
 	)
-	var s *tofu.InstanceState
+	var s *farseek.InstanceState
 
 	actual, err := r.Diff(s, conf, nil)
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}
 
-	expected := &tofu.InstanceDiff{
-		Attributes: map[string]*tofu.ResourceAttrDiff{
-			"foo": &tofu.ResourceAttrDiff{
+	expected := &farseek.InstanceDiff{
+		Attributes: map[string]*farseek.ResourceAttrDiff{
+			"foo": &farseek.ResourceAttrDiff{
 				New: "42",
 			},
 		},
@@ -276,13 +276,13 @@ func TestResourceDiff_CustomizeFunc(t *testing.T) {
 		return nil
 	}
 
-	conf := tofu.NewResourceConfigRaw(
+	conf := farseek.NewResourceConfigRaw(
 		map[string]interface{}{
 			"foo": 42,
 		},
 	)
 
-	var s *tofu.InstanceState
+	var s *farseek.InstanceState
 
 	_, err := r.Diff(s, conf, nil)
 	if err != nil {
@@ -310,11 +310,11 @@ func TestResourceApply_destroy(t *testing.T) {
 		return nil
 	}
 
-	s := &tofu.InstanceState{
+	s := &farseek.InstanceState{
 		ID: "bar",
 	}
 
-	d := &tofu.InstanceDiff{
+	d := &farseek.InstanceDiff{
 		Destroy: true,
 	}
 
@@ -358,7 +358,7 @@ func TestResourceApply_destroyCreate(t *testing.T) {
 		return nil
 	}
 
-	var s *tofu.InstanceState = &tofu.InstanceState{
+	var s *farseek.InstanceState = &farseek.InstanceState{
 		ID: "bar",
 		Attributes: map[string]string{
 			"foo":       "bar",
@@ -366,13 +366,13 @@ func TestResourceApply_destroyCreate(t *testing.T) {
 		},
 	}
 
-	d := &tofu.InstanceDiff{
-		Attributes: map[string]*tofu.ResourceAttrDiff{
-			"foo": &tofu.ResourceAttrDiff{
+	d := &farseek.InstanceDiff{
+		Attributes: map[string]*farseek.ResourceAttrDiff{
+			"foo": &farseek.ResourceAttrDiff{
 				New:         "42",
 				RequiresNew: true,
 			},
-			"tags.Name": &tofu.ResourceAttrDiff{
+			"tags.Name": &farseek.ResourceAttrDiff{
 				Old:         "foo",
 				New:         "foo",
 				RequiresNew: true,
@@ -389,7 +389,7 @@ func TestResourceApply_destroyCreate(t *testing.T) {
 		t.Fatal("should have change")
 	}
 
-	expected := &tofu.InstanceState{
+	expected := &farseek.InstanceState{
 		ID: "foo",
 		Attributes: map[string]string{
 			"id":        "foo",
@@ -420,14 +420,14 @@ func TestResourceApply_destroyPartial(t *testing.T) {
 		return fmt.Errorf("some error")
 	}
 
-	s := &tofu.InstanceState{
+	s := &farseek.InstanceState{
 		ID: "bar",
 		Attributes: map[string]string{
 			"foo": "12",
 		},
 	}
 
-	d := &tofu.InstanceDiff{
+	d := &farseek.InstanceDiff{
 		Destroy: true,
 	}
 
@@ -436,7 +436,7 @@ func TestResourceApply_destroyPartial(t *testing.T) {
 		t.Fatal("should error")
 	}
 
-	expected := &tofu.InstanceState{
+	expected := &farseek.InstanceState{
 		ID: "bar",
 		Attributes: map[string]string{
 			"id":  "bar",
@@ -467,16 +467,16 @@ func TestResourceApply_update(t *testing.T) {
 		return nil
 	}
 
-	s := &tofu.InstanceState{
+	s := &farseek.InstanceState{
 		ID: "foo",
 		Attributes: map[string]string{
 			"foo": "12",
 		},
 	}
 
-	d := &tofu.InstanceDiff{
-		Attributes: map[string]*tofu.ResourceAttrDiff{
-			"foo": &tofu.ResourceAttrDiff{
+	d := &farseek.InstanceDiff{
+		Attributes: map[string]*farseek.ResourceAttrDiff{
+			"foo": &farseek.ResourceAttrDiff{
 				New: "13",
 			},
 		},
@@ -487,7 +487,7 @@ func TestResourceApply_update(t *testing.T) {
 		t.Fatalf("err: %s", err)
 	}
 
-	expected := &tofu.InstanceState{
+	expected := &farseek.InstanceState{
 		ID: "foo",
 		Attributes: map[string]string{
 			"id":  "foo",
@@ -512,16 +512,16 @@ func TestResourceApply_updateNoCallback(t *testing.T) {
 
 	r.Update = nil
 
-	s := &tofu.InstanceState{
+	s := &farseek.InstanceState{
 		ID: "foo",
 		Attributes: map[string]string{
 			"foo": "12",
 		},
 	}
 
-	d := &tofu.InstanceDiff{
-		Attributes: map[string]*tofu.ResourceAttrDiff{
-			"foo": &tofu.ResourceAttrDiff{
+	d := &farseek.InstanceDiff{
+		Attributes: map[string]*farseek.ResourceAttrDiff{
+			"foo": &farseek.ResourceAttrDiff{
 				New: "13",
 			},
 		},
@@ -532,7 +532,7 @@ func TestResourceApply_updateNoCallback(t *testing.T) {
 		t.Fatal("should error")
 	}
 
-	expected := &tofu.InstanceState{
+	expected := &farseek.InstanceState{
 		ID: "foo",
 		Attributes: map[string]string{
 			"foo": "12",
@@ -568,23 +568,23 @@ func TestResourceApply_isNewResource(t *testing.T) {
 	}
 	r.Update = updateFunc
 
-	d := &tofu.InstanceDiff{
-		Attributes: map[string]*tofu.ResourceAttrDiff{
-			"foo": &tofu.ResourceAttrDiff{
+	d := &farseek.InstanceDiff{
+		Attributes: map[string]*farseek.ResourceAttrDiff{
+			"foo": &farseek.ResourceAttrDiff{
 				New: "bla-blah",
 			},
 		},
 	}
 
 	// positive test
-	var s *tofu.InstanceState = nil
+	var s *farseek.InstanceState = nil
 
 	actual, err := r.Apply(s, d, nil)
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}
 
-	expected := &tofu.InstanceState{
+	expected := &farseek.InstanceState{
 		ID: "foo",
 		Attributes: map[string]string{
 			"id":  "foo",
@@ -598,7 +598,7 @@ func TestResourceApply_isNewResource(t *testing.T) {
 	}
 
 	// negative test
-	s = &tofu.InstanceState{
+	s = &farseek.InstanceState{
 		ID: "foo",
 		Attributes: map[string]string{
 			"id":  "foo",
@@ -611,7 +611,7 @@ func TestResourceApply_isNewResource(t *testing.T) {
 		t.Fatalf("err: %s", err)
 	}
 
-	expected = &tofu.InstanceState{
+	expected = &farseek.InstanceState{
 		ID: "foo",
 		Attributes: map[string]string{
 			"id":  "foo",
@@ -905,14 +905,14 @@ func TestResourceRefresh(t *testing.T) {
 		return d.Set("foo", d.Get("foo").(int)+1)
 	}
 
-	s := &tofu.InstanceState{
+	s := &farseek.InstanceState{
 		ID: "bar",
 		Attributes: map[string]string{
 			"foo": "12",
 		},
 	}
 
-	expected := &tofu.InstanceState{
+	expected := &farseek.InstanceState{
 		ID: "bar",
 		Attributes: map[string]string{
 			"id":  "bar",
@@ -948,7 +948,7 @@ func TestResourceRefresh_blankId(t *testing.T) {
 		return nil
 	}
 
-	s := &tofu.InstanceState{
+	s := &farseek.InstanceState{
 		ID:         "",
 		Attributes: map[string]string{},
 	}
@@ -977,7 +977,7 @@ func TestResourceRefresh_delete(t *testing.T) {
 		return nil
 	}
 
-	s := &tofu.InstanceState{
+	s := &farseek.InstanceState{
 		ID: "bar",
 		Attributes: map[string]string{
 			"foo": "12",
@@ -1012,7 +1012,7 @@ func TestResourceRefresh_existsError(t *testing.T) {
 		panic("shouldn't be called")
 	}
 
-	s := &tofu.InstanceState{
+	s := &farseek.InstanceState{
 		ID: "bar",
 		Attributes: map[string]string{
 			"foo": "12",
@@ -1046,7 +1046,7 @@ func TestResourceRefresh_noExists(t *testing.T) {
 		panic("shouldn't be called")
 	}
 
-	s := &tofu.InstanceState{
+	s := &farseek.InstanceState{
 		ID: "bar",
 		Attributes: map[string]string{
 			"foo": "12",
@@ -1080,8 +1080,8 @@ func TestResourceRefresh_needsMigration(t *testing.T) {
 
 	r.MigrateState = func(
 		v int,
-		s *tofu.InstanceState,
-		meta interface{}) (*tofu.InstanceState, error) {
+		s *farseek.InstanceState,
+		meta interface{}) (*farseek.InstanceState, error) {
 		// Real state migration functions will probably switch on this value,
 		// but we'll just assert on it for now.
 		if v != 1 {
@@ -1104,7 +1104,7 @@ func TestResourceRefresh_needsMigration(t *testing.T) {
 
 	// State is v1 and deals in oldfoo, which tracked foo as a float at 1/10th
 	// the scale of newfoo
-	s := &tofu.InstanceState{
+	s := &farseek.InstanceState{
 		ID: "bar",
 		Attributes: map[string]string{
 			"oldfoo": "1.2",
@@ -1119,7 +1119,7 @@ func TestResourceRefresh_needsMigration(t *testing.T) {
 		t.Fatalf("err: %s", err)
 	}
 
-	expected := &tofu.InstanceState{
+	expected := &farseek.InstanceState{
 		ID: "bar",
 		Attributes: map[string]string{
 			"id":     "bar",
@@ -1152,13 +1152,13 @@ func TestResourceRefresh_noMigrationNeeded(t *testing.T) {
 
 	r.MigrateState = func(
 		v int,
-		s *tofu.InstanceState,
-		meta interface{}) (*tofu.InstanceState, error) {
+		s *farseek.InstanceState,
+		meta interface{}) (*farseek.InstanceState, error) {
 		t.Fatal("Migrate function shouldn't be called!")
 		return nil, nil
 	}
 
-	s := &tofu.InstanceState{
+	s := &farseek.InstanceState{
 		ID: "bar",
 		Attributes: map[string]string{
 			"newfoo": "12",
@@ -1173,7 +1173,7 @@ func TestResourceRefresh_noMigrationNeeded(t *testing.T) {
 		t.Fatalf("err: %s", err)
 	}
 
-	expected := &tofu.InstanceState{
+	expected := &farseek.InstanceState{
 		ID: "bar",
 		Attributes: map[string]string{
 			"id":     "bar",
@@ -1207,13 +1207,13 @@ func TestResourceRefresh_stateSchemaVersionUnset(t *testing.T) {
 
 	r.MigrateState = func(
 		v int,
-		s *tofu.InstanceState,
-		meta interface{}) (*tofu.InstanceState, error) {
+		s *farseek.InstanceState,
+		meta interface{}) (*farseek.InstanceState, error) {
 		s.Attributes["newfoo"] = s.Attributes["oldfoo"]
 		return s, nil
 	}
 
-	s := &tofu.InstanceState{
+	s := &farseek.InstanceState{
 		ID: "bar",
 		Attributes: map[string]string{
 			"oldfoo": "12",
@@ -1225,7 +1225,7 @@ func TestResourceRefresh_stateSchemaVersionUnset(t *testing.T) {
 		t.Fatalf("err: %s", err)
 	}
 
-	expected := &tofu.InstanceState{
+	expected := &farseek.InstanceState{
 		ID: "bar",
 		Attributes: map[string]string{
 			"id":     "bar",
@@ -1259,12 +1259,12 @@ func TestResourceRefresh_migrateStateErr(t *testing.T) {
 
 	r.MigrateState = func(
 		v int,
-		s *tofu.InstanceState,
-		meta interface{}) (*tofu.InstanceState, error) {
+		s *farseek.InstanceState,
+		meta interface{}) (*farseek.InstanceState, error) {
 		return s, fmt.Errorf("triggering an error")
 	}
 
-	s := &tofu.InstanceState{
+	s := &farseek.InstanceState{
 		ID: "bar",
 		Attributes: map[string]string{
 			"oldfoo": "12",
@@ -1288,7 +1288,7 @@ func TestResourceData(t *testing.T) {
 		},
 	}
 
-	state := &tofu.InstanceState{
+	state := &farseek.InstanceState{
 		ID: "foo",
 		Attributes: map[string]string{
 			"id":  "foo",
@@ -1550,7 +1550,7 @@ func TestResource_migrateAndUpgrade(t *testing.T) {
 			},
 		},
 		// this MigrateState will take the state to version 2
-		MigrateState: func(v int, is *tofu.InstanceState, _ interface{}) (*tofu.InstanceState, error) {
+		MigrateState: func(v int, is *farseek.InstanceState, _ interface{}) (*farseek.InstanceState, error) {
 			switch v {
 			case 0:
 				_, ok := is.Attributes["zero"]
@@ -1613,7 +1613,7 @@ func TestResource_migrateAndUpgrade(t *testing.T) {
 		},
 	}
 
-	testStates := []*tofu.InstanceState{
+	testStates := []*farseek.InstanceState{
 		{
 			ID: "bar",
 			Attributes: map[string]string{
@@ -1673,7 +1673,7 @@ func TestResource_migrateAndUpgrade(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			expected := &tofu.InstanceState{
+			expected := &farseek.InstanceState{
 				ID: "bar",
 				Attributes: map[string]string{
 					"id":   "bar",

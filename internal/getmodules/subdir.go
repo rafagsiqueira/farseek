@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -29,11 +29,11 @@ func SplitPackageSubdir(given string) (packageAddr, subDir string) {
 	// versions just used go-getter directly and so we need to preserve
 	// its various quirks for compatibility reasons.
 	//
-	// However, note that in OpenTofu we _always_ split off the subdirectory
-	// portion and handle it within OpenTofu-level code, _never_ passing
+	// However, note that in Farseek we _always_ split off the subdirectory
+	// portion and handle it within Farseek-level code, _never_ passing
 	// a subdirectory portion down into go-getter's own Get function, because
-	// OpenTofu's ability to refer between local paths inside the same
-	// package depends on OpenTofu itself always being aware of where the
+	// Farseek's ability to refer between local paths inside the same
+	// package depends on Farseek itself always being aware of where the
 	// package's root directory ended up on disk, and always needs the
 	// package installed wholesale.
 	packageAddr, subDir = getter.SourceDirSubdir(given)

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -331,7 +331,7 @@ func buildSSHClientConfig(opts sshClientConfigOpts) (*ssh.ClientConfig, error) {
 	hkCallback := ssh.InsecureIgnoreHostKey()
 
 	if opts.hostKey != "" {
-		// The knownhosts package only takes paths to files, but tofu
+		// The knownhosts package only takes paths to files, but farseek
 		// generally wants to handle config data in-memory. Rather than making
 		// the known_hosts file an exception, write out the data to a temporary
 		// file to create the HostKeyCallback.

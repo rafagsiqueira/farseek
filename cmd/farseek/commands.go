@@ -128,7 +128,7 @@ func initCommands(
 		ProviderSourceLocationConfig: providerSourceLocationConfigFromEnv(),
 	}
 
-	// The command list is included in the tofu -help
+	// The command list is included in the farseek -help
 	// output, which is in turn included in the docs at
 	// website/docs/cli/commands/index.html.markdown; if you
 	// add, remove or reclassify commands then consider updating
@@ -219,18 +219,6 @@ func initCommands(
 			}, nil
 		},
 
-		"login": func() (cli.Command, error) {
-			return &command.LoginCommand{
-				Meta: meta,
-			}, nil
-		},
-
-		"logout": func() (cli.Command, error) {
-			return &command.LogoutCommand{
-				Meta: meta,
-			}, nil
-		},
-
 		"metadata": func() (cli.Command, error) {
 			return &command.MetadataCommand{
 				Meta: meta,
@@ -281,12 +269,6 @@ func initCommands(
 
 		"push": func() (cli.Command, error) {
 			return &command.PushCommand{
-				Meta: meta,
-			}, nil
-		},
-
-		"refresh": func() (cli.Command, error) {
-			return &command.RefreshCommand{
 				Meta: meta,
 			}, nil
 		},
@@ -373,86 +355,6 @@ func initCommands(
 		"force-unlock": func() (cli.Command, error) {
 			return &command.UnlockCommand{
 				Meta: meta,
-			}, nil
-		},
-
-		"state": func() (cli.Command, error) {
-			return &command.StateCommand{}, nil
-		},
-
-		"state list": func() (cli.Command, error) {
-			return &command.StateListCommand{
-				Meta: meta,
-			}, nil
-		},
-
-		"state ls": func() (cli.Command, error) {
-			return &command.AliasCommand{
-				Command: &command.StateListCommand{
-					Meta: meta,
-				},
-			}, nil
-		},
-
-		"state rm": func() (cli.Command, error) {
-			return &command.StateRmCommand{
-				StateMeta: command.StateMeta{
-					Meta: meta,
-				},
-			}, nil
-		},
-
-		"state remove": func() (cli.Command, error) {
-			return &command.AliasCommand{
-				Command: &command.StateRmCommand{
-					StateMeta: command.StateMeta{
-						Meta: meta,
-					},
-				},
-			}, nil
-		},
-
-		"state mv": func() (cli.Command, error) {
-			return &command.StateMvCommand{
-				StateMeta: command.StateMeta{
-					Meta: meta,
-				},
-			}, nil
-		},
-
-		"state move": func() (cli.Command, error) {
-			return &command.AliasCommand{
-				Command: &command.StateMvCommand{
-					StateMeta: command.StateMeta{
-						Meta: meta,
-					},
-				},
-			}, nil
-		},
-
-		"state pull": func() (cli.Command, error) {
-			return &command.StatePullCommand{
-				Meta: meta,
-			}, nil
-		},
-
-		"state push": func() (cli.Command, error) {
-			return &command.StatePushCommand{
-				Meta: meta,
-			}, nil
-		},
-
-		"state show": func() (cli.Command, error) {
-			return &command.StateShowCommand{
-				Meta: meta,
-			}, nil
-		},
-
-		"state replace-provider": func() (cli.Command, error) {
-			return &command.StateReplaceProviderCommand{
-				StateMeta: command.StateMeta{
-					Meta: meta,
-				},
 			}, nil
 		},
 	}

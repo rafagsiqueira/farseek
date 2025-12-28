@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -250,8 +250,8 @@ func TestParserLoadConfigDirFailure(t *testing.T) {
 func TestParserLoadConfigDirWithTests_TofuFiles(t *testing.T) {
 	expectedVariablesToOverride := []string{"should_override", "should_override_json"}
 	expectedLoadedTestFiles := []string{
-		filepath.FromSlash("test/resources_test.tofutest.hcl"),
-		filepath.FromSlash("test/resources_test_json.tofutest.json"),
+		filepath.FromSlash("test/resources_test.farseektest.hcl"),
+		filepath.FromSlash("test/resources_test_json.farseektest.json"),
 	}
 
 	tests := []struct {
@@ -260,14 +260,14 @@ func TestParserLoadConfigDirWithTests_TofuFiles(t *testing.T) {
 		expectedResources []string
 	}{
 		{
-			name:              "only .tofu files",
-			path:              filepath.FromSlash("testdata/tofu-only-files"),
-			expectedResources: []string{"aws_security_group.firewall_tofu", "aws_instance.web_tofu", "test_object.a_tofu", "test_object.b_tofu"},
+			name:              "only .farseek files",
+			path:              filepath.FromSlash("testdata/farseek-only-files"),
+			expectedResources: []string{"aws_security_group.firewall_farseek", "aws_instance.web_farseek", "test_object.a_farseek", "test_object.b_farseek"},
 		},
 		{
-			name:              ".tofu and .tf files",
-			path:              filepath.FromSlash("testdata/tofu-and-tf-files"),
-			expectedResources: []string{"aws_security_group.firewall_tofu", "aws_instance.web_tofu", "test_object.a_tofu", "test_object.b_tofu", "tf_resource.first", "tf_json_resource.a"},
+			name:              ".farseek and .tf files",
+			path:              filepath.FromSlash("testdata/farseek-and-tf-files"),
+			expectedResources: []string{"aws_security_group.firewall_farseek", "aws_instance.web_farseek", "test_object.a_farseek", "test_object.b_farseek", "tf_resource.first", "tf_json_resource.a"},
 		},
 	}
 	for _, tt := range tests {
@@ -305,7 +305,7 @@ func TestParserLoadConfigDirWithTests_TofuFiles(t *testing.T) {
 				variableInConfiguration := mod.Variables[expectedVariable]
 				if variableInConfiguration == nil {
 					t.Errorf("expected to load %s variable as part of configuration but it is missing", expectedVariable)
-				} else if variableInConfiguration.Default.AsString() != "overridden by tofu file" {
+				} else if variableInConfiguration.Default.AsString() != "overridden by farseek file" {
 					t.Errorf("expected variable default value %s to be overridden", expectedVariable)
 				}
 			}

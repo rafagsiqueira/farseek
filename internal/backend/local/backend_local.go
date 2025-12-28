@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -20,8 +20,8 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/plans/planfile"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
-	"github.com/rafagsiqueira/farseek/internal/tofumigrate"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
+	farseekmigrate "github.com/rafagsiqueira/farseek/internal/farseekmigrate"
 )
 
 // Ensure that local.Local implements the backend.Local interface.
@@ -49,16 +49,11 @@ func (b *Local) localRun(ctx context.Context, op *backend.Operation) (*backend.L
 	// Get the latest state.
 	var s statemgr.Full
 	var err error
-	if op.FarseekMode {
-		log.Printf("[DEBUG] backend/local: using in-memory state manager for stateless mode")
-		s = statemgr.NewFullFake(nil, nil)
-	} else {
-		log.Printf("[TRACE] backend/local: requesting state manager for workspace %q", op.Workspace)
-		s, err = b.StateMgr(ctx, op.Workspace)
-		if err != nil {
-			diags = diags.Append(fmt.Errorf("error loading state: %w", err))
-			return nil, nil, nil, diags
-		}
+	log.Printf("[TRACE] backend/local: requesting state manager for workspace %q", op.Workspace)
+	s, err = b.StateMgr(ctx, op.Workspace)
+	if err != nil {
+		diags = diags.Append(fmt.Errorf("error loading state: %w", err))
+		return nil, nil, nil, diags
 	}
 
 	log.Printf("[TRACE] backend/local: requesting state lock for workspace %q", op.Workspace)
@@ -83,7 +78,7 @@ func (b *Local) localRun(ctx context.Context, op *backend.Operation) (*backend.L
 	ret := &backend.LocalRun{}
 
 	// Initialize our context options
-	var coreOpts tofu.ContextOpts
+	var coreOpts farseek.ContextOpts
 	if v := b.ContextOpts; v != nil {
 		coreOpts = *v
 	}
@@ -93,10 +88,6 @@ func (b *Local) localRun(ctx context.Context, op *backend.Operation) (*backend.L
 
 	var ctxDiags tfdiags.Diagnostics
 	var configSnap *configload.Snapshot
-	if op.PlanFile.IsCloud() {
-		diags = diags.Append(fmt.Errorf("error: using a saved cloud plan when executing Farseek locally is not supported"))
-		return nil, nil, nil, diags
-	}
 
 	if lp, ok := op.PlanFile.Local(); ok {
 		var stateMeta *statemgr.SnapshotMeta
@@ -131,7 +122,7 @@ func (b *Local) localRun(ctx context.Context, op *backend.Operation) (*backend.L
 	if op.Type != backend.OperationTypeInvalid {
 		// If input asking is enabled, then do that
 		if op.PlanFile == nil && b.OpInput {
-			mode := tofu.InputModeProvider
+			mode := farseek.InputModeProvider
 
 			log.Printf("[TRACE] backend/local: requesting interactive input, if necessary")
 			inputDiags := ret.Core.Input(ctx, ret.Config, mode)
@@ -152,7 +143,7 @@ func (b *Local) localRun(ctx context.Context, op *backend.Operation) (*backend.L
 	return ret, configSnap, s, diags
 }
 
-func (b *Local) localRunDirect(ctx context.Context, op *backend.Operation, run *backend.LocalRun, coreOpts *tofu.ContextOpts, s statemgr.Full) (*backend.LocalRun, *configload.Snapshot, tfdiags.Diagnostics) {
+func (b *Local) localRunDirect(ctx context.Context, op *backend.Operation, run *backend.LocalRun, coreOpts *farseek.ContextOpts, s statemgr.Full) (*backend.LocalRun, *configload.Snapshot, tfdiags.Diagnostics) {
 	var diags tfdiags.Diagnostics
 
 	// Load the configuration using the caller-provided configuration loader.
@@ -210,7 +201,7 @@ func (b *Local) localRunDirect(ctx context.Context, op *backend.Operation, run *
 		return nil, nil, diags
 	}
 
-	planOpts := &tofu.PlanOpts{
+	planOpts := &farseek.PlanOpts{
 		Mode:               op.PlanMode,
 		Targets:            op.Targets,
 		Excludes:           op.Excludes,
@@ -218,12 +209,12 @@ func (b *Local) localRunDirect(ctx context.Context, op *backend.Operation, run *
 		SetVariables:       variables,
 		SkipRefresh:        op.Type != backend.OperationTypeRefresh && !op.PlanRefresh,
 		GenerateConfigPath: op.GenerateConfigOut,
-		FarseekMode:       op.FarseekMode,
+		FarseekMode:        op.FarseekMode,
 	}
 	run.PlanOpts = planOpts
 
 	// Set ApplyOpts for direct runs to pass through the CLI flag
-	run.ApplyOpts = &tofu.ApplyOpts{
+	run.ApplyOpts = &farseek.ApplyOpts{
 		SuppressForgetErrorsDuringDestroy: op.SuppressForgetErrorsDuringDestroy,
 	}
 
@@ -231,7 +222,7 @@ func (b *Local) localRunDirect(ctx context.Context, op *backend.Operation, run *
 	// snapshot, from the previous run.
 	state := s.State()
 	if state != nil {
-		migratedState, migrateDiags := tofumigrate.MigrateStateProviderAddresses(config, state)
+		migratedState, migrateDiags := farseekmigrate.MigrateStateProviderAddresses(config, state)
 		diags = diags.Append(migrateDiags)
 		if migrateDiags.HasErrors() {
 			return nil, nil, diags
@@ -240,7 +231,7 @@ func (b *Local) localRunDirect(ctx context.Context, op *backend.Operation, run *
 	}
 	run.InputState = state
 
-	tfCtx, moreDiags := tofu.NewContext(coreOpts)
+	tfCtx, moreDiags := farseek.NewContext(coreOpts)
 	diags = diags.Append(moreDiags)
 	if moreDiags.HasErrors() {
 		return nil, nil, diags
@@ -249,7 +240,7 @@ func (b *Local) localRunDirect(ctx context.Context, op *backend.Operation, run *
 	return run, configSnap, diags
 }
 
-func (b *Local) localRunForPlanFile(ctx context.Context, op *backend.Operation, pf *planfile.Reader, run *backend.LocalRun, coreOpts *tofu.ContextOpts, currentStateMeta *statemgr.SnapshotMeta) (*backend.LocalRun, *configload.Snapshot, tfdiags.Diagnostics) {
+func (b *Local) localRunForPlanFile(ctx context.Context, op *backend.Operation, pf *planfile.Reader, run *backend.LocalRun, coreOpts *farseek.ContextOpts, currentStateMeta *statemgr.SnapshotMeta) (*backend.LocalRun, *configload.Snapshot, tfdiags.Diagnostics) {
 	var diags tfdiags.Diagnostics
 
 	const errSummary = "Invalid plan file"
@@ -296,7 +287,7 @@ func (b *Local) localRunForPlanFile(ctx context.Context, op *backend.Operation, 
 	diags = diags.Append(undeclaredDiags)
 	declaredVars, declaredDiags := backend.ParseDeclaredVariableValues(op.Variables, config.Module.Variables)
 	diags = diags.Append(declaredDiags)
-	run.ApplyOpts = &tofu.ApplyOpts{
+	run.ApplyOpts = &farseek.ApplyOpts{
 		SetVariables:                      declaredVars,
 		SuppressForgetErrorsDuringDestroy: op.SuppressForgetErrorsDuringDestroy,
 	}
@@ -387,7 +378,7 @@ func (b *Local) localRunForPlanFile(ctx context.Context, op *backend.Operation, 
 	// refreshing we did while building the plan.
 	run.InputState = priorStateFile.State
 
-	tfCtx, moreDiags := tofu.NewContext(coreOpts)
+	tfCtx, moreDiags := farseek.NewContext(coreOpts)
 	diags = diags.Append(moreDiags)
 	if moreDiags.HasErrors() {
 		return nil, nil, diags
@@ -416,7 +407,7 @@ func (b *Local) localRunForPlanFile(ctx context.Context, op *backend.Operation, 
 // messages that variables are not set rather than reporting that input failed:
 // the primary resolution to missing variables is to provide them by some other
 // means.
-func (b *Local) interactiveCollectVariables(ctx context.Context, existing map[string]backend.UnparsedVariableValue, vcs map[string]*configs.Variable, uiInput tofu.UIInput) map[string]backend.UnparsedVariableValue {
+func (b *Local) interactiveCollectVariables(ctx context.Context, existing map[string]backend.UnparsedVariableValue, vcs map[string]*configs.Variable, uiInput farseek.UIInput) map[string]backend.UnparsedVariableValue {
 	var needed []string
 	if b.OpInput && uiInput != nil {
 		for name, vc := range vcs {
@@ -447,9 +438,9 @@ func (b *Local) interactiveCollectVariables(ctx context.Context, existing map[st
 		vc := vcs[name]
 		varUiInput := uiInput
 		if vc.Ephemeral {
-			varUiInput = tofu.NewEphemeralSuffixUIInput(varUiInput)
+			varUiInput = farseek.NewEphemeralSuffixUIInput(varUiInput)
 		}
-		rawValue, err := varUiInput.Input(ctx, &tofu.InputOpts{
+		rawValue, err := varUiInput.Input(ctx, &farseek.InputOpts{
 			Id:          fmt.Sprintf("var.%s", name),
 			Query:       fmt.Sprintf("var.%s", name),
 			Description: vc.InputPrompt(),
@@ -527,16 +518,16 @@ type unparsedInteractiveVariableValue struct {
 
 var _ backend.UnparsedVariableValue = unparsedInteractiveVariableValue{}
 
-func (v unparsedInteractiveVariableValue) ParseVariableValue(mode configs.VariableParsingMode) (*tofu.InputValue, tfdiags.Diagnostics) {
+func (v unparsedInteractiveVariableValue) ParseVariableValue(mode configs.VariableParsingMode) (*farseek.InputValue, tfdiags.Diagnostics) {
 	var diags tfdiags.Diagnostics
 	val, valDiags := mode.Parse(v.Name, v.RawValue)
 	diags = diags.Append(valDiags)
 	if diags.HasErrors() {
 		return nil, diags
 	}
-	return &tofu.InputValue{
+	return &farseek.InputValue{
 		Value:      val,
-		SourceType: tofu.ValueFromInput,
+		SourceType: farseek.ValueFromInput,
 	}, diags
 }
 
@@ -547,9 +538,9 @@ type unparsedUnknownVariableValue struct {
 
 var _ backend.UnparsedVariableValue = unparsedUnknownVariableValue{}
 
-func (v unparsedUnknownVariableValue) ParseVariableValue(mode configs.VariableParsingMode) (*tofu.InputValue, tfdiags.Diagnostics) {
-	return &tofu.InputValue{
+func (v unparsedUnknownVariableValue) ParseVariableValue(mode configs.VariableParsingMode) (*farseek.InputValue, tfdiags.Diagnostics) {
+	return &farseek.InputValue{
 		Value:      cty.UnknownVal(v.WantType),
-		SourceType: tofu.ValueFromInput,
+		SourceType: farseek.ValueFromInput,
 	}, nil
 }

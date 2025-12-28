@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -24,7 +24,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/states"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func TestState(t *testing.T) {
@@ -32,12 +32,12 @@ func TestState(t *testing.T) {
 
 	tests := []struct {
 		State   *states.State
-		Schemas *tofu.Schemas
+		Schemas *farseek.Schemas
 		Want    string
 	}{
 		{
 			State:   &states.State{},
-			Schemas: &tofu.Schemas{},
+			Schemas: &farseek.Schemas{},
 			Want:    "The state file is empty. No resources are represented.\n",
 		},
 		{
@@ -101,8 +101,8 @@ func TestState(t *testing.T) {
 	}
 }
 
-func testProvider() *tofu.MockProvider {
-	p := new(tofu.MockProvider)
+func testProvider() *farseek.MockProvider {
+	p := new(farseek.MockProvider)
 	p.ReadResourceFn = func(req providers.ReadResourceRequest) providers.ReadResourceResponse {
 		return providers.ReadResourceResponse{NewState: req.PriorState}
 	}
@@ -156,9 +156,9 @@ func testProviderSchema() *providers.GetProviderSchemaResponse {
 	}
 }
 
-func testSchemas() *tofu.Schemas {
+func testSchemas() *farseek.Schemas {
 	provider := testProvider()
-	return &tofu.Schemas{
+	return &farseek.Schemas{
 		Providers: map[addrs.Provider]providers.ProviderSchema{
 			addrs.NewDefaultProvider("test"): provider.GetProviderSchema(context.TODO()),
 		},

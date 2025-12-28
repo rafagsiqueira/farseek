@@ -1,4 +1,6 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -620,8 +622,8 @@ something bad happened during this test
 			},
 			StdOut: `  run "run_block"... pass
 
-Farseek used the selected providers to generate the following execution
-plan. Resource actions are indicated with the following symbols:
+Farseek used the selected providers to generate the following execution plan.
+Resource actions are indicated with the following symbols:
   + create
 
 Farseek will perform the following actions:
@@ -770,7 +772,7 @@ Warning: second warning
 
 some thing not very bad happened again
 `,
-			stderr: `OpenTofu encountered an error destroying resources created while executing
+			stderr: `Farseek encountered an error destroying resources created while executing
 main.tftest.hcl.
 
 Error: first error
@@ -785,7 +787,7 @@ this time it is very bad
 			run:   &moduletest.Run{Name: "run_block"},
 			file:  &moduletest.File{Name: "main.tftest.hcl"},
 			state: states.NewState(),
-			stderr: `OpenTofu encountered an error destroying resources created while executing
+			stderr: `Farseek encountered an error destroying resources created while executing
 main.tftest.hcl/run_block.
 
 Error: first error
@@ -851,7 +853,7 @@ Warning: second warning
 some thing not very bad happened again
 `,
 			stderr: `
-OpenTofu left the following resources in state after executing
+Farseek left the following resources in state after executing
 main.tftest.hcl, these left-over resources can be viewed by reading the
 statefile written to disk(errored_test.tfstate) and they need to be cleaned
 up manually:
@@ -918,14 +920,14 @@ Warning: second warning
 
 some thing not very bad happened again
 `,
-			stderr: `OpenTofu encountered an error destroying resources created while executing
+			stderr: `Farseek encountered an error destroying resources created while executing
 main.tftest.hcl.
 
 Error: first error
 
 this time it is very bad
 
-OpenTofu left the following resources in state after executing
+Farseek left the following resources in state after executing
 main.tftest.hcl, these left-over resources can be viewed by reading the
 statefile written to disk(errored_test.tfstate) and they need to be cleaned
 up manually:
@@ -989,14 +991,14 @@ Warning: second warning
 
 some thing not very bad happened again
 `,
-			stderr: `OpenTofu encountered an error destroying resources created while executing
+			stderr: `Farseek encountered an error destroying resources created while executing
 main.tftest.hcl.
 
 Error: first error
 
 this time it is very bad
 
-OpenTofu left the following resources in state after executing
+Farseek left the following resources in state after executing
 main.tftest.hcl, these left-over resources can be viewed by reading the
 statefile written to disk(errored_test.tfstate) and they need to be cleaned
 up manually:
@@ -1072,10 +1074,10 @@ func TestTestHuman_FatalInterruptSummary(t *testing.T) {
 				},
 			},
 			want: `
-OpenTofu was interrupted while executing main.tftest.hcl, and may not have
+Farseek was interrupted while executing main.tftest.hcl, and may not have
 performed the expected cleanup operations.
 
-OpenTofu was in the process of creating the following resources for
+Farseek was in the process of creating the following resources for
 "run_block" from the module under test, and they may not have been destroyed:
   - test_instance.one
   - test_instance.two
@@ -1115,10 +1117,10 @@ OpenTofu was in the process of creating the following resources for
 			},
 			created: nil,
 			want: `
-OpenTofu was interrupted while executing main.tftest.hcl, and may not have
+Farseek was interrupted while executing main.tftest.hcl, and may not have
 performed the expected cleanup operations.
 
-OpenTofu has already created the following resources from the module under
+Farseek has already created the following resources from the module under
 test:
   - test_instance.one
   - test_instance.two
@@ -1165,10 +1167,10 @@ test:
 			},
 			created: nil,
 			want: `
-OpenTofu was interrupted while executing main.tftest.hcl, and may not have
+Farseek was interrupted while executing main.tftest.hcl, and may not have
 performed the expected cleanup operations.
 
-OpenTofu has already created the following resources for "setup_block" from
+Farseek has already created the following resources for "setup_block" from
 "../setup":
   - test_instance.one
   - test_instance.two
@@ -1279,20 +1281,20 @@ OpenTofu has already created the following resources for "setup_block" from
 				Name:   "run_block",
 			},
 			want: `
-OpenTofu was interrupted while executing main.tftest.hcl, and may not have
+Farseek was interrupted while executing main.tftest.hcl, and may not have
 performed the expected cleanup operations.
 
-OpenTofu has already created the following resources from the module under
+Farseek has already created the following resources from the module under
 test:
   - test_instance.one
   - test_instance.two
 
-OpenTofu has already created the following resources for "setup_block" from
+Farseek has already created the following resources for "setup_block" from
 "../setup":
   - test_instance.setup_one
   - test_instance.setup_two
 
-OpenTofu was in the process of creating the following resources for
+Farseek was in the process of creating the following resources for
 "run_block" from the module under test, and they may not have been destroyed:
   - test_instance.new_one
   - test_instance.new_two
@@ -1347,7 +1349,7 @@ func TestTestJSON_Abstract(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "Found 1 file and 1 run block",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"test_abstract": map[string]interface{}{
 						"main.tftest.hcl": []interface{}{
 							"setup",
@@ -1383,7 +1385,7 @@ func TestTestJSON_Abstract(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "Found 2 files and 3 run blocks",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"test_abstract": map[string]interface{}{
 						"main.tftest.hcl": []interface{}{
 							"setup",
@@ -1420,7 +1422,7 @@ func TestTestJSON_Conclusion(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "Executed 0 tests.",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"test_summary": map[string]interface{}{
 						"status":  "pending",
 						"errored": 0.0,
@@ -1479,7 +1481,7 @@ func TestTestJSON_Conclusion(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "Executed 0 tests, 6 skipped.",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"test_summary": map[string]interface{}{
 						"status":  "skip",
 						"errored": 0.0,
@@ -1538,7 +1540,7 @@ func TestTestJSON_Conclusion(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "Success! 6 passed, 0 failed.",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"test_summary": map[string]interface{}{
 						"status":  "pass",
 						"errored": 0.0,
@@ -1597,7 +1599,7 @@ func TestTestJSON_Conclusion(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "Success! 4 passed, 0 failed, 2 skipped.",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"test_summary": map[string]interface{}{
 						"status":  "pass",
 						"errored": 0.0,
@@ -1656,7 +1658,7 @@ func TestTestJSON_Conclusion(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "Failure! 0 passed, 6 failed.",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"test_summary": map[string]interface{}{
 						"status":  "fail",
 						"errored": 0.0,
@@ -1715,7 +1717,7 @@ func TestTestJSON_Conclusion(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "Failure! 0 passed, 4 failed, 2 skipped.",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"test_summary": map[string]interface{}{
 						"status":  "fail",
 						"errored": 0.0,
@@ -1774,7 +1776,7 @@ func TestTestJSON_Conclusion(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "Failure! 2 passed, 2 failed, 2 skipped.",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"test_summary": map[string]interface{}{
 						"status":  "fail",
 						"errored": 0.0,
@@ -1833,7 +1835,7 @@ func TestTestJSON_Conclusion(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "Failure! 0 passed, 6 failed.",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"test_summary": map[string]interface{}{
 						"status":  "error",
 						"errored": 3.0,
@@ -1892,7 +1894,7 @@ func TestTestJSON_Conclusion(t *testing.T) {
 				{
 					"@level":   "info",
 					"@message": "Failure! 2 passed, 2 failed, 2 skipped.",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 					"test_summary": map[string]interface{}{
 						"status":  "error",
 						"errored": 1.0,
@@ -1935,7 +1937,7 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 				{
 					"@level":    "warn",
 					"@message":  "Warning: first warning",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"diagnostic": map[string]interface{}{
 						"detail":   "something not very bad happened",
@@ -1947,7 +1949,7 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 				{
 					"@level":    "warn",
 					"@message":  "Warning: second warning",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"diagnostic": map[string]interface{}{
 						"detail":   "something not very bad happened again",
@@ -1970,7 +1972,7 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 				{
 					"@level":    "warn",
 					"@message":  "Warning: first warning",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"diagnostic": map[string]interface{}{
 						"detail":   "something not very bad happened",
@@ -1982,7 +1984,7 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 				{
 					"@level":    "warn",
 					"@message":  "Warning: second warning",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"diagnostic": map[string]interface{}{
 						"detail":   "something not very bad happened again",
@@ -1994,7 +1996,7 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 				{
 					"@level":    "error",
 					"@message":  "Error: first error",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"diagnostic": map[string]interface{}{
 						"detail":   "this time it is very bad",
@@ -2026,8 +2028,8 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 			want: []map[string]interface{}{
 				{
 					"@level":    "error",
-					"@message":  "OpenTofu left some resources in state after executing main.tftest.hcl/run_block, these left-over resources can be viewed by reading the statefile written to disk(errored_test.tfstate) and they need to be cleaned up manually:",
-					"@module":   "tofu.ui",
+					"@message":  "Farseek left some resources in state after executing main.tftest.hcl/run_block, these left-over resources can be viewed by reading the statefile written to disk(errored_test.tfstate) and they need to be cleaned up manually:",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"test_cleanup": map[string]interface{}{
@@ -2092,8 +2094,8 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 			want: []map[string]interface{}{
 				{
 					"@level":    "error",
-					"@message":  "OpenTofu left some resources in state after executing main.tftest.hcl, these left-over resources can be viewed by reading the statefile written to disk(errored_test.tfstate) and they need to be cleaned up manually:",
-					"@module":   "tofu.ui",
+					"@message":  "Farseek left some resources in state after executing main.tftest.hcl, these left-over resources can be viewed by reading the statefile written to disk(errored_test.tfstate) and they need to be cleaned up manually:",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"test_cleanup": map[string]interface{}{
 						"failed_resources": []interface{}{
@@ -2114,7 +2116,7 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 				{
 					"@level":    "warn",
 					"@message":  "Warning: first warning",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"diagnostic": map[string]interface{}{
 						"detail":   "something not very bad happened",
@@ -2126,7 +2128,7 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 				{
 					"@level":    "warn",
 					"@message":  "Warning: second warning",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"diagnostic": map[string]interface{}{
 						"detail":   "something not very bad happened again",
@@ -2189,8 +2191,8 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 			want: []map[string]interface{}{
 				{
 					"@level":    "error",
-					"@message":  "OpenTofu left some resources in state after executing main.tftest.hcl, these left-over resources can be viewed by reading the statefile written to disk(errored_test.tfstate) and they need to be cleaned up manually:",
-					"@module":   "tofu.ui",
+					"@message":  "Farseek left some resources in state after executing main.tftest.hcl, these left-over resources can be viewed by reading the statefile written to disk(errored_test.tfstate) and they need to be cleaned up manually:",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"test_cleanup": map[string]interface{}{
 						"failed_resources": []interface{}{
@@ -2211,7 +2213,7 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 				{
 					"@level":    "warn",
 					"@message":  "Warning: first warning",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"diagnostic": map[string]interface{}{
 						"detail":   "something not very bad happened",
@@ -2223,7 +2225,7 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 				{
 					"@level":    "warn",
 					"@message":  "Warning: second warning",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"diagnostic": map[string]interface{}{
 						"detail":   "something not very bad happened again",
@@ -2235,7 +2237,7 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 				{
 					"@level":    "error",
 					"@message":  "Error: first error",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"diagnostic": map[string]interface{}{
 						"detail":   "this time it is very bad",
@@ -2294,8 +2296,8 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 			}), want: []map[string]interface{}{
 				{
 					"@level":    "error",
-					"@message":  "OpenTofu left some resources in state after executing main.tftest.hcl, these left-over resources can be viewed by reading the statefile written to disk(errored_test.tfstate) and they need to be cleaned up manually:",
-					"@module":   "tofu.ui",
+					"@message":  "Farseek left some resources in state after executing main.tftest.hcl, these left-over resources can be viewed by reading the statefile written to disk(errored_test.tfstate) and they need to be cleaned up manually:",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"test_cleanup": map[string]interface{}{
 						"failed_resources": []interface{}{
@@ -2312,7 +2314,7 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 				{
 					"@level":    "warn",
 					"@message":  "Warning: first warning",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"diagnostic": map[string]interface{}{
 						"detail":   "something not very bad happened",
@@ -2324,7 +2326,7 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 				{
 					"@level":    "warn",
 					"@message":  "Warning: second warning",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"diagnostic": map[string]interface{}{
 						"detail":   "something not very bad happened again",
@@ -2336,7 +2338,7 @@ func TestTestJSON_DestroySummary(t *testing.T) {
 				{
 					"@level":    "error",
 					"@message":  "Error: first error",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"diagnostic": map[string]interface{}{
 						"detail":   "this time it is very bad",
@@ -2370,7 +2372,7 @@ func TestTestJSON_File(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "main.tf... pass",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tf",
 					"test_file": map[string]interface{}{
 						"path":   "main.tf",
@@ -2387,7 +2389,7 @@ func TestTestJSON_File(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "main.tf... pending",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tf",
 					"test_file": map[string]interface{}{
 						"path":   "main.tf",
@@ -2404,7 +2406,7 @@ func TestTestJSON_File(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "main.tf... skip",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tf",
 					"test_file": map[string]interface{}{
 						"path":   "main.tf",
@@ -2421,7 +2423,7 @@ func TestTestJSON_File(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "main.tf... fail",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tf",
 					"test_file": map[string]interface{}{
 						"path":   "main.tf",
@@ -2438,7 +2440,7 @@ func TestTestJSON_File(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "main.tf... fail",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tf",
 					"test_file": map[string]interface{}{
 						"path":   "main.tf",
@@ -2471,7 +2473,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "  \"run_block\"... pass",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"test_run": map[string]interface{}{
@@ -2494,7 +2496,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "  \"run_block\"... pass",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"test_run": map[string]interface{}{
@@ -2507,7 +2509,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "warn",
 					"@message":  "Warning: a warning occurred",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"diagnostic": map[string]interface{}{
@@ -2526,7 +2528,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "  \"run_block\"... pending",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"test_run": map[string]interface{}{
@@ -2545,7 +2547,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "  \"run_block\"... skip",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"test_run": map[string]interface{}{
@@ -2564,7 +2566,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "  \"run_block\"... fail",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"test_run": map[string]interface{}{
@@ -2590,7 +2592,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "  \"run_block\"... fail",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"test_run": map[string]interface{}{
@@ -2603,7 +2605,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "error",
 					"@message":  "Error: a comparison failed",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"diagnostic": map[string]interface{}{
@@ -2616,7 +2618,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "error",
 					"@message":  "Error: a second comparison failed",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"diagnostic": map[string]interface{}{
@@ -2635,7 +2637,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "  \"run_block\"... fail",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"test_run": map[string]interface{}{
@@ -2658,7 +2660,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "  \"run_block\"... fail",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"test_run": map[string]interface{}{
@@ -2671,7 +2673,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "error",
 					"@message":  "Error: an error occurred",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"diagnostic": map[string]interface{}{
@@ -2770,7 +2772,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "  \"run_block\"... pass",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"test_run": map[string]interface{}{
@@ -2783,7 +2785,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "-verbose flag enabled, printing plan",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"test_plan": map[string]interface{}{
@@ -2894,7 +2896,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "  \"run_block\"... pass",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"test_run": map[string]interface{}{
@@ -2907,7 +2909,7 @@ func TestTestJSON_Run(t *testing.T) {
 				{
 					"@level":    "info",
 					"@message":  "-verbose flag enabled, printing state",
-					"@module":   "tofu.ui",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"@testrun":  "run_block",
 					"test_state": map[string]interface{}{
@@ -2993,8 +2995,8 @@ func TestTestJSON_FatalInterruptSummary(t *testing.T) {
 			want: []map[string]interface{}{
 				{
 					"@level":    "error",
-					"@message":  "OpenTofu was interrupted during test execution, and may not have performed the expected cleanup operations.",
-					"@module":   "tofu.ui",
+					"@message":  "Farseek was interrupted during test execution, and may not have performed the expected cleanup operations.",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"test_interrupt": map[string]interface{}{
 						"planned": []interface{}{
@@ -3042,8 +3044,8 @@ func TestTestJSON_FatalInterruptSummary(t *testing.T) {
 			want: []map[string]interface{}{
 				{
 					"@level":    "error",
-					"@message":  "OpenTofu was interrupted during test execution, and may not have performed the expected cleanup operations.",
-					"@module":   "tofu.ui",
+					"@message":  "Farseek was interrupted during test execution, and may not have performed the expected cleanup operations.",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"test_interrupt": map[string]interface{}{
 						"state": []interface{}{
@@ -3095,8 +3097,8 @@ func TestTestJSON_FatalInterruptSummary(t *testing.T) {
 			want: []map[string]interface{}{
 				{
 					"@level":    "error",
-					"@message":  "OpenTofu was interrupted during test execution, and may not have performed the expected cleanup operations.",
-					"@module":   "tofu.ui",
+					"@message":  "Farseek was interrupted during test execution, and may not have performed the expected cleanup operations.",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"test_interrupt": map[string]interface{}{
 						"states": map[string]interface{}{
@@ -3210,8 +3212,8 @@ func TestTestJSON_FatalInterruptSummary(t *testing.T) {
 			want: []map[string]interface{}{
 				{
 					"@level":    "error",
-					"@message":  "OpenTofu was interrupted during test execution, and may not have performed the expected cleanup operations.",
-					"@module":   "tofu.ui",
+					"@message":  "Farseek was interrupted during test execution, and may not have performed the expected cleanup operations.",
+					"@module":   "farseek.ui",
 					"@testfile": "main.tftest.hcl",
 					"test_interrupt": map[string]interface{}{
 						"state": []interface{}{
@@ -3391,7 +3393,7 @@ Writing state to file: errored_test.tfstate
 				{
 					"@level":   "info",
 					"@message": "Writing state to file: errored_test.tfstate",
-					"@module":  string("tofu.ui"),
+					"@module":  string("farseek.ui"),
 				},
 			},
 		},
@@ -3444,7 +3446,7 @@ Writing state to file: errored_test.tfstate
 				{
 					"@level":   "info",
 					"@message": "Writing state to file: errored_test.tfstate",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 				},
 			},
 		},
@@ -3494,7 +3496,7 @@ Writing state to file: errored_test.tfstate
 				{
 					"@level":   "info",
 					"@message": "Writing state to file: errored_test.tfstate",
-					"@module":  "tofu.ui",
+					"@module":  "farseek.ui",
 				},
 			},
 		},

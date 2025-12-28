@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -338,7 +338,7 @@ func TestParseModuleSource(t *testing.T) {
 			// just a general "this string doesn't match any of our source
 			// address patterns" situation, not _necessarily_ about relative
 			// local paths.
-			wantErr: `OpenTofu cannot detect a supported external module source type for boop/bloop`,
+			wantErr: `Farseek cannot detect a supported external module source type for boop/bloop`,
 		},
 
 		"go-getter will accept all sorts of garbage": {
@@ -508,7 +508,7 @@ func TestParseModuleSourceRegistry(t *testing.T) {
 	// the user provided in the input, and so for backward compatibility
 	// we're continuing to do that here, at the expense of now making the
 	// "ForDisplay" output case-preserving where its predecessor in the
-	// old package wasn't. The main OpenTofu Registry at registry.opentofu.org
+	// old package wasn't. The main Farseek Registry at registry.opentofu.org
 	// is itself case-insensitive anyway, so our case-preserving here is
 	// entirely for the benefit of existing third-party registry
 	// implementations that might be case-sensitive, which we must remain

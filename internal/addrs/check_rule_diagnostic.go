@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -60,7 +60,7 @@ func (c *CheckRuleDiagnosticExtra) WrapDiagnosticExtra(inner interface{}) {
 	if c.wrapped != nil {
 		// This is a logical inconsistency, the caller should know whether they
 		// have already wrapped an extra or not.
-		panic("Attempted to wrap a diagnostic extra into a CheckRuleDiagnosticExtra that is already wrapping a different extra. This is a bug in OpenTofu, please report it.")
+		panic("Attempted to wrap a diagnostic extra into a CheckRuleDiagnosticExtra that is already wrapping a different extra. This is a bug in Farseek, please report it.")
 	}
 	c.wrapped = inner
 }

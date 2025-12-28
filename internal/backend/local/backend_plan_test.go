@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -28,7 +28,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/terminal"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func TestLocal_planBasic(t *testing.T) {
@@ -121,19 +121,19 @@ func TestLocal_planNoConfig(t *testing.T) {
 func TestLocal_plan_context_error(t *testing.T) {
 	b := TestLocal(t)
 
-	// This is an intentionally-invalid value to make tofu.NewContext fail
+	// This is an intentionally-invalid value to make farseek.NewContext fail
 	// when b.Operation calls it.
 	// NOTE: This test was originally using a provider initialization failure
-	// as its forced error condition, but tofu.NewContext is no longer
+	// as its forced error condition, but farseek.NewContext is no longer
 	// responsible for checking that. Invalid parallelism is the last situation
-	// where tofu.NewContext can return error diagnostics, and arguably
+	// where farseek.NewContext can return error diagnostics, and arguably
 	// we should be validating this argument at the UI layer anyway, so perhaps
-	// in future we'll make tofu.NewContext never return errors and then
+	// in future we'll make farseek.NewContext never return errors and then
 	// this test will become redundant, because its purpose is specifically
-	// to test that we properly unlock the state if tofu.NewContext
+	// to test that we properly unlock the state if farseek.NewContext
 	// returns an error.
 	if b.ContextOpts == nil {
-		b.ContextOpts = &tofu.ContextOpts{}
+		b.ContextOpts = &farseek.ContextOpts{}
 	}
 	b.ContextOpts.Parallelism = -1
 
@@ -399,12 +399,12 @@ func TestLocal_planDeposedOnly(t *testing.T) {
 
 	// The deposed object and the current object are distinct, so our
 	// plan includes separate actions for each of them. This strange situation
-	// is not common: it should arise only if OpenTofu fails during
+	// is not common: it should arise only if Farseek fails during
 	// a create-before-destroy when the "create" hasn't completed yet but
 	// in a severe way that prevents the previous object from being restored
 	// as "current".
 	//
-	// However, that situation was more common in some earlier OpenTofu
+	// However, that situation was more common in some earlier Farseek
 	// versions where deposed objects were not managed properly, so this
 	// can arise when upgrading from an older version with deposed objects
 	// already in the state.
@@ -412,7 +412,7 @@ func TestLocal_planDeposedOnly(t *testing.T) {
 	// This is one of the few cases where we expose the idea of "deposed" in
 	// the UI, including the user-unfriendly "deposed key" (00000000 in this
 	// case) just so that users can correlate this with what they might
-	// see in `tofu show` and in the subsequent apply output, because
+	// see in `farseek show` and in the subsequent apply output, because
 	// it's also possible for there to be _multiple_ deposed objects, in the
 	// unlikely event that create_before_destroy _keeps_ crashing across
 	// subsequent runs.

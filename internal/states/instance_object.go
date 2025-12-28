@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -24,11 +24,11 @@ import (
 // Instead, create a new object and replace the existing one.
 type ResourceInstanceObject struct {
 	// Value is the object-typed value representing the remote object within
-	// OpenTofu.
+	// Farseek.
 	Value cty.Value
 
 	// Private is an opaque value set by the provider when this object was
-	// last created or updated. OpenTofu Core does not use this value in
+	// last created or updated. Farseek Core does not use this value in
 	// any way and it is not exposed anywhere in the user interface, so
 	// a provider can use it for retaining any necessary private state.
 	Private []byte

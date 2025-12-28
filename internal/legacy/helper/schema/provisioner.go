@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -13,14 +13,14 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
-// Provisioner represents a resource provisioner in OpenTofu and properly
+// Provisioner represents a resource provisioner in Farseek and properly
 // implements all of the ResourceProvisioner API.
 //
 // This higher level structure makes it much easier to implement a new or
-// custom provisioner for OpenTofu.
+// custom provisioner for Farseek.
 //
 // The function callbacks for this structure are all passed a context object.
 // This context object has a number of pre-defined values that can be accessed
@@ -48,7 +48,7 @@ type Provisioner struct {
 
 	// ValidateFunc is a function for extended validation. This is optional
 	// and should be used when individual field validation is not enough.
-	ValidateFunc func(*tofu.ResourceConfig) ([]string, []error)
+	ValidateFunc func(*farseek.ResourceConfig) ([]string, []error)
 
 	stopCtx       context.Context
 	stopCtxCancel context.CancelFunc
@@ -68,7 +68,7 @@ var (
 	// Guaranteed to never be nil.
 	ProvConfigDataKey = contextKey("provider config data")
 
-	// This returns a tofu.UIOutput. Guaranteed to never be nil.
+	// This returns a farseek.UIOutput. Guaranteed to never be nil.
 	ProvOutputKey = contextKey("provider output")
 
 	// This returns the raw InstanceState passed to Apply. Guaranteed to
@@ -119,28 +119,28 @@ func (p *Provisioner) stopInit() {
 	p.stopCtx, p.stopCtxCancel = context.WithCancel(context.Background())
 }
 
-// Stop implementation of tofu.ResourceProvisioner interface.
+// Stop implementation of farseek.ResourceProvisioner interface.
 func (p *Provisioner) Stop() error {
 	p.stopOnce.Do(p.stopInit)
 	p.stopCtxCancel()
 	return nil
 }
 
-// GetConfigSchema implementation of tofu.ResourceProvisioner interface.
+// GetConfigSchema implementation of farseek.ResourceProvisioner interface.
 func (p *Provisioner) GetConfigSchema() (*configschema.Block, error) {
 	return schemaMap(p.Schema).CoreConfigSchema(), nil
 }
 
-// Apply implementation of tofu.ResourceProvisioner interface.
+// Apply implementation of farseek.ResourceProvisioner interface.
 func (p *Provisioner) Apply(
-	o tofu.UIOutput,
-	s *tofu.InstanceState,
-	c *tofu.ResourceConfig) error {
+	o farseek.UIOutput,
+	s *farseek.InstanceState,
+	c *farseek.ResourceConfig) error {
 	var connData, configData *ResourceData
 
 	{
 		// We first need to turn the connection information into a
-		// tofu.ResourceConfig so that we can use that type to more
+		// farseek.ResourceConfig so that we can use that type to more
 		// easily build a ResourceData structure. We do this by simply treating
 		// the conn info as configuration input.
 		raw := make(map[string]interface{})
@@ -150,7 +150,7 @@ func (p *Provisioner) Apply(
 			}
 		}
 
-		c := tofu.NewResourceConfigRaw(raw)
+		c := farseek.NewResourceConfigRaw(raw)
 		sm := schemaMap(p.ConnSchema)
 		diff, err := sm.Diff(nil, c, nil, nil, true)
 		if err != nil {
@@ -185,8 +185,8 @@ func (p *Provisioner) Apply(
 	return p.ApplyFunc(ctx)
 }
 
-// Validate implements the tofu.ResourceProvisioner interface.
-func (p *Provisioner) Validate(c *tofu.ResourceConfig) (ws []string, es []error) {
+// Validate implements the farseek.ResourceProvisioner interface.
+func (p *Provisioner) Validate(c *farseek.ResourceConfig) (ws []string, es []error) {
 	if err := p.InternalValidate(); err != nil {
 		return nil, []error{fmt.Errorf(
 			"Internal validation of the provisioner failed! This is always a bug\n"+

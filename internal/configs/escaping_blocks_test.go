@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -24,7 +24,7 @@ import (
 // out as something special and rare.
 //
 // This is not something we expect to see used a lot, but it's an important
-// part of our strategy to evolve the OpenTofu language in future using
+// part of our strategy to evolve the Farseek language in future using
 // editions, so that later editions can define new meta-arguments without
 // blocking access to externally-defined arguments of the same name.
 //

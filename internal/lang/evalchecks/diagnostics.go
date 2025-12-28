@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -68,7 +68,7 @@ func commandLineArgumentsSuggestion(args []string, goos string) string {
 		// "WindowsArgvSplit" produces something that's compatible with
 		// the de-facto standard argument parsing implemented by Microsoft's
 		// Visual C++ runtime library, which the Go runtime mimics and
-		// is therefore the most likely to succeed for running OpenTofu.
+		// is therefore the most likely to succeed for running Farseek.
 		//
 		// Unfortunately running normal programs through PowerShell adds
 		// some additional quoting/escaping hazards which we don't attend
@@ -83,9 +83,9 @@ func commandLineArgumentsSuggestion(args []string, goos string) string {
 
 	// We're only interested in the "arguments" part of the result, but
 	// the shquot library wants us to provide an argv[0] anyway so we'll
-	// hard-code that as "tofu" but then ignore it altogether in the
+	// hard-code that as "farseek" but then ignore it altogether in the
 	// result.
-	cmdLine := append([]string{"tofu"}, args...)
+	cmdLine := append([]string{"farseek"}, args...)
 	_, ret := quot(cmdLine)
 	return ret
 }

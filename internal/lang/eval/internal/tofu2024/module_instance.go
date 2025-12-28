@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -22,7 +22,7 @@ import (
 
 // CompiledModuleInstance is our implementation of
 // [evalglue.CompiledModuleInstance], providing the API that package eval
-// uses to interact with tofu2024-edition modules.
+// uses to interact with farseek2024-edition modules.
 type CompiledModuleInstance struct {
 	// Any other kinds of "node" we add in future will likely need coverage
 	// added in both [CompiledModuleInstance.CheckAll] and

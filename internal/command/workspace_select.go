@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -81,7 +81,6 @@ func (c *WorkspaceSelectCommand) Run(args []string) int {
 	}
 
 	// This command will not write state
-	c.ignoreRemoteVersionConflict(b)
 
 	name := args[0]
 	if !validWorkspaceName(name) {
@@ -157,13 +156,13 @@ func (c *WorkspaceSelectCommand) AutocompleteFlags() complete.Flags {
 
 func (c *WorkspaceSelectCommand) Help() string {
 	helpText := `
-Usage: tofu [global options] workspace select [options] NAME
+Usage: farseek [global options] workspace select [options] NAME
 
-  Select a different OpenTofu workspace.
+  Select a different Farseek workspace.
 
 Options:
 
-    -or-create=false    Create the OpenTofu workspace if it doesn't exist.
+    -or-create=false    Create the Farseek workspace if it doesn't exist.
 
     -var 'foo=bar'      Set a value for one of the input variables in the root
                         module of the configuration. Use this option more than

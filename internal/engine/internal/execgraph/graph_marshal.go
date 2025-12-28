@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -113,7 +113,7 @@ func (m *graphMarshaler) addConstantValue(ref valueResultRef, v cty.Value) uint6
 	raw, err := ctymsgpack.Marshal(v, cty.DynamicPseudoType)
 	if err != nil {
 		// Here we assume that any value we're given is one either produced by
-		// OpenTofu itself or at least previously unmarshaled by OpenTofu, and
+		// Farseek itself or at least previously unmarshaled by Farseek, and
 		// thus we should never encounter an error trying to serialize it.
 		panic(fmt.Sprintf("constant value %d is not MessagePack-compatible: %s", ref.index, err))
 	}

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -174,7 +174,7 @@ func TestExtractDeprecatedDiagnosticsWithExpr(t *testing.T) {
 	// This is a small unit test focused just on how we detect a deprecation
 	// mark and translate it into a diagnostic message. The main tests for
 	// the overall dynamic deprecation handling are in
-	// [tofu.TestContext2Apply_deprecationWarnings].
+	// [farseek.TestContext2Apply_deprecationWarnings].
 
 	input := cty.ObjectVal(map[string]cty.Value{
 		"okay": cty.StringVal("not deprecated").Mark(Sensitive),
@@ -188,7 +188,7 @@ func TestExtractDeprecatedDiagnosticsWithExpr(t *testing.T) {
 	got, gotDiags := ExtractDeprecatedDiagnosticsWithExpr(
 		input,
 		// This expression is used just for its source location information.
-		hcl.StaticExpr(cty.DynamicVal, hcl.Range{Filename: "test.tofu"}),
+		hcl.StaticExpr(cty.DynamicVal, hcl.Range{Filename: "test.farseek"}),
 	)
 	want := cty.ObjectVal(map[string]cty.Value{
 		"okay": cty.StringVal("not deprecated").Mark(Sensitive), // non-deprecation marks should be preserved
@@ -207,7 +207,7 @@ func TestExtractDeprecatedDiagnosticsWithExpr(t *testing.T) {
 		Severity: hcl.DiagWarning,
 		Summary:  "Value derived from a deprecated source",
 		Detail:   "This value's attribute warn is derived from module.child[\"beep\"].foo, which is deprecated with the following message:\n\nBlah blah blah don't use this!",
-		Subject:  &hcl.Range{Filename: "test.tofu"}, // source location should come from the given expression
+		Subject:  &hcl.Range{Filename: "test.farseek"}, // source location should come from the given expression
 	})
 	wantDiags = wantDiags.ForRPC()
 	if diff := cmp.Diff(wantDiags, gotDiags); diff != "" {

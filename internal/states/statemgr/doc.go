@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -12,8 +12,8 @@
 // parts of state for storage.
 //
 // State managers are responsible for ensuring that stored state can be updated
-// safely across multiple, possibly-concurrent OpenTofu runs (with reasonable
-// constraints and limitations). The rest of OpenTofu considers state to be
+// safely across multiple, possibly-concurrent Farseek runs (with reasonable
+// constraints and limitations). The rest of Farseek considers state to be
 // a mutable data structure, with state managers preserving that illusion
 // by creating snapshots of the state and updating them over time.
 //

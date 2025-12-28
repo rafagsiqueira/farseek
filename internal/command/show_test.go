@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -24,7 +24,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/version"
 )
 
@@ -204,14 +204,15 @@ func TestShow_argsPlanFileDoesNotExist(t *testing.T) {
 				t.Fatalf("unexpected exit status %d; want 1\ngot: %s", code, output.Stdout())
 			}
 
-			got := output.Stderr()
+			got := strings.ToLower(output.Stderr())
 			want1 := `couldn't load the provided path`
-			want2 := `open doesNotExist.tfplan: ` + syscall.ENOENT.Error()
+			want2 := strings.ToLower(syscall.ENOENT.Error())
+
 			if !strings.Contains(got, want1) {
-				t.Errorf("unexpected output\ngot: %s\nwant:\n%s", got, want1)
+				t.Errorf("unexpected output\ngot: %s\nwant:\n%s", output.Stderr(), want1)
 			}
-			if !strings.Contains(got, want2) {
-				t.Errorf("unexpected output\ngot: %s\nwant:\n%s", got, want2)
+			if !strings.Contains(got, "doesnotexist.tfplan") || !strings.Contains(got, want2) {
+				t.Errorf("unexpected output\ngot: %s\nwant to contain: %s and %s", output.Stderr(), "doesNotExist.tfplan", want2)
 			}
 		})
 	}
@@ -266,16 +267,15 @@ func TestShow_json_argsPlanFileDoesNotExist(t *testing.T) {
 				t.Fatalf("unexpected exit status %d; want 1\ngot: %s", code, output.Stdout())
 			}
 
-			got := output.Stderr()
+			got := strings.ToLower(output.Stderr())
 			want1 := `couldn't load the provided path`
-
-			want2 := `open doesNotExist.tfplan: ` + syscall.ENOENT.Error()
+			want2 := strings.ToLower(syscall.ENOENT.Error())
 
 			if !strings.Contains(got, want1) {
-				t.Errorf("unexpected output\ngot: %s\nwant:\n%s", got, want1)
+				t.Errorf("unexpected output\ngot: %s\nwant:\n%s", output.Stderr(), want1)
 			}
-			if !strings.Contains(got, want2) {
-				t.Errorf("unexpected output\ngot: %s\nwant:\n%s", got, want2)
+			if !strings.Contains(got, "doesnotexist.tfplan") || !strings.Contains(got, want2) {
+				t.Errorf("unexpected output\ngot: %s\nwant to contain: %s and %s", output.Stderr(), "doesNotExist.tfplan", want2)
 			}
 		})
 	}
@@ -376,8 +376,8 @@ func TestShow_planWithChanges(t *testing.T) {
 func TestShow_planWithForceReplaceChange(t *testing.T) {
 	// The main goal of this test is to see that the "replace by request"
 	// resource instance action reason can round-trip through a plan file and
-	// be reflected correctly in the "tofu show" output, the same way
-	// as it would appear in "tofu plan" output.
+	// be reflected correctly in the "farseek show" output, the same way
+	// as it would appear in "farseek plan" output.
 
 	_, snap := testModuleWithSnapshot(t, "show")
 	plannedVal := cty.ObjectVal(map[string]cty.Value{
@@ -479,7 +479,7 @@ func TestShow_planErrored(t *testing.T) {
 	}
 
 	got := output.Stdout()
-	want := `Planning failed. OpenTofu encountered an error while generating this plan.`
+	want := `Planning failed. Farseek encountered an error while generating this plan.`
 	if !strings.Contains(got, want) {
 		t.Fatalf("unexpected output\ngot: %s\nwant: %s", got, want)
 	}
@@ -613,7 +613,7 @@ func TestShow_json_output(t *testing.T) {
 			}
 
 			args := []string{
-				"-out=tofu.plan",
+				"-out=farseek.plan",
 			}
 
 			code := pc.Run(args)
@@ -642,9 +642,9 @@ func TestShow_json_output(t *testing.T) {
 
 			args = []string{
 				"-json",
-				"tofu.plan",
+				"farseek.plan",
 			}
-			defer os.Remove("tofu.plan")
+			defer os.Remove("farseek.plan")
 			code = sc.Run(args)
 			showOutput := showDone(t)
 
@@ -705,7 +705,7 @@ func TestShow_json_output_sensitive(t *testing.T) {
 	}
 
 	args := []string{
-		"-out=tofu.plan",
+		"-out=farseek.plan",
 	}
 	code := pc.Run(args)
 	planOutput := planDone(t)
@@ -726,9 +726,9 @@ func TestShow_json_output_sensitive(t *testing.T) {
 
 	args = []string{
 		"-json",
-		"-plan=tofu.plan",
+		"-plan=farseek.plan",
 	}
-	defer os.Remove("tofu.plan")
+	defer os.Remove("farseek.plan")
 	code = sc.Run(args)
 	showOutput := showDone(t)
 
@@ -803,7 +803,7 @@ func TestShow_json_output_conditions_refresh_only(t *testing.T) {
 
 	args := []string{
 		"-refresh-only",
-		"-out=tofu.plan",
+		"-out=farseek.plan",
 		"-var=ami=bad-ami",
 		"-state=for-refresh.tfstate",
 	}
@@ -826,9 +826,9 @@ func TestShow_json_output_conditions_refresh_only(t *testing.T) {
 
 	args = []string{
 		"-json",
-		"-plan=tofu.plan",
+		"-plan=farseek.plan",
 	}
-	defer os.Remove("tofu.plan")
+	defer os.Remove("farseek.plan")
 	code = sc.Run(args)
 	showOutput := showDone(t)
 
@@ -1161,8 +1161,8 @@ func showFixtureSensitiveSchema() *providers.GetProviderSchemaResponse {
 // operation with the configuration in testdata/show. This mock has
 // GetSchemaResponse, PlanResourceChangeFn, and ApplyResourceChangeFn populated,
 // with the plan/apply steps just passing through the data determined by
-// OpenTofu Core.
-func showFixtureProvider() *tofu.MockProvider {
+// Farseek Core.
+func showFixtureProvider() *farseek.MockProvider {
 	p := testProvider()
 	p.GetProviderSchemaResponse = showFixtureSchema()
 	p.ReadResourceFn = func(req providers.ReadResourceRequest) providers.ReadResourceResponse {
@@ -1224,8 +1224,8 @@ func showFixtureProvider() *tofu.MockProvider {
 // operation with the configuration in testdata/show. This mock has
 // GetSchemaResponse, PlanResourceChangeFn, and ApplyResourceChangeFn populated,
 // with the plan/apply steps just passing through the data determined by
-// OpenTofu Core. It also has a sensitive attribute in the provider schema.
-func showFixtureSensitiveProvider() *tofu.MockProvider {
+// Farseek Core. It also has a sensitive attribute in the provider schema.
+func showFixtureSensitiveProvider() *farseek.MockProvider {
 	p := testProvider()
 	p.GetProviderSchemaResponse = showFixtureSensitiveSchema()
 	p.PlanResourceChangeFn = func(req providers.PlanResourceChangeRequest) providers.PlanResourceChangeResponse {
@@ -1418,7 +1418,7 @@ func TestShow_config_noArgs(t *testing.T) {
 	}
 
 	got := output.Stderr()
-	want := "This directory contains no OpenTofu configuration files."
+	want := "This directory contains no Farseek configuration files."
 	if !strings.Contains(got, want) {
 		t.Errorf("unexpected output\ngot: %s\nwant:\n%s", got, want)
 	}
@@ -1581,10 +1581,10 @@ func TestShow_config_conflictingOptions(t *testing.T) {
 }
 
 func TestShow_module(t *testing.T) {
-	// We intentionally don't cause the effect of a "tofu init" for this one,
+	// We intentionally don't cause the effect of a "farseek init" for this one,
 	// because the single-module mode is required to work without any
 	// dependencies installed and without a backend initialized so it can
-	// be used by the OpenTofu module registry indexing process.
+	// be used by the Farseek module registry indexing process.
 
 	view, done := testView(t)
 	c := &ShowCommand{

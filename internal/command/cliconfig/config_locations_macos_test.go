@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -34,8 +34,8 @@ func TestConfigFileLocations(t *testing.T) {
 	tests := []locationTest{
 		{
 			locationTestParameters: locationTestParameters{
-				name:  ".tofurc only",
-				files: []string{filepath.Join(home, ".tofurc")},
+				name:  ".farseekrc only",
+				files: []string{filepath.Join(home, ".farseekrc")},
 			},
 			expected: map[string]*ConfigHost{
 				"config0.example.com": {
@@ -60,8 +60,8 @@ func TestConfigFileLocations(t *testing.T) {
 		},
 		{
 			locationTestParameters: locationTestParameters{
-				name:  ".terraformrc and .tofurc",
-				files: []string{filepath.Join(home, ".terraformrc"), filepath.Join(home, ".tofurc")},
+				name:  ".terraformrc and .farseekrc",
+				files: []string{filepath.Join(home, ".terraformrc"), filepath.Join(home, ".farseekrc")},
 			},
 			expected: map[string]*ConfigHost{
 				"config1.example.com": {
@@ -78,8 +78,8 @@ func TestConfigFileLocations(t *testing.T) {
 		},
 		{
 			locationTestParameters: locationTestParameters{
-				name:        "xdg directory, but with .tofurc and .terraformrc present",
-				files:       []string{filepath.Join(home, ".terraformrc"), filepath.Join(home, ".tofurc"), filepath.Join(xdgDir, "opentofu", "tofurc")},
+				name:        "xdg directory, but with .farseekrc and .terraformrc present",
+				files:       []string{filepath.Join(home, ".terraformrc"), filepath.Join(home, ".farseekrc"), filepath.Join(xdgDir, "farseek", "farseekrc")},
 				directories: []string{xdgDir},
 				envVars:     map[string]string{"XDG_CONFIG_HOME": xdgDir},
 			},
@@ -103,8 +103,8 @@ func TestConfigFileLocations(t *testing.T) {
 		},
 		{
 			locationTestParameters: locationTestParameters{
-				name:        "xdg directory without .tofurc and .terraformrc present",
-				files:       []string{filepath.Join(xdgDir, "opentofu", "tofurc")},
+				name:        "xdg directory without .farseekrc and .terraformrc present",
+				files:       []string{filepath.Join(xdgDir, "farseek", "farseekrc")},
 				directories: []string{xdgDir},
 				envVars:     map[string]string{"XDG_CONFIG_HOME": xdgDir},
 			},
@@ -119,8 +119,8 @@ func TestConfigFileLocations(t *testing.T) {
 		{
 			locationTestParameters: locationTestParameters{
 				name:    "ignore everything else when env override is present",
-				files:   []string{filepath.Join(home, "mytofufile"), filepath.Join(home, ".terraformrc"), filepath.Join(home, ".tofurc")},
-				envVars: map[string]string{"TF_CLI_CONFIG_FILE": filepath.Join(home, "mytofufile")},
+				files:   []string{filepath.Join(home, "myfarseekfile"), filepath.Join(home, ".terraformrc"), filepath.Join(home, ".farseekrc")},
+				envVars: map[string]string{"TF_CLI_CONFIG_FILE": filepath.Join(home, "myfarseekfile")},
 			},
 			expected: map[string]*ConfigHost{
 				"config0.example.com": {
@@ -200,7 +200,7 @@ func TestConfigDirLocations(t *testing.T) {
 				envVars:     map[string]string{"XDG_CONFIG_HOME": xdgDir},
 				directories: []string{xdgDir},
 			},
-			expected: []string{filepath.Join(xdgDir, "opentofu")},
+			expected: []string{filepath.Join(xdgDir, "farseek")},
 		},
 		{
 			locationTestParameters: locationTestParameters{
@@ -258,7 +258,7 @@ func TestDataDirLocations(t *testing.T) {
 				name:    "xdg directory",
 				envVars: map[string]string{"XDG_DATA_HOME": xdgDir},
 			},
-			expected: []string{terraformD, filepath.Join(xdgDir, "opentofu")},
+			expected: []string{terraformD, filepath.Join(xdgDir, "farseek")},
 		},
 	}
 	for _, test := range tests {

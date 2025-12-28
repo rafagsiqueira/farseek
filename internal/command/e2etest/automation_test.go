@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -27,7 +27,7 @@ func TestPlanApplyInAutomation(t *testing.T) {
 	skipIfCannotAccessNetwork(t)
 
 	fixturePath := filepath.Join("testdata", "full-workflow-null")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	// We advertise that _any_ non-empty value works, so we'll test something
 	// unconventional here.
@@ -134,7 +134,7 @@ func TestAutoApplyInAutomation(t *testing.T) {
 	skipIfCannotAccessNetwork(t)
 
 	fixturePath := filepath.Join("testdata", "full-workflow-null")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	// We advertise that _any_ non-empty value works, so we'll test something
 	// unconventional here.
@@ -200,7 +200,7 @@ func TestPlanOnlyInAutomation(t *testing.T) {
 	skipIfCannotAccessNetwork(t)
 
 	fixturePath := filepath.Join("testdata", "full-workflow-null")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
 	// We advertise that _any_ non-empty value works, so we'll test something
 	// unconventional here.
@@ -234,9 +234,9 @@ func TestPlanOnlyInAutomation(t *testing.T) {
 	}
 
 	// Because we're running with TF_IN_AUTOMATION set, we should not see
-	// any mention of the "tofu apply" command in the output.
-	if strings.Contains(stdout, "tofu apply") {
-		t.Errorf("unwanted mention of \"tofu apply\" in plan output\n%s", stdout)
+	// any mention of the "farseek apply" command in the output.
+	if strings.Contains(stdout, "farseek apply") {
+		t.Errorf("unwanted mention of \"farseek apply\" in plan output\n%s", stdout)
 	}
 
 	if tf.FileExists("tfplan") {

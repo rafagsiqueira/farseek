@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -13,7 +13,7 @@ import (
 
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/version"
 )
 
@@ -52,7 +52,7 @@ func RefreshAndRead(ctx context.Context, mgr Storage) (*states.State, error) {
 // out quickly with a user-facing error. In situations where more control
 // is required, call WriteState and PersistState on the state manager directly
 // and handle their errors.
-func WriteAndPersist(ctx context.Context, mgr Storage, state *states.State, schemas *tofu.Schemas) error {
+func WriteAndPersist(ctx context.Context, mgr Storage, state *states.State, schemas *farseek.Schemas) error {
 	err := mgr.WriteState(state)
 	if err != nil {
 		return err

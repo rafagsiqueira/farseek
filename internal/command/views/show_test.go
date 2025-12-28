@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -7,14 +7,13 @@ package views
 
 import (
 	"encoding/json"
-	"os"
 	"strings"
 	"testing"
 
 	"github.com/zclconf/go-cty/cty"
 
 	"github.com/rafagsiqueira/farseek/internal/addrs"
-	"github.com/rafagsiqueira/farseek/internal/cloud/cloudplan"
+
 	"github.com/rafagsiqueira/farseek/internal/command/arguments"
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
 	"github.com/rafagsiqueira/farseek/internal/initwd"
@@ -23,45 +22,23 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
 	"github.com/rafagsiqueira/farseek/internal/terminal"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func TestShowHuman_DisplayPlan(t *testing.T) {
-	redactedPath := "./testdata/plans/redacted-plan.json"
-	redactedPlanJson, err := os.ReadFile(redactedPath)
-	if err != nil {
-		t.Fatalf("couldn't read json plan test data at %s for showing a cloud plan. Did the file get moved?", redactedPath)
-	}
 	testCases := map[string]struct {
 		plan       *plans.Plan
-		jsonPlan   *cloudplan.RemotePlanJSON
-		schemas    *tofu.Schemas
+		schemas    *farseek.Schemas
 		wantExact  bool
 		wantString string
 	}{
 		"plan file": {
 			testPlan(t),
-			nil,
 			testSchemas(),
 			false,
 			"# test_resource.foo will be created",
 		},
-		"cloud plan file": {
-			nil,
-			&cloudplan.RemotePlanJSON{
-				JSONBytes: redactedPlanJson,
-				Redacted:  true,
-				Mode:      plans.NormalMode,
-				Qualities: []plans.Quality{},
-				RunHeader: "[reset][yellow]To view this run in a browser, visit:\nhttps://app.example.com/app/example_org/example_workspace/runs/run-run-bugsBUGSbugsBUGS[reset]",
-				RunFooter: "[reset][green]Run status: planned and saved (confirmable)[reset]\n[green]Workspace is unlocked[reset]",
-			},
-			nil,
-			false,
-			"# null_resource.foo will be created",
-		},
 		"nothing": {
-			nil,
 			nil,
 			nil,
 			true,
@@ -75,7 +52,7 @@ func TestShowHuman_DisplayPlan(t *testing.T) {
 			view.Configure(&arguments.View{NoColor: true})
 			v := NewShow(arguments.ViewHuman, view)
 
-			code := v.DisplayPlan(t.Context(), testCase.plan, testCase.jsonPlan, nil, nil, testCase.schemas)
+			code := v.DisplayPlan(t.Context(), testCase.plan, nil, nil, testCase.schemas)
 			if code != 0 {
 				t.Errorf("expected 0 return code, got %d", code)
 			}
@@ -93,7 +70,7 @@ func TestShowHuman_DisplayPlan(t *testing.T) {
 func TestShowHuman_DisplayState(t *testing.T) {
 	testCases := map[string]struct {
 		stateFile  *statefile.File
-		schemas    *tofu.Schemas
+		schemas    *farseek.Schemas
 		wantExact  bool
 		wantString string
 	}{
@@ -147,35 +124,15 @@ func TestShowHuman_DisplayState(t *testing.T) {
 }
 
 func TestShowJSON_DisplayPlan(t *testing.T) {
-	unredactedPath := "../testdata/show-json/basic-create/output.json"
-	unredactedPlanJson, err := os.ReadFile(unredactedPath)
-	if err != nil {
-		t.Fatalf("couldn't read json plan test data at %s for showing a cloud plan. Did the file get moved?", unredactedPath)
-	}
 	testCases := map[string]struct {
 		plan      *plans.Plan
-		jsonPlan  *cloudplan.RemotePlanJSON
 		stateFile *statefile.File
 	}{
 		"plan file": {
 			testPlan(t),
 			nil,
-			nil,
-		},
-		"cloud plan file": {
-			nil,
-			&cloudplan.RemotePlanJSON{
-				JSONBytes: unredactedPlanJson,
-				Redacted:  false,
-				Mode:      plans.NormalMode,
-				Qualities: []plans.Quality{},
-				RunHeader: "[reset][yellow]To view this run in a browser, visit:\nhttps://app.example.com/app/example_org/example_workspace/runs/run-run-bugsBUGSbugsBUGS[reset]",
-				RunFooter: "[reset][green]Run status: planned and saved (confirmable)[reset]\n[green]Workspace is unlocked[reset]",
-			},
-			nil,
 		},
 		"statefile": {
-			nil,
 			nil,
 			&statefile.File{
 				Serial:  0,
@@ -185,7 +142,6 @@ func TestShowJSON_DisplayPlan(t *testing.T) {
 		},
 		"empty statefile": {
 			nil,
-			nil,
 			&statefile.File{
 				Serial:  0,
 				Lineage: "fake-for-testing",
@@ -193,7 +149,6 @@ func TestShowJSON_DisplayPlan(t *testing.T) {
 			},
 		},
 		"nothing": {
-			nil,
 			nil,
 			nil,
 		},
@@ -208,7 +163,7 @@ func TestShowJSON_DisplayPlan(t *testing.T) {
 			view.Configure(&arguments.View{NoColor: true})
 			v := NewShow(arguments.ViewJSON, view)
 
-			schemas := &tofu.Schemas{
+			schemas := &farseek.Schemas{
 				Providers: map[addrs.Provider]providers.ProviderSchema{
 					addrs.NewDefaultProvider("test"): {
 						ResourceTypes: map[string]providers.Schema{
@@ -225,7 +180,7 @@ func TestShowJSON_DisplayPlan(t *testing.T) {
 				},
 			}
 
-			code := v.DisplayPlan(t.Context(), testCase.plan, testCase.jsonPlan, config, testCase.stateFile, schemas)
+			code := v.DisplayPlan(t.Context(), testCase.plan, config, testCase.stateFile, schemas)
 
 			if code != 0 {
 				t.Errorf("expected 0 return code, got %d", code)
@@ -273,7 +228,7 @@ func TestShowJSON_DisplayState(t *testing.T) {
 			view.Configure(&arguments.View{NoColor: true})
 			v := NewShow(arguments.ViewJSON, view)
 
-			schemas := &tofu.Schemas{
+			schemas := &farseek.Schemas{
 				Providers: map[addrs.Provider]providers.ProviderSchema{
 					addrs.NewDefaultProvider("test"): {
 						ResourceTypes: map[string]providers.Schema{

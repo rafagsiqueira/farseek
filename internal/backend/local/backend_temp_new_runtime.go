@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -43,10 +43,10 @@ import (
 // responsible for updating this if the rest of the system evolves to the point
 // of that being necessary.
 //
-// Note that "tofu validate" is implemented outside of the backend abstraction
+// Note that "farseek validate" is implemented outside of the backend abstraction
 // and so does not respond to the experiment opt-in environment variable. For
 // now, try out validation-related behaviors of the new runtime through
-// "tofu plan" instead, which should implement a superset of the validation
+// "farseek plan" instead, which should implement a superset of the validation
 // behavior.
 /////////////////////////
 
@@ -56,11 +56,11 @@ import (
 //
 // In practice this is called by code in the "command" package early in the
 // backend initialization codepath and enables the experimental runtime only
-// in an experiments-enabled OpenTofu build, to make sure that it's not
+// in an experiments-enabled Farseek build, to make sure that it's not
 // possible to accidentally enable this experimental functionality in normal
 // release builds.
 //
-// Refer to "cmd/tofu/experiments.go" for information on how to produce an
+// Refer to "cmd/farseek/experiments.go" for information on how to produce an
 // experiments-enabled build.
 func SetExperimentalRuntimeAllowed(allowed bool) {
 	experimentalRuntimeAllowed.Store(allowed)
@@ -109,7 +109,7 @@ func (b *Local) opPlanWithExperimentalRuntime(stopCtx context.Context, cancelCtx
 			"Plan requires configuration to be present. Planning without a configuration would "+
 				"mark everything for destruction, which is normally not what is desired. If you "+
 				"would like to destroy everything, run plan with the -destroy option. Otherwise, "+
-				"create a OpenTofu configuration file (.tf file) and try again.",
+				"create a Farseek configuration file (.tf file) and try again.",
 		))
 		op.ReportResult(runningOp, diags)
 		return
@@ -239,7 +239,7 @@ func (b *Local) opPlanWithExperimentalRuntime(stopCtx context.Context, cancelCtx
 	// If we've accumulated any diagnostics along the way then we'll show them
 	// here just before we show the summary and next steps. This can potentially
 	// include errors, because we intentionally try to show a partial plan
-	// above even if OpenTofu Core encountered an error partway through
+	// above even if Farseek Core encountered an error partway through
 	// creating it.
 	op.ReportResult(runningOp, diags)
 
@@ -258,7 +258,7 @@ func (b *Local) opApplyWithExperimentalRuntime(stopCtx context.Context, cancelCt
 	diags = diags.Append(tfdiags.Sourceless(
 		tfdiags.Error,
 		"Operation unsupported in experimental language runtime",
-		"The command \"tofu apply\" is not yet supported under the experimental language runtime.",
+		"The command \"farseek apply\" is not yet supported under the experimental language runtime.",
 	))
 	op.ReportResult(runningOp, diags)
 }
@@ -269,13 +269,13 @@ func (b *Local) opRefreshWithExperimentalRuntime(stopCtx context.Context, cancel
 	diags = diags.Append(tfdiags.Sourceless(
 		tfdiags.Error,
 		"Operation unsupported in experimental language runtime",
-		"The command \"tofu refresh\" is not yet supported under the experimental language runtime.",
+		"The command \"farseek refresh\" is not yet supported under the experimental language runtime.",
 	))
 	op.ReportResult(runningOp, diags)
 }
 
 // newRuntimeModules is an implementation of [eval.ExternalModules] that makes
-// a best effort to shim to OpenTofu's current module loader, even though
+// a best effort to shim to Farseek's current module loader, even though
 // it works in some slightly-different terms than this new API expects.
 type newRuntimeModules struct {
 	loader *configload.Loader

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -19,7 +19,7 @@ import (
 // whose behavior depends on configuration.
 
 // ModuleFromStringForTesting interprets the given string as if it were the
-// content of a ".tofu" file in a module directory, parsing and decoding it
+// content of a ".farseek" file in a module directory, parsing and decoding it
 // as a single-file module.
 //
 // Note that THIS FUNCTION DOES NOT PERFORM EARLY EVALUATION. This is intended

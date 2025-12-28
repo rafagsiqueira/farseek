@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -12,7 +12,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/e2e"
 )
 
-// TestProviderDevOverrides is a test that tofu can execute a 3rd party
+// TestProviderDevOverrides is a test that farseek can execute a 3rd party
 // provisioner plugin.
 func TestProvisioner(t *testing.T) {
 	t.Parallel()
@@ -22,7 +22,7 @@ func TestProvisioner(t *testing.T) {
 	// allowed.
 	skipIfCannotAccessNetwork(t)
 
-	tf := e2e.NewBinary(t, tofuBin, "testdata/provisioner")
+	tf := e2e.NewBinary(t, farseekBin, "testdata/provisioner")
 
 	//// INIT
 	_, stderr, err := tf.Run("init")

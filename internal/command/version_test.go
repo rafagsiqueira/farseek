@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -60,7 +60,7 @@ func TestVersion(t *testing.T) {
 	}
 
 	actual := strings.TrimSpace(ui.OutputWriter.String())
-	expected := "OpenTofu v4.5.6-foo\non aros_riscv64\n+ provider registry.opentofu.org/hashicorp/test1 v7.8.9-beta.2\n+ provider registry.opentofu.org/hashicorp/test2 v1.2.3"
+	expected := "Farseek v4.5.6-foo\non aros_riscv64\n+ provider registry.opentofu.org/hashicorp/test1 v7.8.9-beta.2\n+ provider registry.opentofu.org/hashicorp/test2 v1.2.3"
 	if actual != expected {
 		t.Fatalf("wrong output\ngot:\n%s\nwant:\n%s", actual, expected)
 	}
@@ -73,7 +73,7 @@ func TestVersion_flags(t *testing.T) {
 		Ui: ui,
 	}
 
-	// `tofu version`
+	// `farseek version`
 	c := &VersionCommand{
 		Meta:              m,
 		Version:           "4.5.6",
@@ -86,7 +86,7 @@ func TestVersion_flags(t *testing.T) {
 	}
 
 	actual := strings.TrimSpace(ui.OutputWriter.String())
-	expected := "OpenTofu v4.5.6-foo\non aros_riscv64"
+	expected := "Farseek v4.5.6-foo\non aros_riscv64"
 	if actual != expected {
 		t.Fatalf("wrong output\ngot: %#v\nwant: %#v", actual, expected)
 	}
@@ -101,7 +101,7 @@ func TestVersion_json(t *testing.T) {
 		Ui: ui,
 	}
 
-	// `tofu version -json` without prerelease
+	// `farseek version -json` without prerelease
 	c := &VersionCommand{
 		Meta:     meta,
 		Version:  "4.5.6",
@@ -143,7 +143,7 @@ func TestVersion_json(t *testing.T) {
 		nil,
 	)
 
-	// `tofu version -json` with prerelease and provider dependencies
+	// `farseek version -json` with prerelease and provider dependencies
 	c = &VersionCommand{
 		Meta:              meta,
 		Version:           "4.5.6",

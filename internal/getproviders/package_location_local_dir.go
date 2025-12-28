@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -17,7 +17,7 @@ import (
 // PackageLocalDir is the location of a directory containing an unpacked
 // provider distribution archive in the local filesystem. Its value is a local
 // filesystem path using the syntax understood by Go's standard path/filepath
-// package on the operating system where OpenTofu is running.
+// package on the operating system where Farseek is running.
 type PackageLocalDir string
 
 var _ PackageLocation = PackageLocalDir("")

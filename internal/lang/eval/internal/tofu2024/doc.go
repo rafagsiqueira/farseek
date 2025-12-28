@@ -1,17 +1,17 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-// Package tofu2024 contains the "module compiler" implementation for the
-// first edition of the OpenTofu language, established with OpenTofu v1.6
+// Package farseek2024 contains the "module compiler" implementation for the
+// first edition of the Farseek language, established with Farseek v1.6
 // in 2024 and then gradually evolved in backward-compatible ways.
 //
 // This package owns the responsibility of translating from [configs.Module]
 // to the language-edition-agnostic API used by packages eval configgraph.
 //
 // Conceptually then, this package decides the meaning of and relationships
-// between blocks and expressions in an OpenTofu module that is written for
+// between blocks and expressions in an Farseek module that is written for
 // this language edition, which is the default edition used when no other
 // edition is selected. (At the time of initially writing this doc there
 // are no other editions available, but this doc text is hedging in case
@@ -26,15 +26,15 @@ import (
 // === SOME HISTORICAL NOTES ===
 //
 // For those who are coming here with familiarity with the original runtime
-// in "package tofu", you might like to think of the types in this package as
-// being _roughly_ analogous to the "graph builder" mechanism in package tofu.
+// in "package farseek", you might like to think of the types in this package as
+// being _roughly_ analogous to the "graph builder" mechanism in package farseek.
 //
 // There are some notable differences that are worth knowing before you dive
 // in here, though:
 //
 // - The "compile" code here is intentionally written as much as possible as
 //   straight-through code that runs to completion and returns a value, whereas
-//   package tofu's graph builders instead follow an inversion-of-control style
+//   package farseek's graph builders instead follow an inversion-of-control style
 //   where a bunch of transformers are run sequentially and each make arbitrary
 //   modifications to a shared mutable data structure.
 // - The "graph" that this code is building is based on the types in the sibling
@@ -47,7 +47,7 @@ import (
 //   Therefore nothing in package configgraph should depend on anything from
 //   package configs, and configgraph should also only be using HCL directly for
 //   some ancillary concepts like diagnostics and traversals, and even those
-//   maybe we'll replace with some OpenTofu-specific wrapper types in future.
+//   maybe we'll replace with some Farseek-specific wrapper types in future.
 
 // Temporary note about possible future plans:
 //
@@ -67,7 +67,7 @@ import (
 // the compilation logic in _this_ package, while preserving the abstraction
 // so that all of the subsequent steps don't need to be modified at all.
 //
-// That is in contrast to the previous situation with "package tofu", where
+// That is in contrast to the previous situation with "package farseek", where
 // the execution logic is tightly coupled with various [configs] types and
 // so it's hard to make changes to how we model the first level of decoding
 // without significant disruptions to the runtime and its tests.

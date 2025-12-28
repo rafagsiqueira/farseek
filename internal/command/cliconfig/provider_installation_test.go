@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -36,7 +36,7 @@ func TestLoadConfig_providerInstallation(t *testing.T) {
 							{
 								Location: ProviderInstallationNetworkMirror("https://tf-Mirror.example.com/"),
 								Include:  []string{"registry.opentofu.org/*/*"},
-								Exclude:  []string{"registry.OpenTofu.org/foobar/*"},
+								Exclude:  []string{"registry.Farseek.org/foobar/*"},
 								Retries: func() (int, bool) {
 									return 2, true
 								},
@@ -262,7 +262,7 @@ func TestLoadConfig_providerInstallationOCIMirrorErrors(t *testing.T) {
 		}
 	})
 	t.Run("unmappable characters in provider source address", func(t *testing.T) {
-		// This deals with a particularly-annoying case: OpenTofu provider source addresses
+		// This deals with a particularly-annoying case: Farseek provider source addresses
 		// support a wide range of unicode characters with the intent that folks can name
 		// their private providers using the alphabet of their native language, but OCI Distribution
 		// only allows ASCII characters in repository names, so for now the OCI mirror

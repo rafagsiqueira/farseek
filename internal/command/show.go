@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -13,8 +13,7 @@ import (
 	"strings"
 
 	"github.com/rafagsiqueira/farseek/internal/backend"
-	"github.com/rafagsiqueira/farseek/internal/cloud"
-	"github.com/rafagsiqueira/farseek/internal/cloud/cloudplan"
+
 	"github.com/rafagsiqueira/farseek/internal/command/arguments"
 	"github.com/rafagsiqueira/farseek/internal/command/views"
 	"github.com/rafagsiqueira/farseek/internal/configs"
@@ -24,7 +23,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/internal/tracing"
 	"github.com/rafagsiqueira/farseek/internal/tracing/traceattrs"
 )
@@ -48,7 +47,7 @@ func (e *errUnusableDataMisc) Unwrap() error {
 }
 
 // ShowCommand is a Command implementation that reads and outputs the
-// contents of a OpenTofu plan or state file.
+// contents of a Farseek plan or state file.
 // write about config here
 type ShowCommand struct {
 	Meta
@@ -108,7 +107,7 @@ func (c *ShowCommand) Run(rawArgs []string) int {
 	renderResult, showDiags := c.show(ctx, args.TargetType, args.TargetArg, enc)
 	diags = diags.Append(showDiags)
 	if showDiags.HasErrors() {
-		// "tofu show" intentionally ignores warnings unless there is at
+		// "farseek show" intentionally ignores warnings unless there is at
 		// least one error, because view.Diagnostics produces human output
 		// even in the JSON view and so would cause the JSON output to
 		// be invalid if only warnings were returned.
@@ -121,9 +120,9 @@ func (c *ShowCommand) Run(rawArgs []string) int {
 
 func (c *ShowCommand) Help() string {
 	helpText := `
-Usage: tofu [global options] show [target-selection-option] [other-options]
+Usage: farseek [global options] show [target-selection-option] [other-options]
 
-  Reads and outputs a OpenTofu state or plan file in a human-readable
+  Reads and outputs a Farseek state or plan file in a human-readable
   form. If no path is specified, the current state will be shown.
 
 Target selection options:
@@ -214,7 +213,6 @@ func (c *ShowCommand) showFromLatestStateSnapshot(ctx context.Context, enc encry
 	if backendDiags.HasErrors() {
 		return nil, diags
 	}
-	c.ignoreRemoteVersionConflict(b)
 
 	// Load the workspace
 	workspace, err := c.Workspace(ctx)
@@ -252,7 +250,7 @@ func (c *ShowCommand) showFromSavedPlanFile(ctx context.Context, filename string
 		return nil, diags
 	}
 
-	plan, jsonPlan, stateFile, config, err := c.getPlanFromPath(ctx, filename, enc, rootCall)
+	plan, stateFile, config, err := c.getPlanFromPath(ctx, filename, enc, rootCall)
 	if err != nil {
 		diags = diags.Append(err)
 		return nil, diags
@@ -265,7 +263,7 @@ func (c *ShowCommand) showFromSavedPlanFile(ctx context.Context, filename string
 	}
 
 	return func(view views.Show) int {
-		return view.DisplayPlan(ctx, plan, jsonPlan, config, stateFile, schemas)
+		return view.DisplayPlan(ctx, plan, config, stateFile, schemas)
 	}, diags
 }
 
@@ -273,7 +271,7 @@ func (c *ShowCommand) legacyShowFromPath(ctx context.Context, path string, enc e
 	var diags tfdiags.Diagnostics
 	var planErr, stateErr error
 	var plan *plans.Plan
-	var jsonPlan *cloudplan.RemotePlanJSON
+
 	var stateFile *statefile.File
 	var config *configs.Config
 
@@ -286,11 +284,10 @@ func (c *ShowCommand) legacyShowFromPath(ctx context.Context, path string, enc e
 		return nil, diags
 	}
 
-	// Path might be a local plan file, a bookmark to a saved cloud plan, or a
-	// state file. First, try to get a plan and associated data from a local
-	// plan file. If that fails, try to get a json plan from the path argument.
+	// Path might be a local plan file or a state file. First, try to get a plan
+	// and associated data from a local plan file.
 	// If that fails, try to get the statefile from the path argument.
-	plan, jsonPlan, stateFile, config, planErr = c.getPlanFromPath(ctx, path, enc, rootCall)
+	plan, stateFile, config, planErr = c.getPlanFromPath(ctx, path, enc, rootCall)
 	if planErr != nil {
 		stateFile, stateErr = getStateFromPath(path, enc)
 		if stateErr != nil {
@@ -360,9 +357,9 @@ func (c *ShowCommand) legacyShowFromPath(ctx context.Context, path string, enc e
 	// If we successfully loaded some things then the show mode we
 	// choose depends on what we loaded.
 	switch {
-	case plan != nil || jsonPlan != nil:
+	case plan != nil:
 		return func(view views.Show) int {
-			return view.DisplayPlan(ctx, plan, jsonPlan, config, stateFile, schemas)
+			return view.DisplayPlan(ctx, plan, config, stateFile, schemas)
 		}, diags
 	default:
 		// We treat all other cases as a state, and DisplayState
@@ -373,58 +370,35 @@ func (c *ShowCommand) legacyShowFromPath(ctx context.Context, path string, enc e
 	}
 }
 
-// getPlanFromPath returns a plan, json plan, statefile, and config if the
-// user-supplied path points to either a local or cloud plan file. Note that
+// getPlanFromPath returns a plan, statefile, and config if the
+// user-supplied path points to a local plan file. Note that
 // some of the return values will be nil no matter what; local plan files do not
 // yield a json plan, and cloud plans do not yield real plan/state/config
 // structs. An error generally suggests that the given path is either a
 // directory or a statefile.
-func (c *ShowCommand) getPlanFromPath(ctx context.Context, path string, enc encryption.Encryption, rootCall configs.StaticModuleCall) (*plans.Plan, *cloudplan.RemotePlanJSON, *statefile.File, *configs.Config, error) {
+func (c *ShowCommand) getPlanFromPath(ctx context.Context, path string, enc encryption.Encryption, rootCall configs.StaticModuleCall) (*plans.Plan, *statefile.File, *configs.Config, error) {
 	var err error
 	var plan *plans.Plan
-	var jsonPlan *cloudplan.RemotePlanJSON
 	var stateFile *statefile.File
 	var config *configs.Config
 
 	pf, err := planfile.OpenWrapped(path, enc.Plan())
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	if lp, ok := pf.Local(); ok {
 		plan, stateFile, config, err = getDataFromPlanfileReader(ctx, lp, rootCall)
-	} else if cp, ok := pf.Cloud(); ok {
-		redacted := c.viewType != arguments.ViewJSON
-		jsonPlan, err = c.getDataFromCloudPlan(ctx, cp, redacted, enc)
 	}
 
-	return plan, jsonPlan, stateFile, config, err
-}
-
-func (c *ShowCommand) getDataFromCloudPlan(ctx context.Context, plan *cloudplan.SavedPlanBookmark, redacted bool, enc encryption.Encryption) (*cloudplan.RemotePlanJSON, error) {
-	// Set up the backend
-	b, backendDiags := c.Backend(ctx, nil, enc.State())
-	if backendDiags.HasErrors() {
-		return nil, errUnusable(backendDiags.Err(), "cloud plan")
-	}
-	// Cloud plans only work if we're cloud.
-	cl, ok := b.(*cloud.Cloud)
-	if !ok {
-		return nil, errUnusable(fmt.Errorf("can't show a saved cloud plan unless the current root module is connected to Terraform Cloud"), "cloud plan")
-	}
-
-	result, err := cl.ShowPlanForRun(context.Background(), plan.RunID, plan.Hostname, redacted)
-	if err != nil {
-		err = errUnusable(err, "cloud plan")
-	}
-	return result, err
+	return plan, stateFile, config, err
 }
 
 // maybeGetSchemas is a thin wrapper around [Meta.MaybeGetSchemas] that
 // takes a [*statefile.File] instead of a [*states.State] and tolerates
 // the state file being nil, since that's more convenient for the
-// "tofu show" methods that may or may not have a state file to use.
-func (c *ShowCommand) maybeGetSchemas(ctx context.Context, stateFile *statefile.File, config *configs.Config) (*tofu.Schemas, tfdiags.Diagnostics) {
+// "farseek show" methods that may or may not have a state file to use.
+func (c *ShowCommand) maybeGetSchemas(ctx context.Context, stateFile *statefile.File, config *configs.Config) (*farseek.Schemas, tfdiags.Diagnostics) {
 	ctx, span := tracing.Tracer().Start(ctx, "Get Schemas")
 	defer span.End()
 
@@ -515,7 +489,7 @@ func (c *ShowCommand) showConfiguration(ctx context.Context) (showRenderFunc, tf
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			"Error validating configuration directory",
-			fmt.Sprintf("OpenTofu encountered an unexpected error while verifying that the given configuration directory is valid: %s.", err),
+			fmt.Sprintf("Farseek encountered an unexpected error while verifying that the given configuration directory is valid: %s.", err),
 		))
 		return nil, diags
 	}
@@ -523,7 +497,7 @@ func (c *ShowCommand) showConfiguration(ctx context.Context) (showRenderFunc, tf
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			"No configuration files",
-			"This directory contains no OpenTofu configuration files.",
+			"This directory contains no Farseek configuration files.",
 		))
 		return nil, diags
 	}

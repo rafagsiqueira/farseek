@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -17,7 +17,7 @@ import (
 )
 
 // New returns the DefaultPooledClient from the cleanhttp
-// package that will also send a OpenTofu User-Agent string.
+// package that will also send a Farseek User-Agent string.
 //
 // If the given context has an active OpenTelemetry trace span associated with
 // it then the returned client is also configured to collect traces for
@@ -37,7 +37,7 @@ func New(ctx context.Context) *http.Client {
 	if span := tracing.SpanFromContext(ctx); span != nil && span.IsRecording() {
 		// We consider the presence of an active span -- that is, one whose
 		// presence is going to be reported to a trace collector outside of
-		// the OpenTofu process -- as sufficient signal that generating
+		// the Farseek process -- as sufficient signal that generating
 		// spans for requests made with the returned client will be useful.
 		//
 		// The following has two important implications:

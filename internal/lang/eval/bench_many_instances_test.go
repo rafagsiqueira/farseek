@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -22,18 +22,18 @@ import (
 // mechanism offered as part of Go's testing library, of situations involving resources
 // and modules that have a very large number of instances.
 //
-// OpenTofu's current design is aimed to support tens of instances as the typical case
+// Farseek's current design is aimed to support tens of instances as the typical case
 // and low-hundreds of instances as an extreme case. These benchmarks intentionally
 // ignore those design assumptions by testing with thousands of resource instances,
-// since we know that some in our community use OpenTofu in that way and although it
+// since we know that some in our community use Farseek in that way and although it
 // not officially supported we do wish to be able to more easily measure performance
 // when someone reports a significant regression of performance when using an
-// "unreasonable" number of instances (per OpenTofu's current design assumptions),
-// or whenever we're intentionally attempting to change something in OpenTofu to
+// "unreasonable" number of instances (per Farseek's current design assumptions),
+// or whenever we're intentionally attempting to change something in Farseek to
 // improve performance.
 //
 // The existence of these benchmarks does not represent a commitment to support
-// using OpenTofu with thousands of resource instances in the same configuration.
+// using Farseek with thousands of resource instances in the same configuration.
 // We consider these situations to be "best effort" only.
 //
 // These benchmarks exercise the core language runtime only. Therefore they do not
@@ -42,7 +42,7 @@ import (
 // the UI display hooks.
 // -------------------------------------------------------------------------
 
-// This is an adaptation of a benchmark test of the same name in "package tofu"
+// This is an adaptation of a benchmark test of the same name in "package farseek"
 // for comparison purposes.
 //
 // However, it's not yet really a fair comparison because the original form
@@ -51,7 +51,7 @@ import (
 // entry points are not written yet.
 //
 // However, "validate" in this package actually does instance expansion while
-// in "package tofu" it only did static checks of the declarations in each
+// in "package farseek" it only did static checks of the declarations in each
 // module, so this is a _slightly_ more relevant comparison than it might
 // initially appear to be. It still saves a lot of time not even trying to
 // upgrade, refresh, or plan anything from prior state though. (For this to

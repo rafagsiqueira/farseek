@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -16,13 +16,13 @@ import (
 // This type should be used only for settings that would typically remain
 // equivalent throughout an entire validate/plan/apply round, and NOT for
 // phase-specific settings. Specifically, it should be possible for a caller
-// like the OpenTofu CLI layer to construct a single [EvalContext] object
+// like the Farseek CLI layer to construct a single [EvalContext] object
 // based on whole-process concerns like command line arguments and the current
 // CLI configuration, and then reuse it without modification across multiple
 // calls into different execution phases.
 type EvalContext struct {
 	// This type should only contain broad stuff that'd typically be set up
-	// only once for a particular OpenTofu CLI command, and NOT
+	// only once for a particular Farseek CLI command, and NOT
 	// operation-specific things like the input variables provided for a
 	// given module, or where state is supposed to be stored, etc.
 

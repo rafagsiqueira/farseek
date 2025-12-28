@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -12,7 +12,7 @@ import (
 
 	"github.com/rafagsiqueira/farseek/internal/addrs"
 	"github.com/rafagsiqueira/farseek/internal/backend"
-	"github.com/rafagsiqueira/farseek/internal/backend/remote"
+
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
 	"github.com/rafagsiqueira/farseek/internal/encryption"
 	"github.com/rafagsiqueira/farseek/internal/lang/marks"
@@ -256,12 +256,6 @@ func getBackend(cfg cty.Value, enc encryption.StateEncryption) (backend.Backend,
 	diags = diags.Append(validateDiags)
 	if validateDiags.HasErrors() {
 		return nil, cty.NilVal, diags
-	}
-
-	// If this is the enhanced remote backend, we want to disable the version
-	// check, because this is a read-only operation
-	if rb, ok := b.(*remote.Remote); ok {
-		rb.IgnoreVersionConflict()
 	}
 
 	return b, newVal, diags

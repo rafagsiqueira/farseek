@@ -189,21 +189,21 @@ func TestInitProviderSourceForCLIConfigLocationWithRetries(t *testing.T) {
 	})
 	cases := map[string]struct {
 		methodType     cliconfig.ProviderInstallationLocation
-		tofurcRetries  cliconfig.ProviderInstallationMethodRetries
+		farseekrcRetries  cliconfig.ProviderInstallationMethodRetries
 		envVars        map[string]string
 		expectedErrMsg string
 	}{
-		"no tofurc.direct.download_retry_count configured, no TF_PROVIDER_DOWNLOAD_RETRY, default TF_PROVIDER_DOWNLOAD_RETRY used": {
+		"no farseekrc.direct.download_retry_count configured, no TF_PROVIDER_DOWNLOAD_RETRY, default TF_PROVIDER_DOWNLOAD_RETRY used": {
 			methodType: cliconfig.ProviderInstallationDirect,
-			tofurcRetries: func() (int, bool) {
+			farseekrcRetries: func() (int, bool) {
 				return 0, false
 			},
 			envVars:        nil,
 			expectedErrMsg: "/providers/v1/test/exists_0.0.0.zip giving up after 3 attempt(s)",
 		},
-		"no tofurc.direct.download_retry_count, TF_PROVIDER_DOWNLOAD_RETRY defined, TF_PROVIDER_DOWNLOAD_RETRY used": {
+		"no farseekrc.direct.download_retry_count, TF_PROVIDER_DOWNLOAD_RETRY defined, TF_PROVIDER_DOWNLOAD_RETRY used": {
 			methodType: cliconfig.ProviderInstallationDirect,
-			tofurcRetries: func() (int, bool) {
+			farseekrcRetries: func() (int, bool) {
 				return 0, false
 			},
 			envVars: map[string]string{
@@ -211,25 +211,25 @@ func TestInitProviderSourceForCLIConfigLocationWithRetries(t *testing.T) {
 			},
 			expectedErrMsg: "/providers/v1/test/exists_0.0.0.zip giving up after 2 attempt(s)",
 		},
-		"defined tofurc.direct.download_retry_count as 0, no TF_PROVIDER_DOWNLOAD_RETRY, tofurc used": {
+		"defined farseekrc.direct.download_retry_count as 0, no TF_PROVIDER_DOWNLOAD_RETRY, farseekrc used": {
 			methodType: cliconfig.ProviderInstallationDirect,
-			tofurcRetries: func() (int, bool) {
+			farseekrcRetries: func() (int, bool) {
 				return 0, true
 			},
 			envVars:        nil,
 			expectedErrMsg: "/providers/v1/test/exists_0.0.0.zip giving up after 1 attempt(s)",
 		},
-		"defined tofurc.direct.download_retry_count as 1, no TF_PROVIDER_DOWNLOAD_RETRY, tofurc used": {
+		"defined farseekrc.direct.download_retry_count as 1, no TF_PROVIDER_DOWNLOAD_RETRY, farseekrc used": {
 			methodType: cliconfig.ProviderInstallationDirect,
-			tofurcRetries: func() (int, bool) {
+			farseekrcRetries: func() (int, bool) {
 				return 1, true
 			},
 			envVars:        nil,
 			expectedErrMsg: "/providers/v1/test/exists_0.0.0.zip giving up after 2 attempt(s)",
 		},
-		"defined tofurc.direct.download_retry_count as 1, TF_PROVIDER_DOWNLOAD_RETRY defined as 2, tofurc used": {
+		"defined farseekrc.direct.download_retry_count as 1, TF_PROVIDER_DOWNLOAD_RETRY defined as 2, farseekrc used": {
 			methodType: cliconfig.ProviderInstallationDirect,
-			tofurcRetries: func() (int, bool) {
+			farseekrcRetries: func() (int, bool) {
 				return 1, true
 			},
 			envVars: map[string]string{
@@ -241,7 +241,7 @@ func TestInitProviderSourceForCLIConfigLocationWithRetries(t *testing.T) {
 	for name, tt := range cases {
 		t.Run(name, func(t *testing.T) {
 			methodType := tt.methodType
-			retries := tt.tofurcRetries // This is what simulates the configuration of .tofurc
+			retries := tt.farseekrcRetries // This is what simulates the configuration of .farseekrc
 			for k, v := range tt.envVars {
 				t.Setenv(k, v)
 			}

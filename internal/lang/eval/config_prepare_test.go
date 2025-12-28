@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -183,7 +183,7 @@ func TestPrepare_ephemeralResourceUsers(t *testing.T) {
 	// them, and so e.g. ephemeral.foo.a[0] is NOT used by ephemeral.foo.b[1].
 	//
 	// This level of precision was not possible in the traditional
-	// "package tofu" language runtime, because it calculated dependencies
+	// "package farseek" language runtime, because it calculated dependencies
 	// based only on static analysis, but this new evaluator uses dynamic
 	// analysis. Refer to [configgraph.ContributingResourceInstances]
 	// to learn more about how that's meant to work, if you're trying to

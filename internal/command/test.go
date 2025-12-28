@@ -1,4 +1,6 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -33,7 +35,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 const (
@@ -46,13 +48,13 @@ type TestCommand struct {
 
 func (c *TestCommand) Help() string {
 	helpText := `
-Usage: tofu [global options] test [options]
+Usage: farseek [global options] test [options]
 
-  Executes automated integration tests against the current OpenTofu 
+  Executes automated integration tests against the current Farseek 
   configuration.
 
-  OpenTofu will search for .tftest.hcl files within the current configuration 
-  and testing directories. OpenTofu will then execute the testing run blocks 
+  Farseek will search for .tftest.hcl files within the current configuration 
+  and testing directories. Farseek will then execute the testing run blocks 
   within any testing files in order, and verify conditional checks and 
   assertions against the created infrastructure. 
 
@@ -62,19 +64,19 @@ Usage: tofu [global options] test [options]
 
 Options:
 
-  -compact-warnings     If OpenTofu produces any warnings that are not
+  -compact-warnings     If Farseek produces any warnings that are not
                         accompanied by errors, show them in a more compact
                         form that includes only the summary messages.
 
-  -consolidate-warnings If OpenTofu produces any warnings, no consolidation
+  -consolidate-warnings If Farseek produces any warnings, no consolidation
                         will be performed. All locations, for all warnings
                         will be listed. Enabled by default.
 
-  -consolidate-errors   If OpenTofu produces any errors, no consolidation
+  -consolidate-errors   If Farseek produces any errors, no consolidation
                         will be performed. All locations, for all errors
                         will be listed. Disabled by default
 
-  -filter=testfile      If specified, OpenTofu will only execute the test files
+  -filter=testfile      If specified, Farseek will only execute the test files
                         specified by this flag. You can use this option multiple
                         times to execute more than one test file. The path should
                         be relative to the current working directory, even if
@@ -85,7 +87,7 @@ Options:
 
   -no-color             If specified, output won't contain any color.
 
-  -test-directory=path  Set the OpenTofu test directory, defaults to "tests". When set, the
+  -test-directory=path  Set the Farseek test directory, defaults to "tests". When set, the
                         test command will search for test files in the current directory and
                         in the one specified by the flag.
 
@@ -356,7 +358,7 @@ type TestSuiteRunner struct {
 	Config *configs.Config
 
 	GlobalVariables map[string]backend.UnparsedVariableValue
-	Opts            *tofu.ContextOpts
+	Opts            *farseek.ContextOpts
 
 	View views.Test
 
@@ -371,7 +373,7 @@ type TestSuiteRunner struct {
 	Stopped   bool
 	Cancelled bool
 
-	// StoppedCtx and CancelledCtx allow in progress OpenTofu operations to
+	// StoppedCtx and CancelledCtx allow in progress Farseek operations to
 	// respond to external calls from the test command.
 	StoppedCtx   context.Context
 	CancelledCtx context.Context
@@ -463,7 +465,7 @@ func (runner *TestFileRunner) ExecuteTestFile(ctx context.Context, file *modulet
 				run.Diagnostics = run.Diagnostics.Append(&hcl.Diagnostic{
 					Severity: hcl.DiagError,
 					Summary:  "Invalid module source",
-					Detail:   fmt.Sprintf("The source for the selected module evaluated to %s which should not be possible. This is a bug in OpenTofu - please report it!", key),
+					Detail:   fmt.Sprintf("The source for the selected module evaluated to %s which should not be possible. This is a bug in Farseek - please report it!", key),
 					Subject:  run.Config.Module.DeclRange.Ptr(),
 				})
 
@@ -601,7 +603,7 @@ func (runner *TestFileRunner) ExecuteTestRun(ctx context.Context, run *moduletes
 				diags = diags.Append(tfdiags.Sourceless(
 					tfdiags.Warning,
 					"Failed to print verbose output",
-					fmt.Sprintf("OpenTofu failed to print the verbose output for %s, other diagnostics will contain more details as to why.", path.Join(file.Name, run.Name))))
+					fmt.Sprintf("Farseek failed to print the verbose output for %s, other diagnostics will contain more details as to why.", path.Join(file.Name, run.Name))))
 			} else {
 				run.Verbose = &moduletest.Verbose{
 					Plan:         plan,
@@ -678,7 +680,7 @@ func (runner *TestFileRunner) ExecuteTestRun(ctx context.Context, run *moduletes
 			diags = diags.Append(tfdiags.Sourceless(
 				tfdiags.Warning,
 				"Failed to print verbose output",
-				fmt.Sprintf("OpenTofu failed to print the verbose output for %s, other diagnostics will contain more details as to why.", path.Join(file.Name, run.Name))))
+				fmt.Sprintf("Farseek failed to print the verbose output for %s, other diagnostics will contain more details as to why.", path.Join(file.Name, run.Name))))
 		} else {
 			run.Verbose = &moduletest.Verbose{
 				Plan:         plan,
@@ -701,7 +703,7 @@ func (runner *TestFileRunner) validate(ctx context.Context, config *configs.Conf
 
 	var diags tfdiags.Diagnostics
 
-	tfCtx, ctxDiags := tofu.NewContext(runner.Suite.Opts)
+	tfCtx, ctxDiags := farseek.NewContext(runner.Suite.Opts)
 	diags = diags.Append(ctxDiags)
 	if ctxDiags.HasErrors() {
 		return diags
@@ -754,12 +756,12 @@ func (runner *TestFileRunner) destroy(ctx context.Context, config *configs.Confi
 		return state, diags
 	}
 
-	planOpts := &tofu.PlanOpts{
+	planOpts := &farseek.PlanOpts{
 		Mode:         plans.DestroyMode,
 		SetVariables: variables,
 	}
 
-	tfCtx, ctxDiags := tofu.NewContext(runner.Suite.Opts)
+	tfCtx, ctxDiags := farseek.NewContext(runner.Suite.Opts)
 	diags = diags.Append(ctxDiags)
 	if ctxDiags.HasErrors() {
 		return state, diags
@@ -796,7 +798,7 @@ func (runner *TestFileRunner) destroy(ctx context.Context, config *configs.Confi
 	return updated, diags
 }
 
-func (runner *TestFileRunner) plan(ctx context.Context, config *configs.Config, state *states.State, run *moduletest.Run, file *moduletest.File) (*tofu.Context, *plans.Plan, tfdiags.Diagnostics) {
+func (runner *TestFileRunner) plan(ctx context.Context, config *configs.Config, state *states.State, run *moduletest.Run, file *moduletest.File) (*farseek.Context, *plans.Plan, tfdiags.Diagnostics) {
 	log.Printf("[TRACE] TestFileRunner: called plan for %s/%s", file.Name, run.Name)
 
 	var diags tfdiags.Diagnostics
@@ -820,7 +822,7 @@ func (runner *TestFileRunner) plan(ctx context.Context, config *configs.Config, 
 		return nil, nil, diags
 	}
 
-	planOpts := &tofu.PlanOpts{
+	planOpts := &farseek.PlanOpts{
 		Mode: func() plans.Mode {
 			switch run.Config.Options.Mode {
 			case configs.RefreshOnlyTestMode:
@@ -836,7 +838,7 @@ func (runner *TestFileRunner) plan(ctx context.Context, config *configs.Config, 
 		ExternalReferences: references,
 	}
 
-	tfCtx, ctxDiags := tofu.NewContext(runner.Suite.Opts)
+	tfCtx, ctxDiags := farseek.NewContext(runner.Suite.Opts)
 	diags = diags.Append(ctxDiags)
 	if ctxDiags.HasErrors() {
 		return nil, nil, diags
@@ -867,7 +869,7 @@ func (runner *TestFileRunner) plan(ctx context.Context, config *configs.Config, 
 	return tfCtx, plan, diags
 }
 
-func (runner *TestFileRunner) apply(ctx context.Context, plan *plans.Plan, state *states.State, config *configs.Config, run *moduletest.Run, file *moduletest.File) (*tofu.Context, *states.State, tfdiags.Diagnostics) {
+func (runner *TestFileRunner) apply(ctx context.Context, plan *plans.Plan, state *states.State, config *configs.Config, run *moduletest.Run, file *moduletest.File) (*farseek.Context, *states.State, tfdiags.Diagnostics) {
 	log.Printf("[TRACE] TestFileRunner: called apply for %s/%s", file.Name, run.Name)
 
 	var diags tfdiags.Diagnostics
@@ -891,7 +893,7 @@ func (runner *TestFileRunner) apply(ctx context.Context, plan *plans.Plan, state
 		created = append(created, change)
 	}
 
-	tfCtx, ctxDiags := tofu.NewContext(runner.Suite.Opts)
+	tfCtx, ctxDiags := farseek.NewContext(runner.Suite.Opts)
 	diags = diags.Append(ctxDiags)
 	if ctxDiags.HasErrors() {
 		return nil, state, diags
@@ -922,7 +924,7 @@ func (runner *TestFileRunner) apply(ctx context.Context, plan *plans.Plan, state
 	return tfCtx, updated, diags
 }
 
-func (runner *TestFileRunner) wait(ctx *tofu.Context, runningCtx context.Context, run *moduletest.Run, file *moduletest.File, created []*plans.ResourceInstanceChangeSrc) (diags tfdiags.Diagnostics, cancelled bool) {
+func (runner *TestFileRunner) wait(ctx *farseek.Context, runningCtx context.Context, run *moduletest.Run, file *moduletest.File, created []*plans.ResourceInstanceChangeSrc) (diags tfdiags.Diagnostics, cancelled bool) {
 	var identifier string
 	if file == nil {
 		identifier = "validate"
@@ -1021,7 +1023,7 @@ func (runner *TestFileRunner) Cleanup(ctx context.Context, file *moduletest.File
 			// print a diagnostic instead of panicking later.
 
 			var diags tfdiags.Diagnostics
-			diags = diags.Append(tfdiags.Sourceless(tfdiags.Error, "Inconsistent state", fmt.Sprintf("Found inconsistent state while cleaning up %s. This is a bug in OpenTofu - please report it", file.Name)))
+			diags = diags.Append(tfdiags.Sourceless(tfdiags.Error, "Inconsistent state", fmt.Sprintf("Found inconsistent state while cleaning up %s. This is a bug in Farseek - please report it", file.Name)))
 			runner.Suite.View.DestroySummary(diags, nil, file, state.State)
 			continue
 		}
@@ -1082,7 +1084,7 @@ func (runner *TestFileRunner) Cleanup(ctx context.Context, file *moduletest.File
 // helper functions
 
 // buildEvalContextForProviderConfigTransform constructs a hcl.EvalContext based on the provided map of
-// TestFileState instances, configuration and global variables. Also, creates a tofu.InputValues mapping for
+// TestFileState instances, configuration and global variables. Also, creates a farseek.InputValues mapping for
 // variable values that are relevant to the config being tested. And merges the variables into the evalCtx.
 // This is required to transform provider configs defined inside the test file, which are using run block output.
 //
@@ -1117,13 +1119,13 @@ func buildEvalContextForProviderConfigTransform(states map[string]*TestFileState
 	return evalCtx, diags
 }
 
-// buildInputVariablesForTest creates a tofu.InputValues mapping for
+// buildInputVariablesForTest creates a farseek.InputValues mapping for
 // variable values that are relevant to the config being tested.
 //
 // Crucially, it differs from prepareInputVariablesForAssertions in that it only
 // includes variables that are reference by the config and not everything that
 // is defined within the test run block and test file.
-func buildInputVariablesForTest(run *moduletest.Run, file *moduletest.File, config *configs.Config, globals map[string]backend.UnparsedVariableValue, evalCtx *hcl.EvalContext) (tofu.InputValues, tfdiags.Diagnostics) {
+func buildInputVariablesForTest(run *moduletest.Run, file *moduletest.File, config *configs.Config, globals map[string]backend.UnparsedVariableValue, evalCtx *hcl.EvalContext) (farseek.InputValues, tfdiags.Diagnostics) {
 	variables := make(map[string]backend.UnparsedVariableValue)
 	for name := range config.Module.Variables {
 		if run != nil {
@@ -1131,7 +1133,7 @@ func buildInputVariablesForTest(run *moduletest.Run, file *moduletest.File, conf
 				// Local variables take precedence.
 				variables[name] = testVariableValueExpression{
 					expr:       expr,
-					sourceType: tofu.ValueFromConfig,
+					sourceType: farseek.ValueFromConfig,
 					ctx:        evalCtx,
 				}
 				continue
@@ -1143,7 +1145,7 @@ func buildInputVariablesForTest(run *moduletest.Run, file *moduletest.File, conf
 				// If it's not set locally, it maybe set for the entire file.
 				variables[name] = testVariableValueExpression{
 					expr:       expr,
-					sourceType: tofu.ValueFromConfig,
+					sourceType: farseek.ValueFromConfig,
 					ctx:        evalCtx,
 				}
 				continue
@@ -1207,30 +1209,30 @@ func getEvalContextForTest(states map[string]*TestFileState, config *configs.Con
 
 type testVariableValueExpression struct {
 	expr       hcl.Expression
-	sourceType tofu.ValueSourceType
+	sourceType farseek.ValueSourceType
 	ctx        *hcl.EvalContext
 }
 
-func (v testVariableValueExpression) ParseVariableValue(mode configs.VariableParsingMode) (*tofu.InputValue, tfdiags.Diagnostics) {
+func (v testVariableValueExpression) ParseVariableValue(mode configs.VariableParsingMode) (*farseek.InputValue, tfdiags.Diagnostics) {
 	var diags tfdiags.Diagnostics
 	val, hclDiags := v.expr.Value(v.ctx)
 	diags = diags.Append(hclDiags)
 
 	rng := tfdiags.SourceRangeFromHCL(v.expr.Range())
 
-	return &tofu.InputValue{
+	return &farseek.InputValue{
 		Value:       val,
 		SourceType:  v.sourceType,
 		SourceRange: rng,
 	}, diags
 }
 
-// parseAndApplyDefaultValues parses the given unparsed variables into tofu.InputValues
+// parseAndApplyDefaultValues parses the given unparsed variables into farseek.InputValues
 // and applies default values from the configuration variables where applicable.
-// This ensures all variables are correctly initialized and returns the resulting tofu.InputValues.
-func parseAndApplyDefaultValues(unparsedVariables map[string]backend.UnparsedVariableValue, configVariables map[string]*configs.Variable) (tofu.InputValues, tfdiags.Diagnostics) {
+// This ensures all variables are correctly initialized and returns the resulting farseek.InputValues.
+func parseAndApplyDefaultValues(unparsedVariables map[string]backend.UnparsedVariableValue, configVariables map[string]*configs.Variable) (farseek.InputValues, tfdiags.Diagnostics) {
 	var diags tfdiags.Diagnostics
-	inputs := make(tofu.InputValues, len(unparsedVariables))
+	inputs := make(farseek.InputValues, len(unparsedVariables))
 	for name, variable := range unparsedVariables {
 		value, valueDiags := variable.ParseVariableValue(configs.VariableParseLiteral)
 		diags = diags.Append(valueDiags)
@@ -1245,7 +1247,7 @@ func parseAndApplyDefaultValues(unparsedVariables map[string]backend.UnparsedVar
 	}
 
 	// Now, we're going to apply any default values from the configuration.
-	// We do this after the conversion into tofu.InputValues, as the
+	// We do this after the conversion into farseek.InputValues, as the
 	// defaults have already been converted into cty.Value objects.
 	for name, variable := range configVariables {
 		if _, exists := unparsedVariables[name]; exists {
@@ -1255,9 +1257,9 @@ func parseAndApplyDefaultValues(unparsedVariables map[string]backend.UnparsedVar
 		}
 
 		if variable.Default != cty.NilVal {
-			inputs[name] = &tofu.InputValue{
+			inputs[name] = &farseek.InputValue{
 				Value:       variable.Default,
-				SourceType:  tofu.ValueFromConfig,
+				SourceType:  farseek.ValueFromConfig,
 				SourceRange: tfdiags.SourceRangeFromHCL(variable.DeclRange),
 			}
 		}
@@ -1266,7 +1268,7 @@ func parseAndApplyDefaultValues(unparsedVariables map[string]backend.UnparsedVar
 	return inputs, diags
 }
 
-// prepareInputVariablesForAssertions creates a tofu.InputValues mapping
+// prepareInputVariablesForAssertions creates a farseek.InputValues mapping
 // that contains all the variables defined for a given run and file, alongside
 // any unset variables that have defaults within the provided config.
 //
@@ -1282,7 +1284,7 @@ func parseAndApplyDefaultValues(unparsedVariables map[string]backend.UnparsedVar
 // In addition, it modifies the provided config so that any variables that are
 // available are also defined in the config. It returns a function that resets
 // the config which must be called so the config can be reused going forward.
-func (runner *TestFileRunner) prepareInputVariablesForAssertions(config *configs.Config, run *moduletest.Run, file *moduletest.File, globals map[string]backend.UnparsedVariableValue) (tofu.InputValues, func(), tfdiags.Diagnostics) {
+func (runner *TestFileRunner) prepareInputVariablesForAssertions(config *configs.Config, run *moduletest.Run, file *moduletest.File, globals map[string]backend.UnparsedVariableValue) (farseek.InputValues, func(), tfdiags.Diagnostics) {
 	var diags tfdiags.Diagnostics
 	ctx, ctxDiags := getEvalContextForTest(runner.States, config, globals)
 	diags = diags.Append(ctxDiags)
@@ -1293,7 +1295,7 @@ func (runner *TestFileRunner) prepareInputVariablesForAssertions(config *configs
 		for name, expr := range run.Config.Variables {
 			variables[name] = testVariableValueExpression{
 				expr:       expr,
-				sourceType: tofu.ValueFromConfig,
+				sourceType: farseek.ValueFromConfig,
 				ctx:        ctx,
 			}
 		}
@@ -1308,7 +1310,7 @@ func (runner *TestFileRunner) prepareInputVariablesForAssertions(config *configs
 			}
 			variables[name] = testVariableValueExpression{
 				expr:       expr,
-				sourceType: tofu.ValueFromConfig,
+				sourceType: farseek.ValueFromConfig,
 				ctx:        ctx,
 			}
 		}
@@ -1325,7 +1327,7 @@ func (runner *TestFileRunner) prepareInputVariablesForAssertions(config *configs
 	}
 
 	// We've gathered all the values we have, let's convert them into
-	// tofu.InputValues so they can be passed into the OpenTofu graph.
+	// farseek.InputValues so they can be passed into the Farseek graph.
 	// Also, apply default values from the configuration variables where applicable.
 	inputs, valDiags := parseAndApplyDefaultValues(variables, config.Module.Variables)
 	diags.Append(valDiags)

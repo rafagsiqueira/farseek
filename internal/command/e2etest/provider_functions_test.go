@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -19,9 +19,9 @@ func TestFunction_Simple(t *testing.T) {
 	skipIfCannotAccessNetwork(t)
 
 	fixturePath := filepath.Join("testdata", "functions")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
-	// tofu init
+	// farseek init
 	_, stderr, err := tf.Run("init")
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
@@ -59,9 +59,9 @@ func TestFunction_ProviderUnconfigured(t *testing.T) {
 	skipIfCannotAccessNetwork(t)
 
 	fixturePath := filepath.Join("testdata", "provider_unconfigured_functions")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
-	// tofu init
+	// farseek init
 	_, stderr, err := tf.Run("init")
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
@@ -99,9 +99,9 @@ func TestFunction_Error(t *testing.T) {
 	// test functions provider, so it can only run if network access is allowed
 	skipIfCannotAccessNetwork(t)
 	fixturePath := filepath.Join("testdata", "functions-error")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
-	// tofu init
+	// farseek init
 	_, stderr, err := tf.Run("init")
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
@@ -110,7 +110,7 @@ func TestFunction_Error(t *testing.T) {
 		t.Errorf("unexpected stderr output:\n%s", stderr)
 	}
 
-	// tofu plan -out=fnplan
+	// farseek plan -out=fnplan
 	_, stderr, err = tf.Run("plan", "-out=fnplan")
 	if err == nil {
 		t.Errorf("expected error: %s", err)

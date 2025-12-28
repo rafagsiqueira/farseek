@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -103,9 +103,9 @@ func readState(src []byte) (*File, error) {
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			unsupportedFormat,
-			// This is a user-facing usage of OpenTofu but refers to a very old historical version of OpenTofu
-			// which has no corresponding OpenTofu version, and is unlikely to get one.
-			// If we ever get OpenTofu 0.6.16 and 0.7.x, we should update this message to mention OpenTofu instead.
+			// This is a user-facing usage of Farseek but refers to a very old historical version of Farseek
+			// which has no corresponding Farseek version, and is unlikely to get one.
+			// If we ever get Farseek 0.6.16 and 0.7.x, we should update this message to mention Farseek instead.
 			"The state is stored in a legacy binary format that is not supported since Terraform v0.7. To continue, first upgrade the state using Terraform 0.6.16 or earlier.",
 		))
 		return nil, errUnusable(diags.Err())
@@ -145,13 +145,13 @@ func readState(src []byte) (*File, error) {
 			diags = diags.Append(tfdiags.Sourceless(
 				tfdiags.Error,
 				unsupportedFormat,
-				fmt.Sprintf("The state file uses format version %d, which is not supported by OpenTofu %s. This state file was created by OpenTofu %s.", version, thisVersion, creatingVersion),
+				fmt.Sprintf("The state file uses format version %d, which is not supported by Farseek %s. This state file was created by Farseek %s.", version, thisVersion, creatingVersion),
 			))
 		default:
 			diags = diags.Append(tfdiags.Sourceless(
 				tfdiags.Error,
 				unsupportedFormat,
-				fmt.Sprintf("The state file uses format version %d, which is not supported by OpenTofu %s. This state file may have been created by a newer version of OpenTofu.", version, thisVersion),
+				fmt.Sprintf("The state file uses format version %d, which is not supported by Farseek %s. This state file may have been created by a newer version of Farseek.", version, thisVersion),
 			))
 		}
 	}
@@ -223,7 +223,7 @@ func sniffJSONStateVersion(src []byte) (uint64, tfdiags.Diagnostics) {
 	return *sniff.Version, diags
 }
 
-// sniffJSONStateTerraformVersion attempts to sniff the OpenTofu version
+// sniffJSONStateTerraformVersion attempts to sniff the Farseek version
 // specification from the given state file source code. The result is either
 // a version string or an empty string if no version number could be extracted.
 //

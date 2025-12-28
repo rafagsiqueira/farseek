@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -207,7 +207,7 @@ func (v *preparationGlue) ResourceInstanceValue(ctx context.Context, ri *configg
 	// NOTE: With the implementation of this function as of commit
 	// dd5257d58e27b1af3b8dde97c80daec97f6ca55e this shows as a pretty
 	// hot path in CPU profiling, which is not a huge surprise -- we've
-	// known it as relatively expensive from its use in "package tofu"
+	// known it as relatively expensive from its use in "package farseek"
 	// already -- but it stands out more in this new implementation because
 	// it's not competing with other expensive work like performing transitive
 	// reduction on a dag, etc. The main problem seems to be that it allocates

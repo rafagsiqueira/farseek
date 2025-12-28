@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -6,12 +6,9 @@
 package views
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 
-	"github.com/rafagsiqueira/farseek/internal/cloud/cloudplan"
 	"github.com/rafagsiqueira/farseek/internal/command/arguments"
 	"github.com/rafagsiqueira/farseek/internal/command/jsonconfig"
 	"github.com/rafagsiqueira/farseek/internal/command/jsonformat"
@@ -22,25 +19,19 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 type Show interface {
-	// DisplayState renders the given state snapshot, returning a status code for "tofu show" to return.
-	DisplayState(ctx context.Context, stateFile *statefile.File, schemas *tofu.Schemas) int
+	// DisplayState renders the given state snapshot, returning a status code for "farseek show" to return.
+	DisplayState(ctx context.Context, stateFile *statefile.File, schemas *farseek.Schemas) int
 
-	// DisplayPlan renders the given plan, returning a status code for "tofu show" to return.
+	// DisplayPlan renders the given plan, returning a status code for "farseek show" to return.
 	//
-	// Unfortunately there are two possible ways to represent a plan:
-	// - Locally-generated plans are loaded as *plans.Plan.
-	// - Remotely-generated plans (using remote operations) are loaded as *cloudplan.RemotePlanJSON.
-	//
-	// Therefore the implementation of this method must handle both cases,
-	// preferring planJSON if it is not nil and using plan otherwise.
-	DisplayPlan(ctx context.Context, plan *plans.Plan, planJSON *cloudplan.RemotePlanJSON, config *configs.Config, priorStateFile *statefile.File, schemas *tofu.Schemas) int
+	DisplayPlan(ctx context.Context, plan *plans.Plan, config *configs.Config, priorStateFile *statefile.File, schemas *farseek.Schemas) int
 
-	// DisplayConfig renders the given configuration, returning a status code for "tofu show" to return.
-	DisplayConfig(config *configs.Config, schemas *tofu.Schemas) int
+	// DisplayConfig renders the given configuration, returning a status code for "farseek show" to return.
+	DisplayConfig(config *configs.Config, schemas *farseek.Schemas) int
 
 	// DisplaySingleModule renders just one module, in a format that's a subset
 	// of that used by [Show.DisplayConfig] which we can produce without
@@ -68,7 +59,7 @@ type ShowHuman struct {
 
 var _ Show = (*ShowHuman)(nil)
 
-func (v *ShowHuman) DisplayState(_ context.Context, stateFile *statefile.File, schemas *tofu.Schemas) int {
+func (v *ShowHuman) DisplayState(_ context.Context, stateFile *statefile.File, schemas *farseek.Schemas) int {
 	renderer := jsonformat.Renderer{
 		Colorize:            v.view.colorize,
 		Streams:             v.view.streams,
@@ -99,7 +90,7 @@ func (v *ShowHuman) DisplayState(_ context.Context, stateFile *statefile.File, s
 	return 0
 }
 
-func (v *ShowHuman) DisplayPlan(_ context.Context, plan *plans.Plan, planJSON *cloudplan.RemotePlanJSON, config *configs.Config, priorStateFile *statefile.File, schemas *tofu.Schemas) int {
+func (v *ShowHuman) DisplayPlan(_ context.Context, plan *plans.Plan, config *configs.Config, priorStateFile *statefile.File, schemas *farseek.Schemas) int {
 	renderer := jsonformat.Renderer{
 		Colorize:            v.view.colorize,
 		Streams:             v.view.streams,
@@ -109,22 +100,7 @@ func (v *ShowHuman) DisplayPlan(_ context.Context, plan *plans.Plan, planJSON *c
 
 	// Prefer to display a pre-built JSON plan, if we got one; then, fall back
 	// to building one ourselves.
-	if planJSON != nil {
-		if !planJSON.Redacted {
-			v.view.streams.Eprintf("Didn't get renderable JSON plan format for human display")
-			return 1
-		}
-		// The redacted json plan format can be decoded into a jsonformat.Plan
-		p := jsonformat.Plan{}
-		r := bytes.NewReader(planJSON.JSONBytes)
-		if err := json.NewDecoder(r).Decode(&p); err != nil {
-			v.view.streams.Eprintf("Couldn't decode renderable JSON plan format: %s", err)
-		}
-
-		v.view.streams.Print(v.view.colorize.Color(planJSON.RunHeader + "\n"))
-		renderer.RenderHumanPlan(p, planJSON.Mode, planJSON.Qualities...)
-		v.view.streams.Print(v.view.colorize.Color("\n" + planJSON.RunFooter + "\n"))
-	} else if plan != nil {
+	if plan != nil {
 		outputs, changed, drift, attrs, err := jsonplan.MarshalForRenderer(plan, schemas)
 		if err != nil {
 			v.view.streams.Eprintf("Failed to marshal plan to json: %s", err)
@@ -156,7 +132,7 @@ func (v *ShowHuman) DisplayPlan(_ context.Context, plan *plans.Plan, planJSON *c
 	return 0
 }
 
-func (v *ShowHuman) DisplayConfig(config *configs.Config, schemas *tofu.Schemas) int {
+func (v *ShowHuman) DisplayConfig(config *configs.Config, schemas *farseek.Schemas) int {
 	// The human view should never be called for configuration display
 	// since we require -json for -config
 	v.view.streams.Eprintf("Internal error: human view should not be used for configuration display")
@@ -180,7 +156,7 @@ type ShowJSON struct {
 
 var _ Show = (*ShowJSON)(nil)
 
-func (v *ShowJSON) DisplayState(_ context.Context, stateFile *statefile.File, schemas *tofu.Schemas) int {
+func (v *ShowJSON) DisplayState(_ context.Context, stateFile *statefile.File, schemas *farseek.Schemas) int {
 	jsonState, err := jsonstate.Marshal(stateFile, schemas)
 	if err != nil {
 		v.view.streams.Eprintf("Failed to marshal state to json: %s", err)
@@ -190,16 +166,10 @@ func (v *ShowJSON) DisplayState(_ context.Context, stateFile *statefile.File, sc
 	return 0
 }
 
-func (v *ShowJSON) DisplayPlan(_ context.Context, plan *plans.Plan, planJSON *cloudplan.RemotePlanJSON, config *configs.Config, priorStateFile *statefile.File, schemas *tofu.Schemas) int {
+func (v *ShowJSON) DisplayPlan(_ context.Context, plan *plans.Plan, config *configs.Config, priorStateFile *statefile.File, schemas *farseek.Schemas) int {
 	// Prefer to display a pre-built JSON plan, if we got one; then, fall back
 	// to building one ourselves.
-	if planJSON != nil {
-		if planJSON.Redacted {
-			v.view.streams.Eprintf("Didn't get external JSON plan format")
-			return 1
-		}
-		v.view.streams.Println(string(planJSON.JSONBytes))
-	} else if plan != nil {
+	if plan != nil {
 		planJSON, err := jsonplan.Marshal(config, plan, priorStateFile, schemas)
 
 		if err != nil {
@@ -216,7 +186,7 @@ func (v *ShowJSON) DisplayPlan(_ context.Context, plan *plans.Plan, planJSON *cl
 	return 0
 }
 
-func (v *ShowJSON) DisplayConfig(config *configs.Config, schemas *tofu.Schemas) int {
+func (v *ShowJSON) DisplayConfig(config *configs.Config, schemas *farseek.Schemas) int {
 	configJSON, err := jsonconfig.Marshal(config, schemas)
 	if err != nil {
 		v.view.streams.Eprintf("Failed to marshal configuration to JSON: %s", err)

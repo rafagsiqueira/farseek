@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -7,7 +7,6 @@ package encryption
 
 import (
 	"github.com/rafagsiqueira/farseek/internal/encryption/keyprovider/aws_kms"
-	"github.com/rafagsiqueira/farseek/internal/encryption/keyprovider/azure_vault"
 	externalKeyProvider "github.com/rafagsiqueira/farseek/internal/encryption/keyprovider/external"
 	"github.com/rafagsiqueira/farseek/internal/encryption/keyprovider/gcp_kms"
 	"github.com/rafagsiqueira/farseek/internal/encryption/keyprovider/openbao"
@@ -28,9 +27,6 @@ func init() {
 		panic(err)
 	}
 	if err := DefaultRegistry.RegisterKeyProvider(gcp_kms.New()); err != nil {
-		panic(err)
-	}
-	if err := DefaultRegistry.RegisterKeyProvider(azure_vault.New()); err != nil {
 		panic(err)
 	}
 	if err := DefaultRegistry.RegisterKeyProvider(openbao.New()); err != nil {

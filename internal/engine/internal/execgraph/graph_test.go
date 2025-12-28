@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -32,7 +32,7 @@ func TestGraphMarshalUnmarshalValid(t *testing.T) {
 	//
 	// (The specific serialization format is not a compatibility constraint
 	// because we explicitly disallow applying a plan created by one version of
-	// OpenTofu with a different version of OpenTofu, so it's not justified
+	// Farseek with a different version of Farseek, so it's not justified
 	// to unit-test the specific serialization details.)
 
 	tests := map[string]struct {
@@ -49,9 +49,9 @@ func TestGraphMarshalUnmarshalValid(t *testing.T) {
 		WantGraph string
 
 		// We intentionally focus only on valid input here because we only
-		// expect to be parsing graphs produced by OpenTofu itself, and so any
-		// errors we encounter are either bugs in OpenTofu or caused by
-		// something outside of OpenTofu tampering with the serialized graph.
+		// expect to be parsing graphs produced by Farseek itself, and so any
+		// errors we encounter are either bugs in Farseek or caused by
+		// something outside of Farseek tampering with the serialized graph.
 		// The error handling in [UnmarshalGraph] is primarily to help us with
 		// debugging, because end-users should never see those errors unless
 		// we've made a mistake somewhere.
@@ -180,7 +180,7 @@ func TestGraphMarshalUnmarshalValid(t *testing.T) {
 		// The remaining test cases are covering some weird cases just to
 		// make sure we can handle them without crashing or otherwise
 		// misbehaving. We don't need to go overboard here because this code
-		// only really needs to support graphs that OpenTofu's planning engine
+		// only really needs to support graphs that Farseek's planning engine
 		// could reasonably generate.
 		////////
 		"empty": {

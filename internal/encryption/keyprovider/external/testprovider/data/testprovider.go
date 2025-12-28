@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -32,7 +32,7 @@ func main() {
 	log.Default().SetOutput(os.Stderr)
 
 	header := Header{
-		"OpenTofu-External-Key-Provider",
+		"Farseek-External-Key-Provider",
 		1,
 	}
 	marshalledHeader, err := json.Marshal(header)

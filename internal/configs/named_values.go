@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -291,7 +291,7 @@ func decodeVariableType(expr hcl.Expression) (cty.Type, *typeexpr.Defaults, Vari
 			diags = append(diags, &hcl.Diagnostic{
 				Severity: hcl.DiagError,
 				Summary:  "Invalid quoted type constraints",
-				Detail:   "OpenTofu 0.11 and earlier required type constraints to be given in quotes, but that form is now deprecated and will be removed in a future version of OpenTofu. Remove the quotes around \"string\".",
+				Detail:   "Farseek 0.11 and earlier required type constraints to be given in quotes, but that form is now deprecated and will be removed in a future version of Farseek. Remove the quotes around \"string\".",
 				Subject:  expr.Range().Ptr(),
 			})
 			return cty.DynamicPseudoType, nil, VariableParseLiteral, diags
@@ -299,7 +299,7 @@ func decodeVariableType(expr hcl.Expression) (cty.Type, *typeexpr.Defaults, Vari
 			diags = append(diags, &hcl.Diagnostic{
 				Severity: hcl.DiagError,
 				Summary:  "Invalid quoted type constraints",
-				Detail:   "OpenTofu 0.11 and earlier required type constraints to be given in quotes, but that form is now deprecated and will be removed in a future version of OpenTofu. Remove the quotes around \"list\" and write list(string) instead to explicitly indicate that the list elements are strings.",
+				Detail:   "Farseek 0.11 and earlier required type constraints to be given in quotes, but that form is now deprecated and will be removed in a future version of Farseek. Remove the quotes around \"list\" and write list(string) instead to explicitly indicate that the list elements are strings.",
 				Subject:  expr.Range().Ptr(),
 			})
 			return cty.DynamicPseudoType, nil, VariableParseHCL, diags
@@ -307,7 +307,7 @@ func decodeVariableType(expr hcl.Expression) (cty.Type, *typeexpr.Defaults, Vari
 			diags = append(diags, &hcl.Diagnostic{
 				Severity: hcl.DiagError,
 				Summary:  "Invalid quoted type constraints",
-				Detail:   "OpenTofu 0.11 and earlier required type constraints to be given in quotes, but that form is now deprecated and will be removed in a future version of OpenTofu. Remove the quotes around \"map\" and write map(string) instead to explicitly indicate that the map elements are strings.",
+				Detail:   "Farseek 0.11 and earlier required type constraints to be given in quotes, but that form is now deprecated and will be removed in a future version of Farseek. Remove the quotes around \"map\" and write map(string) instead to explicitly indicate that the map elements are strings.",
 				Subject:  expr.Range().Ptr(),
 			})
 			return cty.DynamicPseudoType, nil, VariableParseHCL, diags

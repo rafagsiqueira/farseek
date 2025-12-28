@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -25,7 +25,7 @@ func TestMultipleRunBlocks(t *testing.T) {
 
 	go func() {
 		fixturePath := filepath.Join("testdata", "multiple-run-blocks")
-		tf := e2e.NewBinary(t, tofuBin, fixturePath)
+		tf := e2e.NewBinary(t, farseekBin, fixturePath)
 		stdout, stderr, err := tf.Run("test")
 		done <- &testResult{
 			stdout: stdout,
@@ -56,7 +56,7 @@ func TestMocksAndOverrides(t *testing.T) {
 	// This test fetches providers from registry.
 	skipIfCannotAccessNetwork(t)
 
-	tf := e2e.NewBinary(t, tofuBin, filepath.Join("testdata", "overrides-in-tests"))
+	tf := e2e.NewBinary(t, farseekBin, filepath.Join("testdata", "overrides-in-tests"))
 
 	stdout, stderr, err := tf.Run("init")
 	if err != nil {

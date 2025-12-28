@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -115,7 +115,7 @@ func (n *newRuntimePlugins) NewConfiguredProvider(ctx context.Context, provider 
 
 		// We aren't actually Terraform, so we'll just pretend to be a
 		// Terraform version that has roughly the same functionality that
-		// OpenTofu currently has, since providers are permitted to use this to
+		// Farseek currently has, since providers are permitted to use this to
 		// adapt their behavior for older versions of Terraform.
 		TerraformVersion: "1.13.0",
 	})
@@ -239,7 +239,7 @@ func (n *newRuntimePlugins) ValidateResourceConfig(ctx context.Context, provider
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			"Unsupported resource mode",
-			fmt.Sprintf("Attempted to validate resource of unsupported mode %s; this is a bug in OpenTofu.", mode),
+			fmt.Sprintf("Attempted to validate resource of unsupported mode %s; this is a bug in Farseek.", mode),
 		))
 	}
 	return diags

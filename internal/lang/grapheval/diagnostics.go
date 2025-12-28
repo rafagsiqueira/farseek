@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -28,7 +28,7 @@ import (
 // that tracker is able to report all of the requests involved in the problem.
 // If that isn't true then the diagnostic messages will lack important
 // information and will report that missing information as being a bug in
-// OpenTofu, because we should always be tracking requests correctly.
+// Farseek, because we should always be tracking requests correctly.
 func DiagnosticsForWorkgraphError(ctx context.Context, err error) tfdiags.Diagnostics {
 	tracker := RequestTrackerFromContext(ctx)
 
@@ -52,13 +52,13 @@ func diagnosticsForWorkgraphErrorTracked(err error, tracker RequestTracker) tfdi
 	switch err := err.(type) {
 	case workgraph.ErrSelfDependency:
 		// This is the only case that (probably) doesn't represent a bug in
-		// OpenTofu: we will get in here if OpenTofu is tracking everything
+		// Farseek: we will get in here if Farseek is tracking everything
 		// correctly but the configuration contains an expression that depends
 		// on its own result, directly or indirectly.
 		reqInfos := collectRequestsInfo(slices.Values(err.RequestIDs), tracker)
 		reqDescs := make([]string, 0, len(reqInfos))
 		for _, reqID := range err.RequestIDs {
-			desc := "<unknown object> (failing to report this is a bug in OpenTofu)"
+			desc := "<unknown object> (failing to report this is a bug in Farseek)"
 			if info := reqInfos[reqID]; info != nil {
 				if info.SourceRange != nil {
 					desc = fmt.Sprintf("%s (%s)", info.Name, info.SourceRange.StartString())
@@ -96,7 +96,7 @@ func diagnosticsForWorkgraphErrorTracked(err error, tracker RequestTracker) tfdi
 		diags = diags.Append(&hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "Configuration evaluation failed",
-			Detail:   fmt.Sprintf("During configuration evaluation, %q was left unresolved. This is a bug in OpenTofu.", reqName),
+			Detail:   fmt.Sprintf("During configuration evaluation, %q was left unresolved. This is a bug in Farseek.", reqName),
 			Subject:  sourceRange,
 		})
 	default:
@@ -105,7 +105,7 @@ func diagnosticsForWorkgraphErrorTracked(err error, tracker RequestTracker) tfdi
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			"Evaluation failed",
-			"Configuration evaluation failed for an unknown reason. This is a bug in OpenTofu.",
+			"Configuration evaluation failed for an unknown reason. This is a bug in Farseek.",
 		))
 	}
 	return diags
@@ -118,13 +118,13 @@ func diagnosticsForWorkgraphErrorUntracked(err error) tfdiags.Diagnostics {
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			"Evaluation failed",
-			"An unexpected problem prevented complete evaluation of the configuration. This is a bug in OpenTofu.",
+			"An unexpected problem prevented complete evaluation of the configuration. This is a bug in Farseek.",
 		))
 	case workgraph.ErrSelfDependency:
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			"Self-referential expressions",
-			"The configuration contains expressions that form a dependency cycle. Unfortunately, a bug in OpenTofu prevents reporting the affected expressions.",
+			"The configuration contains expressions that form a dependency cycle. Unfortunately, a bug in Farseek prevents reporting the affected expressions.",
 		))
 	default:
 		// We should not get here because the two cases above cover everything
@@ -132,7 +132,7 @@ func diagnosticsForWorkgraphErrorUntracked(err error) tfdiags.Diagnostics {
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			"Evaluation failed",
-			"Configuration evaluation failed for an unknown reason. This is a bug in OpenTofu.",
+			"Configuration evaluation failed for an unknown reason. This is a bug in Farseek.",
 		))
 	}
 	return diags

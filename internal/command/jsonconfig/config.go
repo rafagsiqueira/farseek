@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -17,7 +17,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/configs"
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
 	"github.com/rafagsiqueira/farseek/internal/getproviders"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // Config represents the complete configuration source
@@ -28,7 +28,7 @@ type config struct {
 
 // ProviderConfig describes all of the provider configurations throughout the
 // configuration tree, flattened into a single map for convenience since
-// provider configurations are the one concept in OpenTofu that can span across
+// provider configurations are the one concept in Farseek that can span across
 // module boundaries.
 type providerConfig struct {
 	Name              string         `json:"name,omitempty"`
@@ -127,8 +127,8 @@ type provisioner struct {
 	Expressions map[string]any `json:"expressions,omitempty"`
 }
 
-// Marshal returns the json encoding of tofu configuration.
-func Marshal(c *configs.Config, schemas *tofu.Schemas) ([]byte, error) {
+// Marshal returns the json encoding of farseek configuration.
+func Marshal(c *configs.Config, schemas *farseek.Schemas) ([]byte, error) {
 	return marshal(c, schemas)
 }
 
@@ -141,7 +141,7 @@ func Marshal(c *configs.Config, schemas *tofu.Schemas) ([]byte, error) {
 // [inSingleModuleMode], and not by directly testing if schemas are nil,
 // so that it's easier for future maintainers to learn about this special
 // treatment through the centralized doc comment.
-func marshal(c *configs.Config, schemas *tofu.Schemas) ([]byte, error) {
+func marshal(c *configs.Config, schemas *farseek.Schemas) ([]byte, error) {
 	var output config
 
 	pcs := make(map[string]providerConfig)
@@ -168,7 +168,7 @@ func marshal(c *configs.Config, schemas *tofu.Schemas) ([]byte, error) {
 
 func marshalProviderConfigs(
 	c *configs.Config,
-	schemas *tofu.Schemas,
+	schemas *farseek.Schemas,
 	m map[string]providerConfig,
 ) {
 	if c == nil {
@@ -184,7 +184,7 @@ func marshalProviderConfigs(
 	// Add an entry for each provider configuration block in the module.
 	for k, pc := range c.Module.ProviderConfigs {
 		providerFqn := c.ProviderForConfigAddr(addrs.LocalProviderConfig{LocalName: pc.Name})
-		schema := mapSchema(schemas, func(schemas *tofu.Schemas) *configschema.Block {
+		schema := mapSchema(schemas, func(schemas *farseek.Schemas) *configschema.Block {
 			return schemas.ProviderConfig(providerFqn)
 		})
 
@@ -337,7 +337,7 @@ func marshalProviderConfigs(
 	}
 }
 
-func marshalModule(c *configs.Config, schemas *tofu.Schemas, addr string) (module, error) {
+func marshalModule(c *configs.Config, schemas *farseek.Schemas, addr string) (module, error) {
 	var module module
 	var rs []resource
 
@@ -376,7 +376,7 @@ func marshalModule(c *configs.Config, schemas *tofu.Schemas, addr string) (modul
 			dependencies := make([]string, len(v.DependsOn))
 			for i, d := range v.DependsOn {
 				ref, diags := addrs.ParseRef(d)
-				// we should not get an error here, because `tofu validate`
+				// we should not get an error here, because `farseek validate`
 				// would have complained well before this point, but if we do we'll
 				// silently skip it.
 				if !diags.HasErrors() {
@@ -448,7 +448,7 @@ func marshalModule(c *configs.Config, schemas *tofu.Schemas, addr string) (modul
 	return module, nil
 }
 
-func marshalModuleCalls(c *configs.Config, schemas *tofu.Schemas) map[string]moduleCall {
+func marshalModuleCalls(c *configs.Config, schemas *farseek.Schemas) map[string]moduleCall {
 	ret := make(map[string]moduleCall)
 
 	for name, mc := range c.Module.ModuleCalls {
@@ -459,7 +459,7 @@ func marshalModuleCalls(c *configs.Config, schemas *tofu.Schemas) map[string]mod
 	return ret
 }
 
-func marshalModuleCall(c *configs.Config, mc *configs.ModuleCall, schemas *tofu.Schemas) moduleCall {
+func marshalModuleCall(c *configs.Config, mc *configs.ModuleCall, schemas *farseek.Schemas) moduleCall {
 	// Note that "c" is always nil when in single module mode!
 	// Refer to the docs on [inSingleModuleMode] to learn about how that
 	// special situation works.
@@ -506,7 +506,7 @@ func marshalModuleCall(c *configs.Config, mc *configs.ModuleCall, schemas *tofu.
 		dependencies := make([]string, len(mc.DependsOn))
 		for i, d := range mc.DependsOn {
 			ref, diags := addrs.ParseRef(d)
-			// we should not get an error here, because `tofu validate`
+			// we should not get an error here, because `farseek validate`
 			// would have complained well before this point, but if we do we'll
 			// silently skip it.
 			if !diags.HasErrors() {
@@ -519,7 +519,7 @@ func marshalModuleCall(c *configs.Config, mc *configs.ModuleCall, schemas *tofu.
 	return ret
 }
 
-func marshalResources(resources map[string]*configs.Resource, schemas *tofu.Schemas, moduleAddr string) ([]resource, error) {
+func marshalResources(resources map[string]*configs.Resource, schemas *farseek.Schemas, moduleAddr string) ([]resource, error) {
 	var rs []resource
 	for _, v := range resources {
 		providerConfigKey := opaqueProviderKey(v.ProviderConfigAddr().StringCompact(), moduleAddr)
@@ -570,7 +570,7 @@ func marshalResources(resources map[string]*configs.Resource, schemas *tofu.Sche
 		if v.Managed != nil && len(v.Managed.Provisioners) > 0 {
 			var provisioners []provisioner
 			for _, p := range v.Managed.Provisioners {
-				schema := mapSchema(schemas, func(schema *tofu.Schemas) *configschema.Block {
+				schema := mapSchema(schemas, func(schema *farseek.Schemas) *configschema.Block {
 					return schemas.ProvisionerConfig(p.Type)
 				})
 				prov := provisioner{
@@ -586,7 +586,7 @@ func marshalResources(resources map[string]*configs.Resource, schemas *tofu.Sche
 			dependencies := make([]string, len(v.DependsOn))
 			for i, d := range v.DependsOn {
 				ref, diags := addrs.ParseRef(d)
-				// we should not get an error here, because `tofu validate`
+				// we should not get an error here, because `farseek validate`
 				// would have complained well before this point, but if we do we'll
 				// silently skip it.
 				if !diags.HasErrors() {

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -50,7 +50,7 @@ type Unconfigured interface {
 	MoveResourceState(context.Context, MoveResourceStateRequest) MoveResourceStateResponse
 
 	// CallFunction requests that the given function is called and response returned.
-	// There is a bit of a quirk in OpenTofu-land.  We allow providers to supply
+	// There is a bit of a quirk in Farseek-land.  We allow providers to supply
 	// additional functions via GetFunctions() after configuration.  Those functions
 	// will only be available via CallFunction after ConfigureProvider is called.
 	CallFunction(context.Context, CallFunctionRequest) CallFunctionResponse
@@ -65,7 +65,7 @@ type Unconfigured interface {
 	//
 	// Stop should not block waiting for in-flight actions to complete. It
 	// should take any action it wants and return immediately acknowledging it
-	// has received the stop request. OpenTofu will not make any further API
+	// has received the stop request. Farseek will not make any further API
 	// calls to the provider after Stop is called.
 	//
 	// The given context is guaranteed not to be cancelled and to have no
@@ -338,8 +338,8 @@ type UpgradeResourceStateResponse struct {
 }
 
 type ConfigureProviderRequest struct {
-	// OpenTofu version is the version string from the running instance of
-	// tofu. Providers can use TerraformVersion to verify compatibility,
+	// Farseek version is the version string from the running instance of
+	// farseek. Providers can use TerraformVersion to verify compatibility,
 	// and to store for informational purposes.
 	TerraformVersion string
 
@@ -421,7 +421,7 @@ type PlanResourceChangeResponse struct {
 	// resource replacement.
 	RequiresReplace []cty.Path
 
-	// PlannedPrivate is an opaque blob that is not interpreted by tofu
+	// PlannedPrivate is an opaque blob that is not interpreted by farseek
 	// core. This will be saved and relayed back to the provider during
 	// ApplyResourceChange.
 	PlannedPrivate []byte
@@ -430,7 +430,7 @@ type PlanResourceChangeResponse struct {
 	Diagnostics tfdiags.Diagnostics
 
 	// LegacyTypeSystem is set only if the provider is using the legacy SDK
-	// whose type system cannot be precisely mapped into the OpenTofu type
+	// whose type system cannot be precisely mapped into the Farseek type
 	// system. We use this to bypass certain consistency checks that would
 	// otherwise fail due to this imprecise mapping. No other provider or SDK
 	// implementation is permitted to set this.
@@ -478,7 +478,7 @@ type ApplyResourceChangeResponse struct {
 	Diagnostics tfdiags.Diagnostics
 
 	// LegacyTypeSystem is set only if the provider is using the legacy SDK
-	// whose type system cannot be precisely mapped into the OpenTofu type
+	// whose type system cannot be precisely mapped into the Farseek type
 	// system. We use this to bypass certain consistency checks that would
 	// otherwise fail due to this imprecise mapping. No other provider or SDK
 	// implementation is permitted to set this.
@@ -505,7 +505,7 @@ type ImportResourceStateResponse struct {
 	Diagnostics tfdiags.Diagnostics
 }
 
-// ImportedResource represents an object being imported into OpenTofu with the
+// ImportedResource represents an object being imported into Farseek with the
 // help of a provider. An ImportedObject is a RemoteObject that has been read
 // by the provider's import handler but hasn't yet been committed to state.
 type ImportedResource struct {

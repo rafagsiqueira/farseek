@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -27,7 +27,7 @@ type Plan struct {
 	// OutPath contains an optional path to store the plan file
 	OutPath string
 
-	// GenerateConfigPath tells OpenTofu that config should be generated for
+	// GenerateConfigPath tells Farseek that config should be generated for
 	// unmatched import target paths and which path the generated file should
 	// be written to.
 	GenerateConfigPath string
@@ -37,6 +37,9 @@ type Plan struct {
 
 	// ShowSensitive is used to display the value of variables marked as sensitive.
 	ShowSensitive bool
+
+	// Uncommitted includes unstaged and uncommitted local changes in the drift calculation.
+	Uncommitted bool
 }
 
 // ParsePlan processes CLI arguments, returning a Plan value and errors.
@@ -56,6 +59,7 @@ func ParsePlan(args []string) (*Plan, tfdiags.Diagnostics) {
 	cmdFlags.StringVar(&plan.OutPath, "out", "", "out")
 	cmdFlags.StringVar(&plan.GenerateConfigPath, "generate-config-out", "", "generate-config-out")
 	cmdFlags.BoolVar(&plan.ShowSensitive, "show-sensitive", false, "displays sensitive values")
+	cmdFlags.BoolVar(&plan.Uncommitted, "uncommitted", false, "include uncommitted changes in drift calculation")
 
 	var json bool
 	cmdFlags.BoolVar(&json, "json", false, "json")

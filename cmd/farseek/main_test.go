@@ -267,10 +267,10 @@ func TestMain_autoComplete(t *testing.T) {
 		return &testCommandCLI{}, nil
 	}
 
-	t.Setenv("COMP_LINE", "tofu versio")
+	t.Setenv("COMP_LINE", "farseek versio")
 
 	// Run it!
-	os.Args = []string{"tofu", "tofu", "versio"}
+	os.Args = []string{"farseek", "farseek", "versio"}
 	exit := realMain()
 	if exit != 0 {
 		t.Fatalf("unexpected exit status %d; want 0", exit)

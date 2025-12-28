@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -30,7 +30,7 @@ type Interface interface {
 	//
 	// Stop should not block waiting for in-flight actions to complete. It
 	// should take any action it wants and return immediately acknowledging it
-	// has received the stop request. OpenTofu will not make any further API
+	// has received the stop request. Farseek will not make any further API
 	// calls to the provisioner after Stop is called.
 	//
 	// The error returned, if non-nil, is assumed to mean that signaling the

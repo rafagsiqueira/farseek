@@ -1,41 +1,78 @@
-# OpenTofu Documentation
+<picture>
+  <source srcset="./.github/logo-dark.svg" media="(prefers-color-scheme: dark)" width="250px">
+  <source srcset="./.github/logo-light.svg" media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)" width="250px">
+  <img src="./.github/logo-light.svg" width="250px" alt="OpenTofu">
+</picture>
 
-This directory contains the portions of [the OpenTofu website](https://opentofu.org) that pertain to the core functionality, excluding providers and the overall configuration.
+## Stack
 
-## Development server
+- [Docusaurus]
+- [React]
+- [TypeScript]
+- [Tailwind CSS]
 
-You can start a local development server with Docker by running the following command from this (the `website`) directory:
+## Cloning the repository
 
+This repository uses Git submodules to pull in the [main OpenTofu repository](https://github.com/opentofu/opentofu).
+
+```bash
+git clone --recurse-submodules git@github.com:opentofu/opentofu.org.git
 ```
+
+<details>
+<summary>Oops! I forgot to recurse submodules…</summary><br>
+
+```bash
+cd opentofu.org
+git submodule init
+git submodule update
+```
+
+</details>
+
+## Development
+
+You can either develop locally, or by using a local Docker container.
+
+### Option A: Running the dev server locally
+
+You can run the dev server if you have a local Node.js/npm environment installed:
+
+1. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+1. Start the development server:
+
+   ```bash
+   npm run start
+   ```
+
+1. You can now access the site locally at <http://localhost:3000>.
+
+### Option A: Running the dev server in a container
+
+You can run the dev server in a Docker container with the following command:
+
+```bash
 docker compose up --build
 ```
 
-The development server will be available on http://localhost:3000/docs/main/ .
+## Troubleshooting
 
-Under `Docs` in the navigation bar, select `Development` version to see local changes.
+### The docs folder does not exist for version "vX.Y"
 
-## Suggesting Changes
+> Error: The docs folder does not exist for version "vX.Y". A docs folder is expected to be found at versioned_docs/version-vX.Y.
 
-You can [submit an issue](https://github.com/opentofu/opentofu/issues/new/choose) with documentation requests or submit a pull request with suggested changes.
+Make sure you installed the Git submodules. See above for instructions.
 
-Click **Edit this page** at the bottom of any OpenTofu website page to go directly to the associated markdown file in GitHub.
+## Contributing
 
-## Modifying Sidebar Navigation
+When you contribute code to OpenTofu, do not forget to sign off your commits as [described here](https://github.com/opentofu/opentofu/blob/main/CONTRIBUTING.md#signing-off-your-commits).
 
-You must update the sidebar navigation when you add or delete documentation .mdx files. If you do not update the navigation, the website deploy preview fails.
-
-To update the sidebar navigation, you must edit the appropriate `nav-data.json` file. This repository contains the sidebar navigation files for the following documentation sets:
-
-- OpenTofu Language: [`language-nav-data.json`](https://github.com/opentofu/opentofu/blob/main/website/data/language-nav-data.json)
-- OpenTofu CLI: [`cli-nav-data.json`](https://github.com/opentofu/opentofu/blob/main/website/data/cli-nav-data.json)
-- Introduction to OpenTofu: [`intro-nav-data.json`](https://github.com/opentofu/opentofu/blob/main/website/data/intro-nav-data.json)
-
-## Previewing Changes
-
-Currently, you can preview your changes through the [opentofu/opentofu.org](https://github.com/opentofu/opentofu.org/blob/main/README.md) repository.
-
-Follow the [Getting Started](https://github.com/opentofu/opentofu.org/blob/main/README.md#getting-started) guide.
-
-## Copyright headers for code examples
-
-In order to not include copyright headers for code examples used in docs, please, add the files under `examples` folder. This way, it will be ignored on automated copyright headers check.
+[docusaurus]: https://docusaurus.io
+[react]: https://react.dev
+[tailwind css]: https://tailwindcss.com
+[typescript]: https://www.typescriptlang.org

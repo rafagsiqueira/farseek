@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -15,29 +15,18 @@ import (
 
 	"github.com/rafagsiqueira/farseek/internal/backend"
 	backendLocal "github.com/rafagsiqueira/farseek/internal/backend/local"
-	backendRemote "github.com/rafagsiqueira/farseek/internal/backend/remote"
-	backendAzure "github.com/rafagsiqueira/farseek/internal/backend/remote-state/azure"
-	backendConsul "github.com/rafagsiqueira/farseek/internal/backend/remote-state/consul"
-	backendCos "github.com/rafagsiqueira/farseek/internal/backend/remote-state/cos"
-	backendGCS "github.com/rafagsiqueira/farseek/internal/backend/remote-state/gcs"
-	backendHTTP "github.com/rafagsiqueira/farseek/internal/backend/remote-state/http"
-	backendInmem "github.com/rafagsiqueira/farseek/internal/backend/remote-state/inmem"
-	backendKubernetes "github.com/rafagsiqueira/farseek/internal/backend/remote-state/kubernetes"
-	backendOSS "github.com/rafagsiqueira/farseek/internal/backend/remote-state/oss"
-	backendPg "github.com/rafagsiqueira/farseek/internal/backend/remote-state/pg"
-	backendS3 "github.com/rafagsiqueira/farseek/internal/backend/remote-state/s3"
-	backendCloud "github.com/rafagsiqueira/farseek/internal/cloud"
+
 	"github.com/rafagsiqueira/farseek/internal/encryption"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
 )
 
-// Backends are hardcoded into OpenTofu because the API for backends uses
+// Backends are hardcoded into Farseek because the API for backends uses
 // complex structures and supporting that over the plugin system is currently
 // prohibitively difficult. For those wanting to implement a custom backend,
 // they can do so with recompilation.
 
 // backends is the list of available backends. This is a global variable
-// because backends are currently hardcoded into OpenTofu and can't be
+// because backends are currently hardcoded into Farseek and can't be
 // modified without recompilation.
 //
 // To read an available backend, use the Backend function. This ensures
@@ -47,7 +36,7 @@ var backends map[string]backend.InitFn
 
 // backendAliases complements [backends] by allowing alternative names for some
 // backends. The keys are the alias names and the values are the canonical
-// names. OpenTofu always normalizes any use of an alias into its canonical
+// names. Farseek always normalizes any use of an alias into its canonical
 // name so that the two are effectively interchangable.
 //
 // [backendsLock] also covers access to backendAliases. Use the Backend function
@@ -72,36 +61,19 @@ func Init(services *disco.Disco) {
 	// to the following table.
 
 	backends = map[string]backend.InitFn{
-		"local":  func(enc encryption.StateEncryption) backend.Backend { return backendLocal.New(enc) },
-		"remote": func(enc encryption.StateEncryption) backend.Backend { return backendRemote.New(services, enc) },
-
-		// Remote State backends.
-		"azurerm":    func(enc encryption.StateEncryption) backend.Backend { return backendAzure.New(enc) },
-		"consul":     func(enc encryption.StateEncryption) backend.Backend { return backendConsul.New(enc) },
-		"cos":        func(enc encryption.StateEncryption) backend.Backend { return backendCos.New(enc) },
-		"gcs":        func(enc encryption.StateEncryption) backend.Backend { return backendGCS.New(enc) },
-		"http":       func(enc encryption.StateEncryption) backend.Backend { return backendHTTP.New(enc) },
-		"inmem":      func(enc encryption.StateEncryption) backend.Backend { return backendInmem.New(enc) },
-		"kubernetes": func(enc encryption.StateEncryption) backend.Backend { return backendKubernetes.New(enc) },
-		"oss":        func(enc encryption.StateEncryption) backend.Backend { return backendOSS.New(enc) },
-		"pg":         func(enc encryption.StateEncryption) backend.Backend { return backendPg.New(enc) },
-		"s3":         func(enc encryption.StateEncryption) backend.Backend { return backendS3.New(enc) },
-
-		// Terraform Cloud 'backend'
-		// This is an implementation detail only, used for the cloud package
-		"cloud": func(enc encryption.StateEncryption) backend.Backend { return backendCloud.New(services, enc) },
+		"local": func(enc encryption.StateEncryption) backend.Backend { return backendLocal.New(enc) },
 	}
 	backendAliases = map[string]string{
 		// There are currently no backend aliases
 	}
 
 	RemovedBackends = map[string]string{
-		"artifactory": `The "artifactory" backend is not supported in OpenTofu v1.3 or later.`,
+		"artifactory": `The "artifactory" backend is not supported in Farseek v1.3 or later.`,
 		"azure":       `The "azure" backend name has been removed, please use "azurerm".`,
-		"etcd":        `The "etcd" backend is not supported in OpenTofu v1.3 or later.`,
-		"etcdv3":      `The "etcdv3" backend is not supported in OpenTofu v1.3 or later.`,
-		"manta":       `The "manta" backend is not supported in OpenTofu v1.3 or later.`,
-		"swift":       `The "swift" backend is not supported in OpenTofu v1.3 or later.`,
+		"etcd":        `The "etcd" backend is not supported in Farseek v1.3 or later.`,
+		"etcdv3":      `The "etcdv3" backend is not supported in Farseek v1.3 or later.`,
+		"manta":       `The "manta" backend is not supported in Farseek v1.3 or later.`,
+		"swift":       `The "swift" backend is not supported in Farseek v1.3 or later.`,
 	}
 }
 
@@ -109,7 +81,7 @@ func Init(services *disco.Disco) {
 // nil if none exists.
 //
 // The second return value is the canonical name for the selected backend,
-// if any, which should be used in the UI and in OpenTofu's records of which
+// if any, which should be used in the UI and in Farseek's records of which
 // backend is active in a particular working directory.
 func Backend(name string) (backend.InitFn, string) {
 	backendsLock.Lock()
@@ -125,7 +97,7 @@ func Backend(name string) (backend.InitFn, string) {
 // then it will be overwritten.
 //
 // This method sets this backend globally and care should be taken to do
-// this only before OpenTofu is executing to prevent odd behavior of backends
+// this only before Farseek is executing to prevent odd behavior of backends
 // changing mid-execution.
 //
 // NOTE: Underscore-prefixed named are reserved for unit testing use via

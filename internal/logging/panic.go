@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -22,7 +22,7 @@ const panicOutput = `
 Farseek crashed! This is always indicative of a bug within Farseek.
 Please report the crash with Farseek[1] so that we can fix this.
 
-When reporting bugs, please include your OpenTofu version, the stack trace
+When reporting bugs, please include your Farseek version, the stack trace
 shown below, and any additional information which may help replicate the issue.
 
 [1]: https://github.com/rafagsiqueira/farseek/issues
@@ -35,14 +35,14 @@ shown below, and any additional information which may help replicate the issue.
 // recovered by PanicHandler starts printing.
 var panicMutex sync.Mutex
 
-// PanicHandler is called to recover from an internal panic in OpenTofu, and
+// PanicHandler is called to recover from an internal panic in Farseek, and
 // augments the standard stack trace with a more user friendly error message.
 // PanicHandler must be called as a deferred function, and must be the first
 // defer called at the start of a new goroutine.
 func PanicHandler() {
 	// Have all managed goroutines checkin here, and prevent them from exiting
 	// if there's a panic in progress. While this can't lock the entire runtime
-	// to block progress, we can prevent some cases where OpenTofu may return
+	// to block progress, we can prevent some cases where Farseek may return
 	// early before the panic has been printed out.
 	panicMutex.Lock()
 	defer panicMutex.Unlock()
@@ -52,7 +52,7 @@ func PanicHandler() {
 }
 
 // PanicHandlerWithTraceFn returns a function similar to PanicHandler which is
-// called to recover from an internal panic in OpenTofu, and augments the
+// called to recover from an internal panic in Farseek, and augments the
 // standard stack trace with a more complete stack trace.
 // The calling stack trace is captured before returning the augmented panicHandler
 // The returned panicHandler must be called as a deferred function, and must be the
@@ -73,7 +73,7 @@ func PanicHandlerWithTraceFn() func() {
 	return func() {
 		// Have all managed goroutines checkin here, and prevent them from exiting
 		// if there's a panic in progress. While this can't lock the entire runtime
-		// to block progress, we can prevent some cases where OpenTofu may return
+		// to block progress, we can prevent some cases where Farseek may return
 		// early before the panic has been printed out.
 		panicMutex.Lock()
 		defer panicMutex.Unlock()

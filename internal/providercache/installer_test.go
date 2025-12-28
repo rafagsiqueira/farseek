@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -1745,7 +1745,7 @@ func TestEnsureProviderVersions(t *testing.T) {
 			Check: func(t *testing.T, dir *Dir, locks *depsfile.Locks) {
 				// Built-in providers are neither included in the cache
 				// directory nor mentioned in the lock file, because they
-				// are compiled directly into the OpenTofu executable.
+				// are compiled directly into the Farseek executable.
 				if allCached := dir.AllAvailablePackages(); len(allCached) != 0 {
 					t.Errorf("wrong number of cache directory entries; want none\n%s", spew.Sdump(allCached))
 				}
@@ -1922,7 +1922,7 @@ func TestEnsureProviderVersions(t *testing.T) {
 				terraformProvider: nil,
 			},
 			WantErr: `some providers could not be installed:
-- terraform.io/builtin/terraform: this OpenTofu release has no built-in provider named "terraform"`,
+- terraform.io/builtin/terraform: this Farseek release has no built-in provider named "terraform"`,
 			WantEvents: func(inst *Installer, dir *Dir) map[addrs.Provider][]*testInstallerEventLogItem {
 				return map[addrs.Provider][]*testInstallerEventLogItem{
 					noProvider: {
@@ -1937,7 +1937,7 @@ func TestEnsureProviderVersions(t *testing.T) {
 						{
 							Event:    "BuiltInProviderFailure",
 							Provider: terraformProvider,
-							Args:     `this OpenTofu release has no built-in provider named "terraform"`,
+							Args:     `this Farseek release has no built-in provider named "terraform"`,
 						},
 					},
 				}
@@ -2028,7 +2028,7 @@ func TestEnsureProviderVersions(t *testing.T) {
 				}
 			},
 			WantErr: `some providers could not be installed:
-- example.com/foo/beep: locked provider example.com/foo/beep 1.0.0 does not match configured version constraint >= 2.0.0; must use tofu init -upgrade to allow selection of new versions`,
+- example.com/foo/beep: locked provider example.com/foo/beep 1.0.0 does not match configured version constraint >= 2.0.0; must use farseek init -upgrade to allow selection of new versions`,
 			WantEvents: func(inst *Installer, dir *Dir) map[addrs.Provider][]*testInstallerEventLogItem {
 				return map[addrs.Provider][]*testInstallerEventLogItem{
 					noProvider: {
@@ -2051,7 +2051,7 @@ func TestEnsureProviderVersions(t *testing.T) {
 						{
 							Event:    "QueryPackagesFailure",
 							Provider: beepProvider,
-							Args:     `locked provider example.com/foo/beep 1.0.0 does not match configured version constraint >= 2.0.0; must use tofu init -upgrade to allow selection of new versions`,
+							Args:     `locked provider example.com/foo/beep 1.0.0 does not match configured version constraint >= 2.0.0; must use farseek init -upgrade to allow selection of new versions`,
 						},
 					},
 				}

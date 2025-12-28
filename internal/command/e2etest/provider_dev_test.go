@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -32,7 +32,7 @@ func TestProviderDevOverrides(t *testing.T) {
 	}
 	t.Parallel()
 
-	tf := e2e.NewBinary(t, tofuBin, "testdata/provider-dev-override")
+	tf := e2e.NewBinary(t, farseekBin, "testdata/provider-dev-override")
 
 	// In order to do a decent end-to-end test for this case we will need a
 	// real enough provider plugin to try to run and make sure we are able
@@ -68,11 +68,11 @@ func TestProviderDevOverrides(t *testing.T) {
 		t.Errorf("configuration should depend on %s, but doesn't\n%s", want, got)
 	}
 
-	// NOTE: We're intentionally not running "tofu init" here, because
+	// NOTE: We're intentionally not running "farseek init" here, because
 	// dev overrides are always ready to use and don't need any special action
 	// to "install" them. This test is mimicking the a happy path of going
 	// directly from "go build" to validate/plan/apply without interacting
-	// with any registries, mirrors, lock files, etc. To verify "tofu
+	// with any registries, mirrors, lock files, etc. To verify "farseek
 	// init" does actually show a warning, that behavior is tested at the end.
 	stdout, stderr, err = tf.Run("validate")
 	if err != nil {

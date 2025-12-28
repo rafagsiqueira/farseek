@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -24,21 +24,21 @@ import (
 	ctyjson "github.com/zclconf/go-cty/cty/json"
 
 	"github.com/rafagsiqueira/farseek/internal/backend"
-	"github.com/rafagsiqueira/farseek/internal/cloud"
+
 	"github.com/rafagsiqueira/farseek/internal/command/arguments"
 	"github.com/rafagsiqueira/farseek/internal/command/clistate"
 	"github.com/rafagsiqueira/farseek/internal/command/views"
 	"github.com/rafagsiqueira/farseek/internal/configs"
 	"github.com/rafagsiqueira/farseek/internal/encryption"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
 	"github.com/rafagsiqueira/farseek/internal/tracing"
 
 	backendInit "github.com/rafagsiqueira/farseek/internal/backend/init"
 	backendLocal "github.com/rafagsiqueira/farseek/internal/backend/local"
-	legacy "github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	legacy "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
 // BackendOpts are the options used to initialize a backend.Backend.
@@ -66,18 +66,10 @@ type BackendOpts struct {
 	ViewType arguments.ViewType
 }
 
-// BackendWithRemoteTerraformVersion is a shared interface between the 'remote' and 'cloud' backends
-// for simplified type checking when calling functions common to those particular backends.
-type BackendWithRemoteTerraformVersion interface {
-	IgnoreVersionConflict()
-	VerifyWorkspaceTerraformVersion(workspace string) tfdiags.Diagnostics
-	IsLocalOperations() bool
-}
-
 // Backend initializes and returns the backend for this CLI session.
 //
-// The backend is used to perform the actual OpenTofu operations. This
-// abstraction enables easily sliding in new OpenTofu behavior such as
+// The backend is used to perform the actual Farseek operations. This
+// abstraction enables easily sliding in new Farseek behavior such as
 // remote state storage, remote operations, etc. while allowing the CLI
 // to remain mostly identical.
 //
@@ -91,7 +83,7 @@ type BackendWithRemoteTerraformVersion interface {
 //
 // A side-effect of this method is the population of m.backendState, recording
 // the final resolved backend configuration after dealing with overrides from
-// the "tofu init" command line, etc.
+// the "farseek init" command line, etc.
 func (m *Meta) Backend(ctx context.Context, opts *BackendOpts, enc encryption.StateEncryption) (backend.Enhanced, tfdiags.Diagnostics) {
 	var diags tfdiags.Diagnostics
 
@@ -144,16 +136,16 @@ func (m *Meta) Backend(ctx context.Context, opts *BackendOpts, enc encryption.St
 				for addr, err := range errs {
 					fmt.Fprintf(&buf, "\n  - %s: %s", addr, err)
 				}
-				suggestion := "To download the plugins required for this configuration, run:\n  tofu init"
+				suggestion := "To download the plugins required for this configuration, run:\n  farseek init"
 				if m.RunningInAutomation {
-					// Don't mention "tofu init" specifically if we're running in an automation wrapper
-					suggestion = "You must install the required plugins before running OpenTofu operations."
+					// Don't mention "farseek init" specifically if we're running in an automation wrapper
+					suggestion = "You must install the required plugins before running Farseek operations."
 				}
 				diags = diags.Append(tfdiags.Sourceless(
 					tfdiags.Error,
 					"Required plugins are not installed",
 					fmt.Sprintf(
-						"The installed provider plugins are not consistent with the packages selected in the dependency lock file:%s\n\nOpenTofu uses external plugins to integrate with a variety of different infrastructure services. %s",
+						"The installed provider plugins are not consistent with the packages selected in the dependency lock file:%s\n\nFarseek uses external plugins to integrate with a variety of different infrastructure services. %s",
 						buf.String(), suggestion,
 					),
 				))
@@ -239,27 +231,7 @@ func (m *Meta) selectWorkspace(ctx context.Context, b backend.Backend) error {
 		return fmt.Errorf("Failed to get existing workspaces: %w", err)
 	}
 	if len(workspaces) == 0 {
-		if c, ok := b.(*cloud.Cloud); ok && m.input {
-			// len is always 1 if using Name; 0 means we're using Tags and there
-			// aren't any matching workspaces. Which might be normal and fine, so
-			// let's just ask:
-			name, err := m.UIInput().Input(context.Background(), &tofu.InputOpts{
-				Id:          "create-workspace",
-				Query:       "\n[reset][bold][yellow]No workspaces found.[reset]",
-				Description: fmt.Sprintf(inputCloudInitCreateWorkspace, strings.Join(c.WorkspaceMapping.Tags, ", ")),
-			})
-			if err != nil {
-				return fmt.Errorf("Couldn't create initial workspace: %w", err)
-			}
-			name = strings.TrimSpace(name)
-			if name == "" {
-				return fmt.Errorf("Couldn't create initial workspace: no name provided")
-			}
-			log.Printf("[TRACE] Meta.selectWorkspace: selecting the new TFC workspace requested by the user (%s)", name)
-			return m.SetWorkspace(name)
-		} else {
-			return fmt.Errorf("%s", strings.TrimSpace(errBackendNoExistingWorkspaces))
-		}
+		return fmt.Errorf("%s", strings.TrimSpace(errBackendNoExistingWorkspaces))
 	}
 
 	// Get the currently selected workspace.
@@ -290,7 +262,7 @@ func (m *Meta) selectWorkspace(ctx context.Context, b backend.Backend) error {
 	}
 
 	// Otherwise, ask the user to select a workspace from the list of existing workspaces.
-	v, err := m.UIInput().Input(context.Background(), &tofu.InputOpts{
+	v, err := m.UIInput().Input(context.Background(), &farseek.InputOpts{
 		Id: "select-workspace",
 		Query: fmt.Sprintf(
 			"\n[reset][bold][yellow]The currently selected workspace (%s) does not exist.[reset]",
@@ -330,7 +302,7 @@ func (m *Meta) BackendForLocalPlan(ctx context.Context, settings plans.Backend, 
 		// We should always save the canonical name in a plan -- never an alias
 		// name -- so getting here suggests a bug in the code that generated
 		// this plan.
-		diags = diags.Append(fmt.Errorf("saved plan should use canonical backend type %q, not alias %q; this is a bug in OpenTofu", canonType, settings.Type))
+		diags = diags.Append(fmt.Errorf("saved plan should use canonical backend type %q, not alias %q; this is a bug in Farseek", canonType, settings.Type))
 		return nil, diags
 	}
 	b := f(enc)
@@ -572,7 +544,7 @@ func (m *Meta) backendFromConfig(ctx context.Context, opts *BackendOpts, enc enc
 	// ------------------------------------------------------------------------
 	// For historical reasons, current backend configuration for a working
 	// directory is kept in a *state-like* file, using the legacy state
-	// structures in the OpenTofu package. It is not actually a OpenTofu
+	// structures in the Farseek package. It is not actually a Farseek
 	// state, and so only the "backend" portion of it is actually used.
 	//
 	// The remainder of this code often confusingly refers to this as a "state",
@@ -583,7 +555,7 @@ func (m *Meta) backendFromConfig(ctx context.Context, opts *BackendOpts, enc enc
 	// Since the "real" state has since moved on to be represented by
 	// states.State, we can recognize the special meaning of state that applies
 	// to this function and its callees by their continued use of the
-	// otherwise-obsolete tofu.State.
+	// otherwise-obsolete farseek.State.
 	// ------------------------------------------------------------------------
 
 	// Get the path to where we store a local cache of backend configuration
@@ -629,7 +601,7 @@ func (m *Meta) backendFromConfig(ctx context.Context, opts *BackendOpts, enc enc
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			"Legacy remote state not supported",
-			"This working directory is configured for legacy remote state, which is no longer supported from Terraform v0.12 onwards, and thus not supported by OpenTofu, either. To migrate this environment, first run \"terraform init\" under a Terraform 0.11 release, and then upgrade to OpenTofu.",
+			"This working directory is configured for legacy remote state, which is no longer supported from Terraform v0.12 onwards, and thus not supported by Farseek, either. To migrate this environment, first run \"terraform init\" under a Terraform 0.11 release, and then upgrade to Farseek.",
 		))
 		return nil, diags
 	}
@@ -650,13 +622,13 @@ func (m *Meta) backendFromConfig(ctx context.Context, opts *BackendOpts, enc enc
 		if !opts.Init {
 			diags = diags.Append(tfdiags.Sourceless(
 				tfdiags.Error,
-				"Backend initialization required, please run \"tofu init\"",
+				"Backend initialization required, please run \"farseek init\"",
 				fmt.Sprintf(strings.TrimSpace(errBackendInit), initReason),
 			))
 			return nil, diags
 		}
 
-		if s.Backend.Type != "cloud" && !m.migrateState {
+		if !m.migrateState {
 			diags = diags.Append(migrateOrReconfigDiag)
 			return nil, diags
 		}
@@ -667,21 +639,12 @@ func (m *Meta) backendFromConfig(ctx context.Context, opts *BackendOpts, enc enc
 	case c != nil && s.Backend.Empty():
 		log.Printf("[TRACE] Meta.Backend: moving from default local state only to %q backend", c.Type)
 		if !opts.Init {
-			if c.Type == "cloud" {
-				initReason := "Initial configuration of cloud backend"
-				diags = diags.Append(tfdiags.Sourceless(
-					tfdiags.Error,
-					"Cloud backend initialization required: please run \"tofu init\"",
-					fmt.Sprintf(strings.TrimSpace(errBackendInitCloud), initReason),
-				))
-			} else {
-				initReason := fmt.Sprintf("Initial configuration of the requested backend %q", c.Type)
-				diags = diags.Append(tfdiags.Sourceless(
-					tfdiags.Error,
-					"Backend initialization required, please run \"tofu init\"",
-					fmt.Sprintf(strings.TrimSpace(errBackendInit), initReason),
-				))
-			}
+			initReason := fmt.Sprintf("Initial configuration of the requested backend %q", c.Type)
+			diags = diags.Append(tfdiags.Sourceless(
+				tfdiags.Error,
+				"Backend initialization required, please run \"farseek init\"",
+				fmt.Sprintf(strings.TrimSpace(errBackendInit), initReason),
+			))
 			return nil, diags
 		}
 		return m.backend_C_r_s(ctx, c, cHash, sMgr, opts, enc)
@@ -736,16 +699,25 @@ func (m *Meta) backendFromConfig(ctx context.Context, opts *BackendOpts, enc enc
 		}
 		log.Printf("[TRACE] Meta.Backend: backend configuration has changed (from type %q to type %q)", s.Backend.Type, c.Type)
 
-		cloudMode := cloud.DetectConfigChangeType(s.Backend, c, false)
-
 		if !opts.Init {
 			//user ran another cmd that is not init but they are required to initialize because of a potential relevant change to their backend configuration
-			initDiag := m.determineInitReason(s.Backend.Type, c.Type, cloudMode)
-			diags = diags.Append(initDiag)
+			initReason := ""
+			switch {
+			case s.Backend.Type != c.Type:
+				initReason = fmt.Sprintf("Backend type changed from %q to %q", s.Backend.Type, c.Type)
+			default:
+				initReason = "Backend configuration block has changed"
+			}
+
+			diags = diags.Append(tfdiags.Sourceless(
+				tfdiags.Error,
+				"Backend initialization required, please run \"farseek init\"",
+				fmt.Sprintf(strings.TrimSpace(errBackendInit), initReason),
+			))
 			return nil, diags
 		}
 
-		if !cloudMode.InvolvesCloud() && !m.migrateState {
+		if !m.migrateState {
 			diags = diags.Append(migrateOrReconfigDiag)
 			return nil, diags
 		}
@@ -765,52 +737,9 @@ func (m *Meta) backendFromConfig(ctx context.Context, opts *BackendOpts, enc enc
 	}
 }
 
-func (m *Meta) determineInitReason(previousBackendType string, currentBackendType string, cloudMode cloud.ConfigChangeMode) tfdiags.Diagnostics {
-	initReason := ""
-	switch cloudMode {
-	case cloud.ConfigMigrationIn:
-		initReason = fmt.Sprintf("Changed from backend %q to cloud backend", previousBackendType)
-	case cloud.ConfigMigrationOut:
-		initReason = fmt.Sprintf("Changed from cloud backend to backend %q", previousBackendType)
-	case cloud.ConfigChangeInPlace:
-		initReason = "Cloud backend configuration block has changed"
-	default:
-		switch {
-		case previousBackendType != currentBackendType:
-			initReason = fmt.Sprintf("Backend type changed from %q to %q", previousBackendType, currentBackendType)
-		default:
-			initReason = "Backend configuration block has changed"
-		}
-	}
-
-	var diags tfdiags.Diagnostics
-	switch cloudMode {
-	case cloud.ConfigChangeInPlace:
-		diags = diags.Append(tfdiags.Sourceless(
-			tfdiags.Error,
-			"Cloud backend initialization required: please run \"tofu init\"",
-			fmt.Sprintf(strings.TrimSpace(errBackendInitCloud), initReason),
-		))
-	case cloud.ConfigMigrationIn:
-		diags = diags.Append(tfdiags.Sourceless(
-			tfdiags.Error,
-			"Cloud backend initialization required: please run \"tofu init\"",
-			fmt.Sprintf(strings.TrimSpace(errBackendInitCloud), initReason),
-		))
-	default:
-		diags = diags.Append(tfdiags.Sourceless(
-			tfdiags.Error,
-			"Backend initialization required: please run \"tofu init\"",
-			fmt.Sprintf(strings.TrimSpace(errBackendInit), initReason),
-		))
-	}
-
-	return diags
-}
-
 // backendFromState returns the initialized (not configured) backend directly
 // from the backend state. This should be used only when a user runs
-// `tofu init -backend=false`. This function returns a local backend if
+// `farseek init -backend=false`. This function returns a local backend if
 // there is no backend state or no backend configured.
 func (m *Meta) backendFromState(ctx context.Context, enc encryption.StateEncryption) (backend.Backend, tfdiags.Diagnostics) {
 	var diags tfdiags.Diagnostics
@@ -850,21 +779,21 @@ func (m *Meta) backendFromState(ctx context.Context, enc encryption.StateEncrypt
 		// the clistate package) should always record the canonical backend
 		// type, not an alias for it. If we get here then there's a bug in
 		// the code that generated the s.Backend values.
-		diags = diags.Append(fmt.Errorf("working directory is configured for backend alias %q instead of the canonical name %q; this is a bug in OpenTofu", s.Backend.Type, canonType))
+		diags = diags.Append(fmt.Errorf("working directory is configured for backend alias %q instead of the canonical name %q; this is a bug in Farseek", s.Backend.Type, canonType))
 		return nil, diags
 	}
 	b := f(enc)
 
 	// The configuration saved in the working directory state file is used
 	// in this case, since it will contain any additional values that
-	// were provided via -backend-config arguments on tofu init.
+	// were provided via -backend-config arguments on farseek init.
 	schema := b.ConfigSchema()
 	configVal, err := s.Backend.Config(schema)
 	if err != nil {
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			"Failed to decode current backend config",
-			fmt.Sprintf("The backend configuration created by the most recent run of \"tofu init\" could not be decoded: %s. The configuration may have been initialized by an earlier version that used an incompatible configuration structure. Run \"tofu init -reconfigure\" to force re-initialization of the backend.", err),
+			fmt.Sprintf("The backend configuration created by the most recent run of \"farseek init\" could not be decoded: %s. The configuration may have been initialized by an earlier version that used an incompatible configuration structure. Run \"farseek init -reconfigure\" to force re-initialization of the backend.", err),
 		))
 		return nil, diags
 	}
@@ -929,20 +858,7 @@ func (m *Meta) backend_c_r_S(
 
 	s := sMgr.State()
 
-	cloudMode := cloud.DetectConfigChangeType(s.Backend, c, false)
-	diags = diags.Append(m.assertSupportedCloudInitOptions(cloudMode))
-	if diags.HasErrors() {
-		return nil, diags
-	}
-
-	// Get the backend type for output
-	backendType := s.Backend.Type
-
-	if cloudMode == cloud.ConfigMigrationOut {
-		m.Ui.Output("Migrating from cloud backend to local state.")
-	} else {
-		m.Ui.Output(fmt.Sprintf(strings.TrimSpace(outputBackendMigrateLocal), s.Backend.Type))
-	}
+	m.Ui.Output(fmt.Sprintf(strings.TrimSpace(outputBackendMigrateLocal), s.Backend.Type))
 
 	// Grab a purely local backend to get the local state if it exists
 	localB, moreDiags := m.Backend(ctx, &BackendOpts{ForceLocal: true, Init: true}, enc)
@@ -971,6 +887,9 @@ func (m *Meta) backend_c_r_S(
 		return nil, diags
 	}
 
+	// Get the backend type for output
+	backendType := s.Backend.Type
+
 	// Remove the stored metadata
 	s.Backend = nil
 	if err := sMgr.WriteState(s); err != nil {
@@ -982,11 +901,9 @@ func (m *Meta) backend_c_r_S(
 		return nil, diags
 	}
 
-	if output {
-		m.Ui.Output(m.Colorize().Color(fmt.Sprintf(
-			"[reset][green]\n\n"+
-				strings.TrimSpace(successBackendUnset), backendType)))
-	}
+	m.Ui.Output(m.Colorize().Color(fmt.Sprintf(
+		"[reset][green]\n\n"+
+			strings.TrimSpace(successBackendUnset), backendType)))
 
 	// Return no backend
 	return nil, diags
@@ -1035,12 +952,6 @@ func (m *Meta) backend_C_r_s(ctx context.Context, c *configs.Backend, cHash int,
 		} else {
 			log.Printf("[TRACE] Meta.Backend: ignoring local %q workspace because its state is empty", workspace)
 		}
-	}
-
-	cloudMode := cloud.DetectConfigChangeType(nil, c, len(localStates) > 0)
-	diags = diags.Append(m.assertSupportedCloudInitOptions(cloudMode))
-	if diags.HasErrors() {
-		return nil, diags
 	}
 
 	// Get the backend
@@ -1136,9 +1047,7 @@ func (m *Meta) backend_C_r_s(ctx context.Context, c *configs.Backend, cHash int,
 			// Therefore, only return nil with errored diags for everything else, and
 			// allow the remote backend to continue and write its configuration to state
 			// even though no workspace is selected.
-			if c.Type != "remote" {
-				return nil, diags
-			}
+			return nil, diags
 		}
 	}
 
@@ -1151,12 +1060,8 @@ func (m *Meta) backend_C_r_s(ctx context.Context, c *configs.Backend, cHash int,
 		return nil, diags
 	}
 
-	// By now the backend is successfully configured.  If using Terraform Cloud, the success
-	// message is handled as part of the final init message
-	if _, ok := b.(*cloud.Cloud); !ok {
-		m.Ui.Output(m.Colorize().Color(fmt.Sprintf(
-			"[reset][green]\n"+strings.TrimSpace(successBackendSet), s.Backend.Type)))
-	}
+	m.Ui.Output(m.Colorize().Color(fmt.Sprintf(
+		"[reset][green]\n"+strings.TrimSpace(successBackendSet), s.Backend.Type)))
 
 	return b, diags
 }
@@ -1175,32 +1080,17 @@ func (m *Meta) backend_C_r_S_changed(ctx context.Context, c *configs.Backend, cH
 	// Get the old state
 	s := sMgr.State()
 
-	cloudMode := cloud.DetectConfigChangeType(s.Backend, c, false)
-	diags = diags.Append(m.assertSupportedCloudInitOptions(cloudMode))
-	if diags.HasErrors() {
-		return nil, diags
-	}
-
 	if output {
 		// Notify the user
-		switch cloudMode {
-		case cloud.ConfigChangeInPlace:
-			m.Ui.Output("Cloud backend configuration has changed.")
-		case cloud.ConfigMigrationIn:
-			m.Ui.Output(fmt.Sprintf("Migrating from backend %q to cloud backend.", s.Backend.Type))
-		case cloud.ConfigMigrationOut:
-			m.Ui.Output(fmt.Sprintf("Migrating from cloud backend to backend %q.", c.Type))
-		default:
-			if s.Backend.Type != c.Type {
-				output := fmt.Sprintf(outputBackendMigrateChange, s.Backend.Type, c.Type)
-				m.Ui.Output(m.Colorize().Color(fmt.Sprintf(
-					"[reset]%s\n",
-					strings.TrimSpace(output))))
-			} else {
-				m.Ui.Output(m.Colorize().Color(fmt.Sprintf(
-					"[reset]%s\n",
-					strings.TrimSpace(outputBackendReconfigure))))
-			}
+		if s.Backend.Type != c.Type {
+			output := fmt.Sprintf(outputBackendMigrateChange, s.Backend.Type, c.Type)
+			m.Ui.Output(m.Colorize().Color(fmt.Sprintf(
+				"[reset]%s\n",
+				strings.TrimSpace(output))))
+		} else {
+			m.Ui.Output(m.Colorize().Color(fmt.Sprintf(
+				"[reset]%s\n",
+				strings.TrimSpace(outputBackendReconfigure))))
 		}
 	}
 
@@ -1211,13 +1101,7 @@ func (m *Meta) backend_C_r_S_changed(ctx context.Context, c *configs.Backend, cH
 		return nil, diags
 	}
 
-	// If this is a migration into, out of, or irrelevant to Terraform Cloud
-	// mode then we will do state migration here. Otherwise, we just update
-	// the working directory initialization directly, because Terraform Cloud
-	// doesn't have configurable state storage anyway -- we're only changing
-	// which workspaces are relevant to this configuration, not where their
-	// state lives.
-	if cloudMode != cloud.ConfigChangeInPlace {
+	if !m.reconfigure {
 		// Grab the existing backend
 		oldB, oldBDiags := m.savedBackend(ctx, sMgr, enc)
 		diags = diags.Append(oldBDiags)
@@ -1284,12 +1168,8 @@ func (m *Meta) backend_C_r_S_changed(ctx context.Context, c *configs.Backend, cH
 	}
 
 	if output {
-		// By now the backend is successfully configured.  If using Terraform Cloud, the success
-		// message is handled as part of the final init message
-		if _, ok := b.(*cloud.Cloud); !ok {
-			m.Ui.Output(m.Colorize().Color(fmt.Sprintf(
-				"[reset][green]\n"+strings.TrimSpace(successBackendSet), s.Backend.Type)))
-		}
+		m.Ui.Output(m.Colorize().Color(fmt.Sprintf(
+			"[reset][green]\n"+strings.TrimSpace(successBackendSet), s.Backend.Type)))
 	}
 
 	return b, diags
@@ -1314,21 +1194,21 @@ func (m *Meta) savedBackend(ctx context.Context, sMgr *clistate.LocalState, enc 
 	if s.Backend.Type != canonName {
 		// We should always save the canonical name in the clistate, so if we
 		// get here then it's a bug in whatever generated the clistate.
-		diags = diags.Append(fmt.Errorf("working directory state uses alias %q instead of canonical backend type %q; this is a bug in OpenTofu", s.Backend.Type, canonName))
+		diags = diags.Append(fmt.Errorf("working directory state uses alias %q instead of canonical backend type %q; this is a bug in Farseek", s.Backend.Type, canonName))
 		return nil, diags
 	}
 	b := f(enc)
 
 	// The configuration saved in the working directory state file is used
 	// in this case, since it will contain any additional values that
-	// were provided via -backend-config arguments on tofu init.
+	// were provided via -backend-config arguments on farseek init.
 	schema := b.ConfigSchema()
 	configVal, err := s.Backend.Config(schema)
 	if err != nil {
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			"Failed to decode current backend config",
-			fmt.Sprintf("The backend configuration created by the most recent run of \"tofu init\" could not be decoded: %s. The configuration may have been initialized by an earlier version that used an incompatible configuration structure. Run \"tofu init -reconfigure\" to force re-initialization of the backend.", err),
+			fmt.Sprintf("The backend configuration created by the most recent run of \"farseek init\" could not be decoded: %s. The configuration may have been initialized by an earlier version that used an incompatible configuration structure. Run \"farseek init -reconfigure\" to force re-initialization of the backend.", err),
 		))
 		return nil, diags
 	}
@@ -1453,7 +1333,7 @@ func (m *Meta) backendInitFromConfig(ctx context.Context, c *configs.Backend, en
 		return nil, cty.NilVal, diags
 	}
 	if c.Type != canonType {
-		diags = diags.Append(fmt.Errorf("backend configuration still contains alias type %q instead of canonical %q; this is a bug in OpenTofu", c.Type, canonType))
+		diags = diags.Append(fmt.Errorf("backend configuration still contains alias type %q instead of canonical %q; this is a bug in Farseek", c.Type, canonType))
 		return nil, cty.NilVal, diags
 	}
 	b := f(enc)
@@ -1469,7 +1349,7 @@ func (m *Meta) backendInitFromConfig(ctx context.Context, c *configs.Backend, en
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			"Unknown values within backend definition",
-			"The `tofu` configuration block should contain only concrete and static values. Another diagnostic should contain more information about which part of the configuration is problematic."))
+			"The `farseek` configuration block should contain only concrete and static values. Another diagnostic should contain more information about which part of the configuration is problematic."))
 		return nil, cty.NilVal, diags
 	}
 
@@ -1528,85 +1408,10 @@ func (m *Meta) setupEnhancedBackendAliases(b backend.Enhanced) error {
 	return nil
 }
 
-// Helper method to ignore remote/cloud backend version conflicts. Only call this
-// for commands which cannot accidentally upgrade remote state files.
-func (m *Meta) ignoreRemoteVersionConflict(b backend.Backend) {
-	if back, ok := b.(BackendWithRemoteTerraformVersion); ok {
-		back.IgnoreVersionConflict()
-	}
-}
-
-// Helper method to check the local OpenTofu version against the configured
+// Helper method to check the local Farseek version against the configured
 // version in the remote workspace, returning diagnostics if they conflict.
 func (m *Meta) remoteVersionCheck(b backend.Backend, workspace string) tfdiags.Diagnostics {
-	var diags tfdiags.Diagnostics
-
-	if back, ok := b.(BackendWithRemoteTerraformVersion); ok {
-		// Allow user override based on command-line flag
-		if m.ignoreRemoteVersion {
-			back.IgnoreVersionConflict()
-		}
-		// If the override is set, this check will return a warning instead of
-		// an error
-		versionDiags := back.VerifyWorkspaceTerraformVersion(workspace)
-		diags = diags.Append(versionDiags)
-		// If there are no errors resulting from this check, we do not need to
-		// check again
-		if !diags.HasErrors() {
-			back.IgnoreVersionConflict()
-		}
-	}
-
-	return diags
-}
-
-// assertSupportedCloudInitOptions returns diagnostics with errors if the
-// init-related command line options (implied inside the Meta receiver)
-// are incompatible with the given cloud configuration change mode.
-func (m *Meta) assertSupportedCloudInitOptions(mode cloud.ConfigChangeMode) tfdiags.Diagnostics {
-	var diags tfdiags.Diagnostics
-	if mode.InvolvesCloud() {
-		log.Printf("[TRACE] Meta.Backend: Cloud backend mode initialization type: %s", mode)
-		if m.reconfigure {
-			if mode.IsCloudMigration() {
-				diags = diags.Append(tfdiags.Sourceless(
-					tfdiags.Error,
-					"Invalid command-line option",
-					"The -reconfigure option is unsupported when migrating to cloud backend, because activating cloud backend involves some additional steps.",
-				))
-			} else {
-				diags = diags.Append(tfdiags.Sourceless(
-					tfdiags.Error,
-					"Invalid command-line option",
-					"The -reconfigure option is for in-place reconfiguration of state backends only, and is not needed when changing cloud backend settings.\n\nWhen using cloud backend, initialization automatically activates any new Cloud configuration settings.",
-				))
-			}
-		}
-		if m.migrateState {
-			name := "-migrate-state"
-			if m.forceInitCopy {
-				// -force copy implies -migrate-state in "tofu init",
-				// so m.migrateState is forced to true in this case even if
-				// the user didn't actually specify it. We'll use the other
-				// name here to avoid being confusing, then.
-				name = "-force-copy"
-			}
-			if mode.IsCloudMigration() {
-				diags = diags.Append(tfdiags.Sourceless(
-					tfdiags.Error,
-					"Invalid command-line option",
-					fmt.Sprintf("The %s option is for migration between state backends only, and is not applicable when using cloud backend.\n\nCloud backend migration has additional steps, configured by interactive prompts.", name),
-				))
-			} else {
-				diags = diags.Append(tfdiags.Sourceless(
-					tfdiags.Error,
-					"Invalid command-line option",
-					fmt.Sprintf("The %s option is for migration between state backends only, and is not applicable when using cloud backend.\n\nState storage is handled automatically by cloud backend and so the state storage location is not configurable.", name),
-				))
-			}
-		}
-	}
-	return diags
+	return nil
 }
 
 //-------------------------------------------------------------------
@@ -1616,8 +1421,8 @@ func (m *Meta) assertSupportedCloudInitOptions(mode cloud.ConfigChangeMode) tfdi
 const errBackendLocalRead = `
 Error reading local state: %w
 
-OpenTofu is trying to read your local state to determine if there is
-state to migrate to your newly configured backend. OpenTofu can't continue
+Farseek is trying to read your local state to determine if there is
+state to migrate to your newly configured backend. Farseek can't continue
 without this check because that would risk losing state. Please resolve the
 error above and try again.
 `
@@ -1635,19 +1440,19 @@ issue above and retry the command.
 const errBackendNewUnknown = `
 The backend %q could not be found.
 
-This is the backend specified in your OpenTofu configuration file.
+This is the backend specified in your Farseek configuration file.
 This error could be a simple typo in your configuration, but it can also
-be caused by using a OpenTofu version that doesn't support the specified
-backend type. Please check your configuration and your OpenTofu version.
+be caused by using a Farseek version that doesn't support the specified
+backend type. Please check your configuration and your Farseek version.
 
-If you'd like to run OpenTofu and store state locally, you can fix this
+If you'd like to run Farseek and store state locally, you can fix this
 error by removing the backend configuration from your configuration.
 `
 
 const errBackendNoExistingWorkspaces = `
 No existing workspaces.
 
-Use the "tofu workspace" command to create and select a new workspace.
+Use the "farseek workspace" command to create and select a new workspace.
 If the backend already contains existing workspaces, you may need to update
 the backend configuration.
 `
@@ -1655,21 +1460,21 @@ the backend configuration.
 const errBackendSavedUnknown = `
 The backend %q could not be found.
 
-This is the backend that this OpenTofu environment is configured to use
+This is the backend that this Farseek environment is configured to use
 both in your configuration and saved locally as your last-used backend.
-If it isn't found, it could mean an alternate version of OpenTofu was
-used with this configuration. Please use the proper version of OpenTofu that
+If it isn't found, it could mean an alternate version of Farseek was
+used with this configuration. Please use the proper version of Farseek that
 contains support for this backend.
 
 If you'd like to force remove this backend, you must update your configuration
-to not use the backend and run "tofu init" (or any other command) again.
+to not use the backend and run "farseek init" (or any other command) again.
 `
 
 const errBackendClearSaved = `
 Error clearing the backend configuration: %w
 
-OpenTofu removes the saved backend configuration when you're removing a
-configured backend. This must be done so future OpenTofu runs know to not
+Farseek removes the saved backend configuration when you're removing a
+configured backend. This must be done so future Farseek runs know to not
 use the backend configuration. Please look at the error above, resolve it,
 and try again.
 `
@@ -1677,14 +1482,14 @@ and try again.
 const errBackendInit = `
 Reason: %s
 
-The "backend" is the interface that OpenTofu uses to store state,
+The "backend" is the interface that Farseek uses to store state,
 perform operations, etc. If this message is showing up, it means that the
-OpenTofu configuration you're using is using a custom configuration for
-the OpenTofu backend.
+Farseek configuration you're using is using a custom configuration for
+the Farseek backend.
 
 Changes to backend configurations require reinitialization. This allows
-OpenTofu to set up the new configuration, copy existing state, etc. Please run
-"tofu init" with either the "-reconfigure" or "-migrate-state" flags to
+Farseek to set up the new configuration, copy existing state, etc. Please run
+"farseek init" with either the "-reconfigure" or "-migrate-state" flags to
 use the current configuration.
 
 If the change reason above is incorrect, please verify your configuration
@@ -1692,56 +1497,36 @@ hasn't changed and try again. At this point, no changes to your existing
 configuration or state have been made.
 `
 
-const errBackendInitCloud = `
-Reason: %s.
-
-Changes to the cloud backend configuration block require reinitialization, to discover any changes to the available workspaces.
-
-To re-initialize, run:
-  tofu init
-
-OpenTofu has not yet made changes to your existing configuration or state.
-`
-
 const errBackendWriteSaved = `
 Error saving the backend configuration: %w
 
-OpenTofu saves the complete backend configuration in a local file for
+Farseek saves the complete backend configuration in a local file for
 configuring the backend on future operations. This cannot be disabled. Errors
 are usually due to simple file permission errors. Please look at the error
 above, resolve it, and try again.
 `
 
 const outputBackendMigrateChange = `
-OpenTofu detected that the backend type changed from %q to %q.
+Farseek detected that the backend type changed from %q to %q.
 `
 
 const outputBackendMigrateLocal = `
-OpenTofu has detected you're unconfiguring your previously set %q backend.
+Farseek has detected you're unconfiguring your previously set %q backend.
 `
 
 const outputBackendReconfigure = `
 [reset][bold]Backend configuration changed![reset]
 
-OpenTofu has detected that the configuration specified for the backend
-has changed. OpenTofu will now check for existing state in the backends.
-`
-
-const inputCloudInitCreateWorkspace = `
-There are no workspaces with the configured tags (%s)
-in your cloud backend organization. To finish initializing, OpenTofu needs at
-least one workspace available.
-
-OpenTofu can create a properly tagged workspace for you now. Please enter a
-name to create a new cloud backend workspace.
+Farseek has detected that the configuration specified for the backend
+has changed. Farseek will now check for existing state in the backends.
 `
 
 const successBackendUnset = `
-Successfully unset the backend %q. OpenTofu will now operate locally.
+Successfully unset the backend %q. Farseek will now operate locally.
 `
 
 const successBackendSet = `
-Successfully configured the backend %q! OpenTofu will automatically
+Successfully configured the backend %q! Farseek will automatically
 use this backend unless the backend configuration changes.
 `
 
@@ -1749,5 +1534,5 @@ var migrateOrReconfigDiag = tfdiags.Sourceless(
 	tfdiags.Error,
 	"Backend configuration changed",
 	"A change in the backend configuration has been detected, which may require migrating existing state.\n\n"+
-		"If you wish to attempt automatic migration of the state, use \"tofu init -migrate-state\".\n"+
-		`If you wish to store the current configuration with no changes to the state, use "tofu init -reconfigure".`)
+		"If you wish to attempt automatic migration of the state, use \"farseek init -migrate-state\".\n"+
+		`If you wish to store the current configuration with no changes to the state, use "farseek init -reconfigure".`)

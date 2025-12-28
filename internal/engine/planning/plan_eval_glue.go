@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -66,7 +66,7 @@ func (p *planGlue) PlanDesiredResourceInstance(ctx context.Context, inst *eval.D
 		// We should not get here because the cases above should always be
 		// exhaustive for all of the valid resource modes.
 		var diags tfdiags.Diagnostics
-		diags = diags.Append(fmt.Errorf("the planning engine does not support %s; this is a bug in OpenTofu", mode))
+		diags = diags.Append(fmt.Errorf("the planning engine does not support %s; this is a bug in Farseek", mode))
 		return cty.DynamicVal, diags
 	}
 
@@ -90,13 +90,13 @@ func (p *planGlue) planOrphanResourceInstance(ctx context.Context, addr addrs.Ab
 		// orphan because ephemeral resources should never be persisted
 		// in a state snapshot.
 		var diags tfdiags.Diagnostics
-		diags = diags.Append(fmt.Errorf("unexpected ephemeral resource instance %s in prior state; this is a bug in OpenTofu", addr))
+		diags = diags.Append(fmt.Errorf("unexpected ephemeral resource instance %s in prior state; this is a bug in Farseek", addr))
 		return diags
 	default:
 		// We should not get here because the cases above should always be
 		// exhaustive for all of the valid resource modes.
 		var diags tfdiags.Diagnostics
-		diags = diags.Append(fmt.Errorf("the planning engine does not support %s; this is a bug in OpenTofu", mode))
+		diags = diags.Append(fmt.Errorf("the planning engine does not support %s; this is a bug in Farseek", mode))
 		return diags
 	}
 }
@@ -107,7 +107,7 @@ func (p *planGlue) planDeposedResourceInstanceObject(ctx context.Context, addr a
 		// Should not be possible because only managed resource instances
 		// support "replace" and so nothing else can have deposed objects.
 		var diags tfdiags.Diagnostics
-		diags = diags.Append(fmt.Errorf("deposed object for non-managed resource instance %s; this is a bug in OpenTofu", addr))
+		diags = diags.Append(fmt.Errorf("deposed object for non-managed resource instance %s; this is a bug in Farseek", addr))
 		return diags
 	}
 	return p.planDeposedManagedResourceInstanceObject(ctx, addr, deposedKey, state, p.planCtx.execgraphBuilder)

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -141,7 +141,7 @@ var importBlockSchema = &hcl.BodySchema{
 }
 
 // absTraversalForImportToExpr returns a static traversal of an import block's "to" field.
-// It is inspired by hcl.AbsTraversalForExpr and by tofu.triggersExprToTraversal
+// It is inspired by hcl.AbsTraversalForExpr and by farseek.triggersExprToTraversal
 // The use-case here is different - we want to also allow for hclsyntax.IndexExpr to be allowed,
 // but we don't really care about the key part of it. We just want a traversal that could be converted to an address
 // of a resource, so we could determine the module + resource + provider

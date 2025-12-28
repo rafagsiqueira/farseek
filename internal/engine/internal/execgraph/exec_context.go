@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -18,7 +18,7 @@ import (
 )
 
 // Implementations of ExecContext allow a [CompiledGraph] to interact with other
-// parts of OpenTofu during execution.
+// parts of Farseek during execution.
 //
 // The apply engine has the main implementation of this type, but it's an
 // interface to make it possible to test the functionality in this package

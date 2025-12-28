@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -19,7 +19,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/command/views/json"
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/states"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // How long to wait between sending heartbeat/progress messages
@@ -35,7 +35,7 @@ func newJSONHook(view *JSONView) *jsonHook {
 }
 
 type jsonHook struct {
-	tofu.NilHook
+	farseek.NilHook
 
 	view *JSONView
 
@@ -49,7 +49,7 @@ type jsonHook struct {
 	timeAfter func(time.Duration) <-chan time.Time
 }
 
-var _ tofu.Hook = (*jsonHook)(nil)
+var _ farseek.Hook = (*jsonHook)(nil)
 
 type applyProgress struct {
 	addr   addrs.AbsResourceInstance
@@ -67,7 +67,7 @@ type applyProgress struct {
 	elapsed chan time.Duration
 }
 
-func (h *jsonHook) PreApply(addr addrs.AbsResourceInstance, gen states.Generation, action plans.Action, priorState, plannedNewState cty.Value) (tofu.HookAction, error) {
+func (h *jsonHook) PreApply(addr addrs.AbsResourceInstance, gen states.Generation, action plans.Action, priorState, plannedNewState cty.Value) (farseek.HookAction, error) {
 	if action != plans.NoOp {
 		idKey, idValue := format.ObjectValueIDOrName(priorState)
 		h.view.Hook(json.NewApplyStart(addr, action, idKey, idValue))
@@ -88,7 +88,7 @@ func (h *jsonHook) PreApply(addr addrs.AbsResourceInstance, gen states.Generatio
 	if action != plans.NoOp {
 		go h.applyingHeartbeat(progress)
 	}
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }
 
 func (h *jsonHook) applyingHeartbeat(progress applyProgress) {
@@ -107,7 +107,7 @@ func (h *jsonHook) applyingHeartbeat(progress applyProgress) {
 	}
 }
 
-func (h *jsonHook) PostApply(addr addrs.AbsResourceInstance, gen states.Generation, newState cty.Value, err error) (tofu.HookAction, error) {
+func (h *jsonHook) PostApply(addr addrs.AbsResourceInstance, gen states.Generation, newState cty.Value, err error) (farseek.HookAction, error) {
 	key := addr.String()
 	h.applyingLock.Lock()
 	progress := h.applying[key]
@@ -118,7 +118,7 @@ func (h *jsonHook) PostApply(addr addrs.AbsResourceInstance, gen states.Generati
 	h.applyingLock.Unlock()
 
 	if progress.action == plans.NoOp {
-		return tofu.HookActionContinue, nil
+		return farseek.HookActionContinue, nil
 	}
 
 	elapsed := h.timeNow().Round(time.Second).Sub(progress.start)
@@ -132,15 +132,15 @@ func (h *jsonHook) PostApply(addr addrs.AbsResourceInstance, gen states.Generati
 		idKey, idValue := format.ObjectValueID(newState)
 		h.view.Hook(json.NewApplyComplete(addr, progress.action, idKey, idValue, elapsed))
 	}
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }
 
-func (h *jsonHook) PreProvisionInstanceStep(addr addrs.AbsResourceInstance, typeName string) (tofu.HookAction, error) {
+func (h *jsonHook) PreProvisionInstanceStep(addr addrs.AbsResourceInstance, typeName string) (farseek.HookAction, error) {
 	h.view.Hook(json.NewProvisionStart(addr, typeName))
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }
 
-func (h *jsonHook) PostProvisionInstanceStep(addr addrs.AbsResourceInstance, typeName string, err error) (tofu.HookAction, error) {
+func (h *jsonHook) PostProvisionInstanceStep(addr addrs.AbsResourceInstance, typeName string, err error) (farseek.HookAction, error) {
 	if err != nil {
 		// Errors are collected and displayed post-apply, so no need to
 		// re-render them here. Instead just signal that this provisioner step
@@ -149,7 +149,7 @@ func (h *jsonHook) PostProvisionInstanceStep(addr addrs.AbsResourceInstance, typ
 	} else {
 		h.view.Hook(json.NewProvisionComplete(addr, typeName))
 	}
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }
 
 func (h *jsonHook) ProvisionOutput(addr addrs.AbsResourceInstance, typeName string, msg string) {
@@ -163,44 +163,44 @@ func (h *jsonHook) ProvisionOutput(addr addrs.AbsResourceInstance, typeName stri
 	}
 }
 
-func (h *jsonHook) PreRefresh(addr addrs.AbsResourceInstance, gen states.Generation, priorState cty.Value) (tofu.HookAction, error) {
+func (h *jsonHook) PreRefresh(addr addrs.AbsResourceInstance, gen states.Generation, priorState cty.Value) (farseek.HookAction, error) {
 	idKey, idValue := format.ObjectValueID(priorState)
 	h.view.Hook(json.NewRefreshStart(addr, idKey, idValue))
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }
 
-func (h *jsonHook) PostRefresh(addr addrs.AbsResourceInstance, gen states.Generation, priorState cty.Value, newState cty.Value) (tofu.HookAction, error) {
+func (h *jsonHook) PostRefresh(addr addrs.AbsResourceInstance, gen states.Generation, priorState cty.Value, newState cty.Value) (farseek.HookAction, error) {
 	idKey, idValue := format.ObjectValueID(newState)
 	h.view.Hook(json.NewRefreshComplete(addr, idKey, idValue))
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }
 
-func (h *jsonHook) PreOpen(addr addrs.AbsResourceInstance) (tofu.HookAction, error) {
+func (h *jsonHook) PreOpen(addr addrs.AbsResourceInstance) (farseek.HookAction, error) {
 	h.view.Hook(json.NewEphemeralStart(addr, "Opening..."))
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }
 
-func (h *jsonHook) PostOpen(addr addrs.AbsResourceInstance, _ error) (tofu.HookAction, error) {
+func (h *jsonHook) PostOpen(addr addrs.AbsResourceInstance, _ error) (farseek.HookAction, error) {
 	h.view.Hook(json.NewEphemeralStop(addr, "Open complete"))
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }
 
-func (h *jsonHook) PreRenew(addr addrs.AbsResourceInstance) (tofu.HookAction, error) {
+func (h *jsonHook) PreRenew(addr addrs.AbsResourceInstance) (farseek.HookAction, error) {
 	h.view.Hook(json.NewEphemeralStart(addr, "Renewing..."))
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }
 
-func (h *jsonHook) PostRenew(addr addrs.AbsResourceInstance, _ error) (tofu.HookAction, error) {
+func (h *jsonHook) PostRenew(addr addrs.AbsResourceInstance, _ error) (farseek.HookAction, error) {
 	h.view.Hook(json.NewEphemeralStop(addr, "Renew complete"))
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }
 
-func (h *jsonHook) PreClose(addr addrs.AbsResourceInstance) (tofu.HookAction, error) {
+func (h *jsonHook) PreClose(addr addrs.AbsResourceInstance) (farseek.HookAction, error) {
 	h.view.Hook(json.NewEphemeralStart(addr, "Closing..."))
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }
 
-func (h *jsonHook) PostClose(addr addrs.AbsResourceInstance, _ error) (tofu.HookAction, error) {
+func (h *jsonHook) PostClose(addr addrs.AbsResourceInstance, _ error) (farseek.HookAction, error) {
 	h.view.Hook(json.NewEphemeralStop(addr, "Close complete"))
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }

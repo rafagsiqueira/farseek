@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -2894,7 +2894,7 @@ func TestSpecificCases(t *testing.T) {
 			}, nil, nil, nil, nil, plans.Create, false),
 		},
 
-		// The following tests are from issue 33472. Basically OpenTofu allows
+		// The following tests are from issue 33472. Basically Farseek allows
 		// callers to treat numbers as strings in references and expects us
 		// to coerce the strings into numbers. For example the following are
 		// equivalent.

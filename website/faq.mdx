@@ -1,0 +1,39 @@
+<AccordionItem id="what-is-farseek" summary="What is Farseek?" open highlight>
+
+Farseek is a stateless Infrastructure as Code (IaC) tool compatible with the OpenTofu/Terraform ecosystem. Unlike traditional tools that rely on a complex "state file" to track resources, Farseek uses your Git history and the actual cloud provider API as the source of truth.
+
+Declarations in `.tf` files are the law. If it's in Git, it exists. If you remove it from Git, Farseek destroys it.
+
+</AccordionItem>
+
+<AccordionItem id="how-stateless-works" summary="How does 'Stateless' work?" highlight>
+
+Traditional IaC tools maintain a `terraform.tfstate` JSON file that maps your code to real-world resources. This file is a single point of failure—it causes locking conflicts, can get corrupted, and often drifts from reality.
+
+Farseek eliminates this file. When you run `farseek plan`, we simply query the cloud provider (e.g., AWS, GCP) to see what currently exists and compare it directly to your `.tf` code. This makes operations faster, safer, and conflict-free.
+
+</AccordionItem>
+
+<AccordionItem id="compatibility" summary="Is Farseek compatible with Terraform/OpenTofu?" highlight>
+
+Yes. Farseek is built on top of OpenTofu's core libraries. It uses the same HCL syntax and the same provider ecosystem.
+
+You can use your existing `.tf` files and modules. You just stop using `init` with a backend and stop worrying about state locks. Use `farseek init` in any directory and go.
+
+</AccordionItem>
+
+<AccordionItem id="rfc-process" summary="Do you have a formal RFC process?" highlight>
+
+**No.** We believe in code over bureaucracy.
+
+We do not have a formal Request for Comments (RFC) process. If you have a good idea, build a prototype and open a Pull Request. We prioritize velocity and tangible improvements. If it works and makes the tool better, we'll merge it.
+
+</AccordionItem>
+
+<AccordionItem id="ghost-infrastructure" summary="Does Farseek prevent ghost infrastructure?" highlight>
+
+Absolutely. Since Farseek ties infrastructure strictly to your Git commits, you always know *why* a resource exists.
+
+If an AI agent spins up a database, it must commit the definition to Git. Hours or months later, you can trace that resource back to the specific commit and author. When you want to delete it, you just delete the code. No lingering "ghost" resources that everyone is afraid to touch.
+
+</AccordionItem>

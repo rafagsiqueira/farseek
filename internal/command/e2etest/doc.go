@@ -1,12 +1,12 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-// Package e2etest contains a set of tests that run against a real OpenTofu
+// Package e2etest contains a set of tests that run against a real Farseek
 // binary, compiled on the fly at the start of the test run.
 //
-// These tests help ensure that key end-to-end OpenTofu use-cases are working
+// These tests help ensure that key end-to-end Farseek use-cases are working
 // for a real binary, whereas other tests always have at least _some_ amount
 // of test stubbing.
 //
@@ -19,7 +19,7 @@
 //
 //	go test -v github.com/rafagsiqueira/farseek/internal/command/e2etest
 //
-// This will compile on the fly a OpenTofu binary and run the tests against
+// This will compile on the fly a Farseek binary and run the tests against
 // it.
 //
 // Alternatively, the make-archive.sh script can be used to produce a

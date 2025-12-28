@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -33,18 +33,18 @@ import (
 // more end-to-end tests here, because end-to-end tests are harder to maintain and
 // harder to debug when they fail.
 
-// TestProviderOCIMirrors is an end-to-end test that runs "tofu init" with the CLI
+// TestProviderOCIMirrors is an end-to-end test that runs "farseek init" with the CLI
 // configuration specifying an oci_mirror installation source, which should therefore
 // successfully install some providers from a fake OCI registry that runs inside this
 // test program.
 //
 // (This is therefore not quite as "end-to-end" as most of our tests in this package,
-// but it does at least test the part of the behavior that lives inside OpenTofu
+// but it does at least test the part of the behavior that lives inside Farseek
 // end-to-end, even though the OCI registry server is faked out.)
 func TestProviderOCIMirrors(t *testing.T) {
 	// Our typical rule for external service access in e2etests is that it's okay
-	// to access servers run by the OpenTofu project when TF_ACC=1 is set in the
-	// environment. However, the OpenTofu project does not currently run an
+	// to access servers run by the Farseek project when TF_ACC=1 is set in the
+	// environment. However, the Farseek project does not currently run an
 	// OCI registry and we don't want to rely on anything we can't influence the
 	// reliability of, so for this test we rely on a local fake registry implementation
 	// based on some OCI layouts provided as test fixtures.
@@ -100,14 +100,14 @@ func TestProviderOCIMirrors(t *testing.T) {
 	}
 	dataDir := filepath.Join(tempDir, ".farseek")
 
-	tf := e2e.NewBinary(t, tofuBin, "testdata/oci-provider-mirror")
+	tf := e2e.NewBinary(t, farseekBin, "testdata/oci-provider-mirror")
 	tf.AddEnv("SSL_CERT_FILE=" + certFile)
 	tf.AddEnv("TF_CLI_CONFIG_FILE=" + cliConfigFile)
 	tf.AddEnv("TF_DATA_DIR=" + dataDir)
 	_, stderr, err := tf.Run("init", "-backend=false")
 	if err != nil {
-		t.Logf("tofu init stderr:\n%s", stderr)
-		t.Fatalf("failed to run tofu init: %s", err)
+		t.Logf("farseek init stderr:\n%s", stderr)
+		t.Fatalf("failed to run farseek init: %s", err)
 	}
 
 	// If installation succeeded then we should now be able to successfully interact

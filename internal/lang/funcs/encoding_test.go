@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -425,7 +425,7 @@ func TestBase64TextEncode(t *testing.T) {
 			cty.StringVal("abc123!?$*&()'-=@~"),
 			cty.StringVal("NOT-EXISTS"),
 			cty.UnknownVal(cty.String).RefineNotNull(),
-			`"NOT-EXISTS" is not a supported IANA encoding name or alias in this OpenTofu version`,
+			`"NOT-EXISTS" is not a supported IANA encoding name or alias in this Farseek version`,
 		},
 		{
 			cty.StringVal("🤔"),
@@ -499,7 +499,7 @@ func TestBase64TextDecode(t *testing.T) {
 			cty.StringVal("doesn't matter"),
 			cty.StringVal("NOT-EXISTS"),
 			cty.UnknownVal(cty.String).RefineNotNull(),
-			`"NOT-EXISTS" is not a supported IANA encoding name or alias in this OpenTofu version`,
+			`"NOT-EXISTS" is not a supported IANA encoding name or alias in this Farseek version`,
 		},
 		{
 			cty.StringVal("<invalid base64>"),

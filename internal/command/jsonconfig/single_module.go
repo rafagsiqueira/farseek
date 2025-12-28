@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -8,7 +8,7 @@ package jsonconfig
 import (
 	"github.com/rafagsiqueira/farseek/internal/configs"
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // MarshalSingleModule is a variant of [Marshal] that describes only a single
@@ -76,5 +76,5 @@ func mapSchema[In, Out schemaObject](schema In, f func(In) Out) Out {
 // generic over the different nilable schema types used by different parts
 // of the implementation in this package.
 type schemaObject interface {
-	*tofu.Schemas | *configschema.Block
+	*farseek.Schemas | *configschema.Block
 }

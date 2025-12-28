@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -100,7 +100,7 @@ func TestEvaluateCountExpression_errors(t *testing.T) {
 			cty.UnknownVal(cty.Number),
 			nil,
 			"Invalid count argument",
-			"The \"count\" value depends on resource attributes that cannot be determined until apply, so OpenTofu cannot predict how many instances will be created.\n\nTo work around this, use the -target option to first apply only the resources that the count depends on, and then apply normally to converge.",
+			"The \"count\" value depends on resource attributes that cannot be determined until apply, so Farseek cannot predict how many instances will be created.\n\nTo work around this, use the -target option to first apply only the resources that the count depends on, and then apply normally to converge.",
 			true,
 		},
 		"unknown with excludable address": {
@@ -111,7 +111,7 @@ func TestEvaluateCountExpression_errors(t *testing.T) {
 				Type: "bar",
 			}.Absolute(addrs.RootModuleInstance.Child("a", addrs.NoKey)),
 			"Invalid count argument",
-			"The \"count\" value depends on resource attributes that cannot be determined until apply, so OpenTofu cannot predict how many instances will be created.\n\nTo work around this, use the planning option -exclude=module.a.bar.foo to first apply without this object, and then apply normally to converge.",
+			"The \"count\" value depends on resource attributes that cannot be determined until apply, so Farseek cannot predict how many instances will be created.\n\nTo work around this, use the planning option -exclude=module.a.bar.foo to first apply without this object, and then apply normally to converge.",
 			true,
 		},
 	}

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -11,7 +11,7 @@ import (
 	"testing"
 
 	"github.com/rafagsiqueira/farseek/internal/backend"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func TestMeta_addVarsFromFile(t *testing.T) {
@@ -68,7 +68,7 @@ func TestMeta_addVarsFromFile(t *testing.T) {
 
 			m := new(Meta)
 			to := make(map[string]backend.UnparsedVariableValue)
-			diags := m.addVarsFromFile(target, tofu.ValueFromAutoFile, to)
+			diags := m.addVarsFromFile(target, farseek.ValueFromAutoFile, to)
 			if tc.errors != diags.HasErrors() {
 				t.Log(diags.Err())
 				t.Errorf("Expected: %v, got %v", tc.errors, diags.HasErrors())

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -10,16 +10,16 @@ import (
 	"github.com/mitchellh/colorstring"
 
 	"github.com/rafagsiqueira/farseek/internal/terminal"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // CLI is an optional interface that can be implemented to be initialized
-// with information from the OpenTofu CLI. If this is implemented, this
+// with information from the Farseek CLI. If this is implemented, this
 // initialization function will be called with data to help interact better
 // with a CLI.
 //
 // This interface was created to improve backend interaction with the
-// official OpenTofu CLI while making it optional for API users to have
+// official Farseek CLI while making it optional for API users to have
 // to provide full CLI interaction to every backend.
 //
 // If you're implementing a Backend, it is acceptable to require CLI
@@ -73,9 +73,9 @@ type CLIOpts struct {
 	StateBackupPath string
 
 	// ContextOpts are the base context options to set when initializing a
-	// OpenTofu context. Many of these will be overridden or merged by
+	// Farseek context. Many of these will be overridden or merged by
 	// Operation. See Operation for more details.
-	ContextOpts *tofu.ContextOpts
+	ContextOpts *farseek.ContextOpts
 
 	// Input will ask for necessary input prior to performing any operations.
 	//
@@ -89,7 +89,7 @@ type CLIOpts struct {
 	// automated system rather than directly at a command prompt.
 	//
 	// This is a hint not to produce messages that expect that a user can
-	// run a follow-up command, perhaps because OpenTofu is running in
+	// run a follow-up command, perhaps because Farseek is running in
 	// some sort of workflow automation tool that abstracts away the
 	// exact commands that are being run.
 	RunningInAutomation bool

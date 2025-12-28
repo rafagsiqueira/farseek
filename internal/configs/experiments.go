@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -61,7 +61,7 @@ func sniffActiveExperiments(body hcl.Body, allowed bool) (experiments.Set, hcl.D
 					Severity: hcl.DiagError,
 					Summary:  "Invalid language edition",
 					Detail: fmt.Sprintf(
-						"The language argument expects a bare language edition keyword. OpenTofu %s supports only language edition %s, which is the default.",
+						"The language argument expects a bare language edition keyword. Farseek %s supports only language edition %s, which is the default.",
 						currentVersion, firstEdition,
 					),
 					Subject: attr.Expr.Range().Ptr(),
@@ -75,7 +75,7 @@ func sniffActiveExperiments(body hcl.Body, allowed bool) (experiments.Set, hcl.D
 					Severity: hcl.DiagError,
 					Summary:  "Unsupported language edition",
 					Detail: fmt.Sprintf(
-						"OpenTofu v%s only supports language edition %s. This module requires a %s version of OpenTofu CLI.",
+						"Farseek v%s only supports language edition %s. This module requires a %s version of Farseek CLI.",
 						currentVersion, firstEdition, rel,
 					),
 					Subject: attr.Expr.Range().Ptr(),
@@ -117,7 +117,7 @@ func sniffActiveExperiments(body hcl.Body, allowed bool) (experiments.Set, hcl.D
 			diags = diags.Append(&hcl.Diagnostic{
 				Severity: hcl.DiagError,
 				Summary:  "Module uses experimental features",
-				Detail:   "Experimental features are intended only for gathering early feedback on new language designs, and so are available only in alpha releases of OpenTofu.",
+				Detail:   "Experimental features are intended only for gathering early feedback on new language designs, and so are available only in alpha releases of Farseek.",
 				Subject:  attr.NameRange.Ptr(),
 			})
 		}
@@ -186,7 +186,7 @@ func decodeExperimentsAttr(attr *hcl.Attribute) (experiments.Set, hcl.Diagnostic
 				diags = diags.Append(&hcl.Diagnostic{
 					Severity: hcl.DiagWarning,
 					Summary:  fmt.Sprintf("Experimental feature %q is active", exp.Keyword()),
-					Detail:   "Experimental features are available only in alpha releases of OpenTofu and are subject to breaking changes or total removal in later versions, based on feedback. We recommend against using experimental features in production.\n\nIf you have feedback on the design of this feature, please open a GitHub issue to discuss it.",
+					Detail:   "Experimental features are available only in alpha releases of Farseek and are subject to breaking changes or total removal in later versions, based on feedback. We recommend against using experimental features in production.\n\nIf you have feedback on the design of this feature, please open a GitHub issue to discuss it.",
 					Subject:  expr.Range().Ptr(),
 				})
 			}

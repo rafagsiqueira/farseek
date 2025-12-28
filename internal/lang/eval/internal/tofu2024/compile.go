@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -25,7 +25,7 @@ import (
 // resulting module instance, ready for continued evaluation.
 //
 // For those coming to this familiar with the previous language runtime
-// implementation in "package tofu": this is _roughly_ analogous to the
+// implementation in "package farseek": this is _roughly_ analogous to the
 // graph building process but is focused only on the configuration of
 // a single module (no state, no other modules) and is written as much
 // as possible as straightforward linear code, with inversion of control
@@ -88,7 +88,7 @@ func CompileModuleInstance(
 	}
 
 	// We have some shims in here to deal with the unusual way the existing
-	// OpenTofu language deals with references to provider instances, since
+	// Farseek language deals with references to provider instances, since
 	// [configgraph] is designed to support treating them as "normal" values
 	// in future but we want to keep existing modules working for now.
 	ret.providerConfigNodes = compileModuleInstanceProviderConfigs(ctx,

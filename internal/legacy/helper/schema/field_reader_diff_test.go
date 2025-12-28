@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
 func TestDiffFieldReader_impl(t *testing.T) {
@@ -63,14 +63,14 @@ func TestDiffFieldReader_NestedSetUpdate(t *testing.T) {
 
 	r := &DiffFieldReader{
 		Schema: schema,
-		Diff: &tofu.InstanceDiff{
-			Attributes: map[string]*tofu.ResourceAttrDiff{
-				"list_of_sets_1.0.nested_set.1.val": &tofu.ResourceAttrDiff{
+		Diff: &farseek.InstanceDiff{
+			Attributes: map[string]*farseek.ResourceAttrDiff{
+				"list_of_sets_1.0.nested_set.1.val": &farseek.ResourceAttrDiff{
 					Old:        "1",
 					New:        "0",
 					NewRemoved: true,
 				},
-				"list_of_sets_1.0.nested_set.2.val": &tofu.ResourceAttrDiff{
+				"list_of_sets_1.0.nested_set.2.val": &farseek.ResourceAttrDiff{
 					New: "2",
 				},
 			},
@@ -123,13 +123,13 @@ func TestDiffFieldReader_MapHandling(t *testing.T) {
 	}
 	r := &DiffFieldReader{
 		Schema: schema,
-		Diff: &tofu.InstanceDiff{
-			Attributes: map[string]*tofu.ResourceAttrDiff{
-				"tags.%": &tofu.ResourceAttrDiff{
+		Diff: &farseek.InstanceDiff{
+			Attributes: map[string]*farseek.ResourceAttrDiff{
+				"tags.%": &farseek.ResourceAttrDiff{
 					Old: "1",
 					New: "2",
 				},
-				"tags.baz": &tofu.ResourceAttrDiff{
+				"tags.baz": &farseek.ResourceAttrDiff{
 					Old: "",
 					New: "qux",
 				},
@@ -219,28 +219,28 @@ func TestDiffFieldReader_extra(t *testing.T) {
 
 	r := &DiffFieldReader{
 		Schema: schema,
-		Diff: &tofu.InstanceDiff{
-			Attributes: map[string]*tofu.ResourceAttrDiff{
-				"stringComputed": &tofu.ResourceAttrDiff{
+		Diff: &farseek.InstanceDiff{
+			Attributes: map[string]*farseek.ResourceAttrDiff{
+				"stringComputed": &farseek.ResourceAttrDiff{
 					Old:         "foo",
 					New:         "bar",
 					NewComputed: true,
 				},
 
-				"listMap.0.bar": &tofu.ResourceAttrDiff{
+				"listMap.0.bar": &farseek.ResourceAttrDiff{
 					NewRemoved: true,
 				},
 
-				"mapRemove.bar": &tofu.ResourceAttrDiff{
+				"mapRemove.bar": &farseek.ResourceAttrDiff{
 					NewRemoved: true,
 				},
 
-				"setChange.10.value": &tofu.ResourceAttrDiff{
+				"setChange.10.value": &farseek.ResourceAttrDiff{
 					Old: "50",
 					New: "80",
 				},
 
-				"setEmpty.#": &tofu.ResourceAttrDiff{
+				"setEmpty.#": &farseek.ResourceAttrDiff{
 					Old: "2",
 					New: "0",
 				},
@@ -357,158 +357,158 @@ func TestDiffFieldReader(t *testing.T) {
 	testFieldReader(t, func(s map[string]*Schema) FieldReader {
 		return &DiffFieldReader{
 			Schema: s,
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"bool": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"bool": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "true",
 					},
 
-					"int": &tofu.ResourceAttrDiff{
+					"int": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "42",
 					},
 
-					"float": &tofu.ResourceAttrDiff{
+					"float": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "3.1415",
 					},
 
-					"string": &tofu.ResourceAttrDiff{
+					"string": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "string",
 					},
 
-					"stringComputed": &tofu.ResourceAttrDiff{
+					"stringComputed": &farseek.ResourceAttrDiff{
 						Old:         "foo",
 						New:         "bar",
 						NewComputed: true,
 					},
 
-					"list.#": &tofu.ResourceAttrDiff{
+					"list.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "2",
 					},
 
-					"list.0": &tofu.ResourceAttrDiff{
+					"list.0": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "foo",
 					},
 
-					"list.1": &tofu.ResourceAttrDiff{
+					"list.1": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "bar",
 					},
 
-					"listInt.#": &tofu.ResourceAttrDiff{
+					"listInt.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "2",
 					},
 
-					"listInt.0": &tofu.ResourceAttrDiff{
+					"listInt.0": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "21",
 					},
 
-					"listInt.1": &tofu.ResourceAttrDiff{
+					"listInt.1": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "42",
 					},
 
-					"map.foo": &tofu.ResourceAttrDiff{
+					"map.foo": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "bar",
 					},
 
-					"map.bar": &tofu.ResourceAttrDiff{
+					"map.bar": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "baz",
 					},
 
-					"mapInt.%": &tofu.ResourceAttrDiff{
+					"mapInt.%": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "2",
 					},
-					"mapInt.one": &tofu.ResourceAttrDiff{
+					"mapInt.one": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "1",
 					},
-					"mapInt.two": &tofu.ResourceAttrDiff{
+					"mapInt.two": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "2",
 					},
 
-					"mapIntNestedSchema.%": &tofu.ResourceAttrDiff{
+					"mapIntNestedSchema.%": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "2",
 					},
-					"mapIntNestedSchema.one": &tofu.ResourceAttrDiff{
+					"mapIntNestedSchema.one": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "1",
 					},
-					"mapIntNestedSchema.two": &tofu.ResourceAttrDiff{
+					"mapIntNestedSchema.two": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "2",
 					},
 
-					"mapFloat.%": &tofu.ResourceAttrDiff{
+					"mapFloat.%": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "1",
 					},
-					"mapFloat.oneDotTwo": &tofu.ResourceAttrDiff{
+					"mapFloat.oneDotTwo": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "1.2",
 					},
 
-					"mapBool.%": &tofu.ResourceAttrDiff{
+					"mapBool.%": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "2",
 					},
-					"mapBool.True": &tofu.ResourceAttrDiff{
+					"mapBool.True": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "true",
 					},
-					"mapBool.False": &tofu.ResourceAttrDiff{
+					"mapBool.False": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "false",
 					},
 
-					"set.#": &tofu.ResourceAttrDiff{
+					"set.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "2",
 					},
 
-					"set.10": &tofu.ResourceAttrDiff{
+					"set.10": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "10",
 					},
 
-					"set.50": &tofu.ResourceAttrDiff{
+					"set.50": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "50",
 					},
 
-					"setDeep.#": &tofu.ResourceAttrDiff{
+					"setDeep.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "2",
 					},
 
-					"setDeep.10.index": &tofu.ResourceAttrDiff{
+					"setDeep.10.index": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "10",
 					},
 
-					"setDeep.10.value": &tofu.ResourceAttrDiff{
+					"setDeep.10.value": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "foo",
 					},
 
-					"setDeep.50.index": &tofu.ResourceAttrDiff{
+					"setDeep.50.index": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "50",
 					},
 
-					"setDeep.50.value": &tofu.ResourceAttrDiff{
+					"setDeep.50.value": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "bar",
 					},

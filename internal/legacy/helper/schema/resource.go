@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -11,7 +11,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -34,14 +34,14 @@ var ReservedResourceFields = []string{
 	"provisioner",
 }
 
-// Resource represents a thing in OpenTofu that has a set of configurable
+// Resource represents a thing in Farseek that has a set of configurable
 // attributes and a lifecycle (create, read, update, delete).
 //
 // The Resource schema is an abstraction that allows provider writers to
 // worry only about CRUD operations while off-loading validation, diff
 // generation, etc. to this higher level library.
 //
-// In spite of the name, this struct is not used only for tofu resources,
+// In spite of the name, this struct is not used only for farseek resources,
 // but also for data sources. In the case of data sources, the Create,
 // Update and Delete functions must not be provided.
 type Resource struct {
@@ -88,7 +88,7 @@ type Resource struct {
 
 	// StateUpgraders contains the functions responsible for upgrading an
 	// existing state with an old schema version to a newer schema. It is
-	// called specifically by OpenTofu when the stored schema version is less
+	// called specifically by Farseek when the stored schema version is less
 	// than the current SchemaVersion of the Resource.
 	//
 	// StateUpgraders map specific schema versions to a StateUpgrader
@@ -129,14 +129,14 @@ type Resource struct {
 	Exists ExistsFunc
 
 	// CustomizeDiff is a custom function for working with the diff that
-	// OpenTofu has created for this resource - it can be used to customize the
+	// Farseek has created for this resource - it can be used to customize the
 	// diff that has been created, diff values not controlled by configuration,
 	// or even veto the diff altogether and abort the plan. It is passed a
 	// *ResourceDiff, a structure similar to ResourceData but lacking most write
 	// functions like Set, while introducing new functions that work with the
 	// diff such as SetNew, SetNewComputed, and ForceNew.
 	//
-	// The phases OpenTofu runs this in, and the state available via functions
+	// The phases Farseek runs this in, and the state available via functions
 	// like Get and GetChange, are as follows:
 	//
 	//  * New resource: One run with no state
@@ -180,11 +180,11 @@ type Resource struct {
 }
 
 // ShimInstanceStateFromValue converts a cty.Value to a
-// tofu.InstanceState.
-func (r *Resource) ShimInstanceStateFromValue(state cty.Value) (*tofu.InstanceState, error) {
+// farseek.InstanceState.
+func (r *Resource) ShimInstanceStateFromValue(state cty.Value) (*farseek.InstanceState, error) {
 	// Get the raw shimmed value. While this is correct, the set hashes don't
 	// match those from the Schema.
-	s := tofu.NewInstanceStateShimmedFromValue(state, r.SchemaVersion)
+	s := farseek.NewInstanceStateShimmedFromValue(state, r.SchemaVersion)
 
 	// We now rebuild the state through the ResourceData, so that the set indexes
 	// match what helper/schema expects.
@@ -195,7 +195,7 @@ func (r *Resource) ShimInstanceStateFromValue(state cty.Value) (*tofu.InstanceSt
 
 	s = data.State()
 	if s == nil {
-		s = &tofu.InstanceState{}
+		s = &farseek.InstanceState{}
 	}
 	return s, nil
 }
@@ -217,7 +217,7 @@ type ExistsFunc func(*ResourceData, interface{}) (bool, error)
 
 // See Resource documentation.
 type StateMigrateFunc func(
-	int, *tofu.InstanceState, interface{}) (*tofu.InstanceState, error)
+	int, *farseek.InstanceState, interface{}) (*farseek.InstanceState, error)
 
 type StateUpgrader struct {
 	// Version is the version schema that this Upgrader will handle, converting
@@ -245,9 +245,9 @@ type CustomizeDiffFunc func(*ResourceDiff, interface{}) error
 
 // Apply creates, updates, and/or deletes a resource.
 func (r *Resource) Apply(
-	s *tofu.InstanceState,
-	d *tofu.InstanceDiff,
-	meta interface{}) (*tofu.InstanceState, error) {
+	s *farseek.InstanceState,
+	d *farseek.InstanceDiff,
+	meta interface{}) (*farseek.InstanceState, error) {
 	data, err := schemaMap(r.Schema).Data(s, d)
 	if err != nil {
 		return s, err
@@ -275,9 +275,9 @@ func (r *Resource) Apply(
 	data.timeouts = &rt
 
 	if s == nil {
-		// The OpenTofu API dictates that this should never happen, but
+		// The Farseek API dictates that this should never happen, but
 		// it doesn't hurt to be safe in this case.
-		s = new(tofu.InstanceState)
+		s = new(farseek.InstanceState)
 	}
 
 	if d.Destroy || d.RequiresNew() {
@@ -324,9 +324,9 @@ func (r *Resource) Apply(
 
 // Diff returns a diff of this resource.
 func (r *Resource) Diff(
-	s *tofu.InstanceState,
-	c *tofu.ResourceConfig,
-	meta interface{}) (*tofu.InstanceDiff, error) {
+	s *farseek.InstanceState,
+	c *farseek.ResourceConfig,
+	meta interface{}) (*farseek.InstanceDiff, error) {
 
 	t := &ResourceTimeout{}
 	err := t.ConfigDecode(r, c)
@@ -352,9 +352,9 @@ func (r *Resource) Diff(
 }
 
 func (r *Resource) simpleDiff(
-	s *tofu.InstanceState,
-	c *tofu.ResourceConfig,
-	meta interface{}) (*tofu.InstanceDiff, error) {
+	s *farseek.InstanceState,
+	c *farseek.ResourceConfig,
+	meta interface{}) (*farseek.InstanceDiff, error) {
 
 	instanceDiff, err := schemaMap(r.Schema).Diff(s, c, r.CustomizeDiff, meta, false)
 	if err != nil {
@@ -362,7 +362,7 @@ func (r *Resource) simpleDiff(
 	}
 
 	if instanceDiff == nil {
-		instanceDiff = tofu.NewInstanceDiff()
+		instanceDiff = farseek.NewInstanceDiff()
 	}
 
 	// Make sure the old value is set in each of the instance diffs.
@@ -380,7 +380,7 @@ func (r *Resource) simpleDiff(
 }
 
 // Validate validates the resource configuration against the schema.
-func (r *Resource) Validate(c *tofu.ResourceConfig) ([]string, []error) {
+func (r *Resource) Validate(c *farseek.ResourceConfig) ([]string, []error) {
 	warns, errs := schemaMap(r.Schema).Validate(c)
 
 	if r.DeprecationMessage != "" {
@@ -393,9 +393,9 @@ func (r *Resource) Validate(c *tofu.ResourceConfig) ([]string, []error) {
 // ReadDataApply loads the data for a data source, given a diff that
 // describes the configuration arguments and desired computed attributes.
 func (r *Resource) ReadDataApply(
-	d *tofu.InstanceDiff,
+	d *farseek.InstanceDiff,
 	meta interface{},
-) (*tofu.InstanceState, error) {
+) (*farseek.InstanceState, error) {
 	// Data sources are always built completely from scratch
 	// on each read, so the source state is always nil.
 	data, err := schemaMap(r.Schema).Data(nil, d)
@@ -421,8 +421,8 @@ func (r *Resource) ReadDataApply(
 // separate API call.
 // RefreshWithoutUpgrade is part of the new plugin shims.
 func (r *Resource) RefreshWithoutUpgrade(
-	s *tofu.InstanceState,
-	meta interface{}) (*tofu.InstanceState, error) {
+	s *farseek.InstanceState,
+	meta interface{}) (*farseek.InstanceState, error) {
 	// If the ID is already somehow blank, it doesn't exist
 	if s.ID == "" {
 		return nil, nil
@@ -479,8 +479,8 @@ func (r *Resource) RefreshWithoutUpgrade(
 
 // Refresh refreshes the state of the resource.
 func (r *Resource) Refresh(
-	s *tofu.InstanceState,
-	meta interface{}) (*tofu.InstanceState, error) {
+	s *farseek.InstanceState,
+	meta interface{}) (*farseek.InstanceState, error) {
 	// If the ID is already somehow blank, it doesn't exist
 	if s.ID == "" {
 		return nil, nil
@@ -533,7 +533,7 @@ func (r *Resource) Refresh(
 	return r.recordCurrentSchemaVersion(state), err
 }
 
-func (r *Resource) upgradeState(s *tofu.InstanceState, meta interface{}) (*tofu.InstanceState, error) {
+func (r *Resource) upgradeState(s *farseek.InstanceState, meta interface{}) (*farseek.InstanceState, error) {
 	var err error
 
 	needsMigration, stateSchemaVersion := r.checkSchemaVersion(s)
@@ -746,7 +746,7 @@ func isReservedResourceFieldName(name string, s *Schema) bool {
 // itself (including the state given to this function).
 //
 // This function is useful for unit tests and ResourceImporter functions.
-func (r *Resource) Data(s *tofu.InstanceState) *ResourceData {
+func (r *Resource) Data(s *farseek.InstanceState) *ResourceData {
 	result, err := schemaMap(r.Schema).Data(s, nil)
 	if err != nil {
 		// At the time of writing, this isn't possible (Data never returns
@@ -793,7 +793,7 @@ func (r *Resource) isTopLevel() bool {
 
 // Determines if a given InstanceState needs to be migrated by checking the
 // stored version number with the current SchemaVersion
-func (r *Resource) checkSchemaVersion(is *tofu.InstanceState) (bool, int) {
+func (r *Resource) checkSchemaVersion(is *farseek.InstanceState) (bool, int) {
 	// Get the raw interface{} value for the schema version. If it doesn't
 	// exist or is nil then set it to zero.
 	raw := is.Meta["schema_version"]
@@ -822,7 +822,7 @@ func (r *Resource) checkSchemaVersion(is *tofu.InstanceState) (bool, int) {
 }
 
 func (r *Resource) recordCurrentSchemaVersion(
-	state *tofu.InstanceState) *tofu.InstanceState {
+	state *farseek.InstanceState) *farseek.InstanceState {
 	if state != nil && r.SchemaVersion > 0 {
 		if state.Meta == nil {
 			state.Meta = make(map[string]interface{})

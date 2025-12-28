@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -100,7 +100,7 @@ func TestParseBrowserEnv_empty(t *testing.T) {
 func TestParseBrowserEnv_esrComplexSpec(t *testing.T) {
 	// The following tests with a strings following the more complex
 	// interpretation of BROWSER from http://www.catb.org/~esr/BROWSER/ , which
-	// OpenTofu intentionally doesn't support and so should be treated as
+	// Farseek intentionally doesn't support and so should be treated as
 	// if the environment variable isn't set at all.
 	t.Run(`with %s`, func(t *testing.T) {
 		// The esr proposal calls for checking whether there's a %s sequence
@@ -126,7 +126,7 @@ func TestParseBrowserEnv_esrComplexSpec(t *testing.T) {
 		// ignore the value if that doesn't work. In practice the need for
 		// multiple options to try tends to be met instead by setting BROWSER
 		// to refer to a wrapper script that deals with the selection policy,
-		// which is the pattern OpenTofu supports.
+		// which is the pattern Farseek supports.
 		result := ParseBrowserEnv("example1;example2")
 		if result != "" {
 			t.Errorf("returned %q, but wanted empty string", result)

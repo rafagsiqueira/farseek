@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -151,7 +151,7 @@ var checkRuleBlockSchema = &hcl.BodySchema{
 //
 // A check block contains 0-1 data blocks, and 0-n assert blocks. The check
 // block will load the data block, and execute the assert blocks as check rules
-// during the plan and apply OpenTofu operations.
+// during the plan and apply Farseek operations.
 type Check struct {
 	Name string
 

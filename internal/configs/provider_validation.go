@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -553,7 +553,7 @@ func validateProviderConfigs(parentCall *ModuleCall, cfg *Config, noProviderConf
 					Severity: hcl.DiagWarning,
 					Summary:  "Reference to undefined provider",
 					Detail: fmt.Sprintf(
-						"There is no explicit declaration for local provider name %q in %s, so OpenTofu is assuming you mean to pass a configuration for provider %q.\n\nTo clarify your intent and silence this warning, add to %s a required_providers entry named %q with source = %q, or a different source address if appropriate.",
+						"There is no explicit declaration for local provider name %q in %s, so Farseek is assuming you mean to pass a configuration for provider %q.\n\nTo clarify your intent and silence this warning, add to %s a required_providers entry named %q with source = %q, or a different source address if appropriate.",
 						name, moduleText, defAddr.ForDisplay(),
 						parentModuleText, name, defAddr.ForDisplay(),
 					),
@@ -678,7 +678,7 @@ func validateProviderConfigs(parentCall *ModuleCall, cfg *Config, noProviderConf
 					Severity: hcl.DiagWarning,
 					Summary:  "Reference to undefined provider",
 					Detail: fmt.Sprintf(
-						"There is no explicit declaration for local provider name %q in %s, so OpenTofu is assuming you mean to pass a configuration for %q.\n\nIf you also control the child module, add a required_providers entry named %q with the source address %q.",
+						"There is no explicit declaration for local provider name %q in %s, so Farseek is assuming you mean to pass a configuration for %q.\n\nIf you also control the child module, add a required_providers entry named %q with the source address %q.",
 						name, moduleText, providerAddr.Provider.ForDisplay(),
 						name, providerAddr.Provider.ForDisplay(),
 					),
@@ -810,7 +810,7 @@ func validateProviderConfigs(parentCall *ModuleCall, cfg *Config, noProviderConf
 
 		fmt.Fprintf(
 			&buf,
-			"Earlier versions of OpenTofu used empty provider blocks (\"proxy provider configurations\") for child modules to declare their need to be passed a provider configuration by their callers. That approach was ambiguous and is now deprecated.\n\nIf you control this module, you can migrate to the new declaration syntax by removing all of the empty provider %q blocks and then adding or updating an entry like the following to the required_providers block of %s:\n",
+			"Earlier versions of Farseek used empty provider blocks (\"proxy provider configurations\") for child modules to declare their need to be passed a provider configuration by their callers. That approach was ambiguous and is now deprecated.\n\nIf you control this module, you can migrate to the new declaration syntax by removing all of the empty provider %q blocks and then adding or updating an entry like the following to the required_providers block of %s:\n",
 			name, moduleText,
 		)
 		fmt.Fprintf(&buf, "    %s = {\n", name)
@@ -870,7 +870,7 @@ func providerIterationIdenticalWarning(blockType, target string, sourceExpr, ins
 		Severity: hcl.DiagWarning,
 		Summary:  "Provider configuration for_each matches " + blockType,
 		Detail: fmt.Sprintf(
-			"This provider configuration uses the same for_each expression as a %s, which means that subsequent removal of elements from this collection would cause a planning error.\n\nOpenTofu relies on a provider instance to destroy resource instances that are associated with it, and so the provider instance must outlive all of its resource instances by at least one plan/apply round. For removal of instances to succeed in future you must structure the configuration so that the provider block's for_each expression can produce a superset of the instances of the resources associated with the provider configuration. Refer to the OpenTofu documentation for specific suggestions.\n\nTo destroy this object before removing the provider configuration, consider first performing a targeted destroy:\n    tofu apply -destroy %s",
+			"This provider configuration uses the same for_each expression as a %s, which means that subsequent removal of elements from this collection would cause a planning error.\n\nFarseek relies on a provider instance to destroy resource instances that are associated with it, and so the provider instance must outlive all of its resource instances by at least one plan/apply round. For removal of instances to succeed in future you must structure the configuration so that the provider block's for_each expression can produce a superset of the instances of the resources associated with the provider configuration. Refer to the Farseek documentation for specific suggestions.\n\nTo destroy this object before removing the provider configuration, consider first performing a targeted destroy:\n    farseek apply -destroy %s",
 			blockType, target,
 		),
 		Subject: sourceExpr.Range().Ptr(),

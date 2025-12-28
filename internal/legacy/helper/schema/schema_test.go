@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -17,7 +17,7 @@ import (
 
 	"github.com/rafagsiqueira/farseek/internal/legacy/hcl2shim"
 	"github.com/rafagsiqueira/farseek/internal/legacy/helper/hashcode"
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
 func TestEnvDefaultFunc(t *testing.T) {
@@ -117,10 +117,10 @@ func TestSchemaMap_Diff(t *testing.T) {
 	cases := []struct {
 		Name          string
 		Schema        map[string]*Schema
-		State         *tofu.InstanceState
+		State         *farseek.InstanceState
 		Config        map[string]interface{}
 		CustomizeDiff CustomizeDiffFunc
-		Diff          *tofu.InstanceDiff
+		Diff          *farseek.InstanceDiff
 		Err           bool
 	}{
 		{
@@ -139,9 +139,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"availability_zone": "foo",
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"availability_zone": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"availability_zone": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "foo",
 						RequiresNew: true,
@@ -166,9 +166,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 
 			Config: map[string]interface{}{},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"availability_zone": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"availability_zone": &farseek.ResourceAttrDiff{
 						Old:         "",
 						NewComputed: true,
 						RequiresNew: true,
@@ -189,7 +189,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				ID: "foo",
 			},
 
@@ -210,7 +210,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"availability_zone": "foo",
 				},
@@ -220,9 +220,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"availability_zone": "bar",
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"availability_zone": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"availability_zone": &farseek.ResourceAttrDiff{
 						Old: "foo",
 						New: "bar",
 					},
@@ -246,9 +246,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 
 			Config: nil,
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"availability_zone": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"availability_zone": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "foo",
 					},
@@ -274,9 +274,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 
 			Config: nil,
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"availability_zone": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"availability_zone": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "foo",
 					},
@@ -304,9 +304,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"availability_zone": "bar",
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"availability_zone": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"availability_zone": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "bar",
 					},
@@ -335,9 +335,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"availability_zone": "foo",
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"availability_zone": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"availability_zone": &farseek.ResourceAttrDiff{
 						Old:      "",
 						New:      "foo!",
 						NewExtra: "foo",
@@ -366,9 +366,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 
 			Config: map[string]interface{}{},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"availability_zone": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"availability_zone": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "",
 						NewComputed: true,
@@ -394,9 +394,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"availability_zone": hcl2shim.UnknownVariableValue,
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"availability_zone": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"availability_zone": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         hcl2shim.UnknownVariableValue,
 						NewComputed: true,
@@ -424,9 +424,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"port": 27,
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"port": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"port": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "27",
 						RequiresNew: true,
@@ -454,9 +454,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"port": false,
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"port": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"port": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "false",
 						RequiresNew: true,
@@ -477,7 +477,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"delete": "false",
 				},
@@ -506,21 +506,21 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"ports": []interface{}{1, 2, 5},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "3",
 					},
-					"ports.0": &tofu.ResourceAttrDiff{
+					"ports.0": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "1",
 					},
-					"ports.1": &tofu.ResourceAttrDiff{
+					"ports.1": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "2",
 					},
-					"ports.2": &tofu.ResourceAttrDiff{
+					"ports.2": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "5",
 					},
@@ -547,13 +547,13 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"ports": "5",
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "1",
 					},
-					"ports.0": &tofu.ResourceAttrDiff{
+					"ports.0": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "5",
 					},
@@ -580,13 +580,13 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"ports": []interface{}{"5"},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "1",
 					},
-					"ports.0": &tofu.ResourceAttrDiff{
+					"ports.0": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "5",
 					},
@@ -611,21 +611,21 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"ports": []interface{}{1, 2, 5},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "3",
 					},
-					"ports.0": &tofu.ResourceAttrDiff{
+					"ports.0": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "1",
 					},
-					"ports.1": &tofu.ResourceAttrDiff{
+					"ports.1": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "2",
 					},
-					"ports.2": &tofu.ResourceAttrDiff{
+					"ports.2": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "5",
 					},
@@ -650,9 +650,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"ports": []interface{}{1, hcl2shim.UnknownVariableValue, 5},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old:         "0",
 						New:         "",
 						NewComputed: true,
@@ -672,7 +672,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"ports.#": "3",
 					"ports.0": "1",
@@ -700,7 +700,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"ports.#": "2",
 					"ports.0": "1",
@@ -712,13 +712,13 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"ports": []interface{}{1, 2, 5},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old: "2",
 						New: "3",
 					},
-					"ports.2": &tofu.ResourceAttrDiff{
+					"ports.2": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "5",
 					},
@@ -745,24 +745,24 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"ports": []interface{}{1, 2, 5},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old:         "0",
 						New:         "3",
 						RequiresNew: true,
 					},
-					"ports.0": &tofu.ResourceAttrDiff{
+					"ports.0": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "1",
 						RequiresNew: true,
 					},
-					"ports.1": &tofu.ResourceAttrDiff{
+					"ports.1": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "2",
 						RequiresNew: true,
 					},
-					"ports.2": &tofu.ResourceAttrDiff{
+					"ports.2": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "5",
 						RequiresNew: true,
@@ -788,9 +788,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 
 			Config: map[string]interface{}{},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old:         "",
 						NewComputed: true,
 					},
@@ -836,20 +836,20 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"config.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"config.#": &farseek.ResourceAttrDiff{
 						Old:         "0",
 						New:         "1",
 						RequiresNew: true,
 					},
 
-					"config.0.name": &tofu.ResourceAttrDiff{
+					"config.0.name": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "hello",
 					},
 
-					"config.0.rules.#": &tofu.ResourceAttrDiff{
+					"config.0.rules.#": &farseek.ResourceAttrDiff{
 						Old:         "",
 						NewComputed: true,
 					},
@@ -878,21 +878,21 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"ports": []interface{}{5, 2, 1},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "3",
 					},
-					"ports.1": &tofu.ResourceAttrDiff{
+					"ports.1": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "1",
 					},
-					"ports.2": &tofu.ResourceAttrDiff{
+					"ports.2": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "2",
 					},
-					"ports.5": &tofu.ResourceAttrDiff{
+					"ports.5": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "5",
 					},
@@ -916,7 +916,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"ports.#": "0",
 				},
@@ -947,9 +947,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 
 			Config: nil,
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old:         "",
 						NewComputed: true,
 					},
@@ -978,21 +978,21 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"ports": []interface{}{"2", "5", 1},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "3",
 					},
-					"ports.1": &tofu.ResourceAttrDiff{
+					"ports.1": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "1",
 					},
-					"ports.2": &tofu.ResourceAttrDiff{
+					"ports.2": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "2",
 					},
-					"ports.5": &tofu.ResourceAttrDiff{
+					"ports.5": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "5",
 					},
@@ -1021,9 +1021,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"ports": []interface{}{1, hcl2shim.UnknownVariableValue, "5"},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "",
 						NewComputed: true,
@@ -1047,7 +1047,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"ports.#": "2",
 					"ports.1": "1",
@@ -1059,21 +1059,21 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"ports": []interface{}{5, 2, 1},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old: "2",
 						New: "3",
 					},
-					"ports.1": &tofu.ResourceAttrDiff{
+					"ports.1": &farseek.ResourceAttrDiff{
 						Old: "1",
 						New: "1",
 					},
-					"ports.2": &tofu.ResourceAttrDiff{
+					"ports.2": &farseek.ResourceAttrDiff{
 						Old: "2",
 						New: "2",
 					},
-					"ports.5": &tofu.ResourceAttrDiff{
+					"ports.5": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "5",
 					},
@@ -1096,7 +1096,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"ports.#": "2",
 					"ports.1": "1",
@@ -1106,18 +1106,18 @@ func TestSchemaMap_Diff(t *testing.T) {
 
 			Config: map[string]interface{}{},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old: "2",
 						New: "0",
 					},
-					"ports.1": &tofu.ResourceAttrDiff{
+					"ports.1": &farseek.ResourceAttrDiff{
 						Old:        "1",
 						New:        "0",
 						NewRemoved: true,
 					},
-					"ports.2": &tofu.ResourceAttrDiff{
+					"ports.2": &farseek.ResourceAttrDiff{
 						Old:        "2",
 						New:        "0",
 						NewRemoved: true,
@@ -1142,7 +1142,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"availability_zone": "bar",
 					"ports.#":           "1",
@@ -1184,7 +1184,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"ingress.#":           "2",
 					"ingress.80.ports.#":  "1",
@@ -1237,13 +1237,13 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ingress.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ingress.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "1",
 					},
-					"ingress.0.from": &tofu.ResourceAttrDiff{
+					"ingress.0.from": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "8080",
 					},
@@ -1268,7 +1268,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"availability_zone": "foo",
 					"port":              "80",
@@ -1299,7 +1299,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"port": "80",
 				},
@@ -1309,9 +1309,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"port": 80,
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"availability_zone": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"availability_zone": &farseek.ResourceAttrDiff{
 						NewComputed: true,
 					},
 				},
@@ -1381,14 +1381,14 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"config_vars.%": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"config_vars.%": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "1",
 					},
 
-					"config_vars.bar": &tofu.ResourceAttrDiff{
+					"config_vars.bar": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "baz",
 					},
@@ -1406,7 +1406,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"config_vars.foo": "bar",
 				},
@@ -1420,13 +1420,13 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"config_vars.foo": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"config_vars.foo": &farseek.ResourceAttrDiff{
 						Old:        "bar",
 						NewRemoved: true,
 					},
-					"config_vars.bar": &tofu.ResourceAttrDiff{
+					"config_vars.bar": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "baz",
 					},
@@ -1446,7 +1446,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"vars.foo": "bar",
 				},
@@ -1460,14 +1460,14 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"vars.foo": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"vars.foo": &farseek.ResourceAttrDiff{
 						Old:        "bar",
 						New:        "",
 						NewRemoved: true,
 					},
-					"vars.bar": &tofu.ResourceAttrDiff{
+					"vars.bar": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "baz",
 					},
@@ -1486,7 +1486,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"vars.foo": "bar",
 				},
@@ -1508,7 +1508,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"config_vars.#":     "1",
 					"config_vars.0.foo": "bar",
@@ -1523,13 +1523,13 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"config_vars.0.foo": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"config_vars.0.foo": &farseek.ResourceAttrDiff{
 						Old:        "bar",
 						NewRemoved: true,
 					},
-					"config_vars.0.bar": &tofu.ResourceAttrDiff{
+					"config_vars.0.bar": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "baz",
 					},
@@ -1548,7 +1548,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"config_vars.#":     "1",
 					"config_vars.0.foo": "bar",
@@ -1558,21 +1558,21 @@ func TestSchemaMap_Diff(t *testing.T) {
 
 			Config: map[string]interface{}{},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"config_vars.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"config_vars.#": &farseek.ResourceAttrDiff{
 						Old: "1",
 						New: "0",
 					},
-					"config_vars.0.%": &tofu.ResourceAttrDiff{
+					"config_vars.0.%": &farseek.ResourceAttrDiff{
 						Old: "2",
 						New: "0",
 					},
-					"config_vars.0.foo": &tofu.ResourceAttrDiff{
+					"config_vars.0.foo": &farseek.ResourceAttrDiff{
 						Old:        "bar",
 						NewRemoved: true,
 					},
-					"config_vars.0.bar": &tofu.ResourceAttrDiff{
+					"config_vars.0.bar": &farseek.ResourceAttrDiff{
 						Old:        "baz",
 						NewRemoved: true,
 					},
@@ -1598,7 +1598,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"availability_zone": "bar",
 					"address":           "foo",
@@ -1609,15 +1609,15 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"availability_zone": "foo",
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"availability_zone": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"availability_zone": &farseek.ResourceAttrDiff{
 						Old:         "bar",
 						New:         "foo",
 						RequiresNew: true,
 					},
 
-					"address": &tofu.ResourceAttrDiff{
+					"address": &farseek.ResourceAttrDiff{
 						Old:         "foo",
 						New:         "",
 						NewComputed: true,
@@ -1648,7 +1648,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"availability_zone": "bar",
 					"ports.#":           "1",
@@ -1660,15 +1660,15 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"availability_zone": "foo",
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"availability_zone": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"availability_zone": &farseek.ResourceAttrDiff{
 						Old:         "bar",
 						New:         "foo",
 						RequiresNew: true,
 					},
 
-					"ports.#": &tofu.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old:         "1",
 						New:         "",
 						NewComputed: true,
@@ -1693,7 +1693,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"instances.#": "0",
 				},
@@ -1703,9 +1703,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"instances": []interface{}{hcl2shim.UnknownVariableValue},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"instances.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"instances.#": &farseek.ResourceAttrDiff{
 						NewComputed: true,
 					},
 				},
@@ -1751,17 +1751,17 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"route.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"route.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "1",
 					},
-					"route.~1.index": &tofu.ResourceAttrDiff{
+					"route.~1.index": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "1",
 					},
-					"route.~1.gateway": &tofu.ResourceAttrDiff{
+					"route.~1.gateway": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         hcl2shim.UnknownVariableValue,
 						NewComputed: true,
@@ -1815,17 +1815,17 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"route.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"route.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "1",
 					},
-					"route.~1.index": &tofu.ResourceAttrDiff{
+					"route.~1.index": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "1",
 					},
-					"route.~1.gateway.#": &tofu.ResourceAttrDiff{
+					"route.~1.gateway.#": &farseek.ResourceAttrDiff{
 						NewComputed: true,
 					},
 				},
@@ -1847,9 +1847,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 
 			Config: nil,
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"vars.%": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"vars.%": &farseek.ResourceAttrDiff{
 						Old:         "",
 						NewComputed: true,
 					},
@@ -1868,7 +1868,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"vars.%": "0",
 				},
@@ -1880,9 +1880,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"vars.%": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"vars.%": &farseek.ResourceAttrDiff{
 						Old:         "",
 						NewComputed: true,
 					},
@@ -1896,7 +1896,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 			Name:   " - Empty",
 			Schema: map[string]*Schema{},
 
-			State: &tofu.InstanceState{},
+			State: &farseek.InstanceState{},
 
 			Config: map[string]interface{}{},
 
@@ -1913,7 +1913,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"some_threshold": "567.8",
 				},
@@ -1923,9 +1923,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"some_threshold": 12.34,
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"some_threshold": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"some_threshold": &farseek.ResourceAttrDiff{
 						Old: "567.8",
 						New: "12.34",
 					},
@@ -1965,7 +1965,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"block_device.#": "2",
 					"block_device.616397234.delete_on_termination":  "true",
@@ -1999,7 +1999,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"port": "false",
 				},
@@ -2042,7 +2042,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"route.#": "0",
 				},
@@ -2065,7 +2065,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"active": "true",
 				},
@@ -2092,7 +2092,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"instances.#": "1",
 					"instances.3": "foo",
@@ -2101,14 +2101,14 @@ func TestSchemaMap_Diff(t *testing.T) {
 
 			Config: map[string]interface{}{},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"instances.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"instances.#": &farseek.ResourceAttrDiff{
 						Old:         "1",
 						New:         "0",
 						RequiresNew: true,
 					},
-					"instances.3": &tofu.ResourceAttrDiff{
+					"instances.3": &farseek.ResourceAttrDiff{
 						Old:         "foo",
 						New:         "",
 						NewRemoved:  true,
@@ -2136,13 +2136,13 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"vars.%": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"vars.%": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "1",
 					},
-					"vars.foo": &tofu.ResourceAttrDiff{
+					"vars.foo": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "",
 					},
@@ -2204,7 +2204,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"metadata_keys.#": "0",
 				},
@@ -2236,9 +2236,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"ports": []interface{}{1, hcl2shim.UnknownVariableValue},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "",
 						NewComputed: true,
@@ -2260,7 +2260,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 
 			Config: nil,
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"tags.%": "0",
 				},
@@ -2308,17 +2308,17 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"route.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"route.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "1",
 					},
-					"route.1.index": &tofu.ResourceAttrDiff{
+					"route.1.index": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "1",
 					},
-					"route.1.gateway-name": &tofu.ResourceAttrDiff{
+					"route.1.gateway-name": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "hello",
 					},
@@ -2370,19 +2370,19 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"service_account.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"service_account.#": &farseek.ResourceAttrDiff{
 						Old:         "0",
 						New:         "1",
 						RequiresNew: true,
 					},
-					"service_account.0.scopes.#": &tofu.ResourceAttrDiff{
+					"service_account.0.scopes.#": &farseek.ResourceAttrDiff{
 						Old:         "0",
 						New:         "1",
 						RequiresNew: true,
 					},
-					"service_account.0.scopes.123": &tofu.ResourceAttrDiff{
+					"service_account.0.scopes.123": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "123!",
 						NewExtra:    "123",
@@ -2408,7 +2408,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"instances.#": "2",
 					"instances.3": "333",
@@ -2420,23 +2420,23 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"instances": []interface{}{"333", "4444"},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"instances.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"instances.#": &farseek.ResourceAttrDiff{
 						Old: "2",
 						New: "2",
 					},
-					"instances.2": &tofu.ResourceAttrDiff{
+					"instances.2": &farseek.ResourceAttrDiff{
 						Old:         "22",
 						New:         "",
 						NewRemoved:  true,
 						RequiresNew: true,
 					},
-					"instances.3": &tofu.ResourceAttrDiff{
+					"instances.3": &farseek.ResourceAttrDiff{
 						Old: "333",
 						New: "333",
 					},
-					"instances.4": &tofu.ResourceAttrDiff{
+					"instances.4": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "4444",
 						RequiresNew: true,
@@ -2464,7 +2464,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"one":   "false",
 					"two":   "true",
@@ -2477,17 +2477,17 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"two": "0",
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"one": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"one": &farseek.ResourceAttrDiff{
 						Old: "false",
 						New: "true",
 					},
-					"two": &tofu.ResourceAttrDiff{
+					"two": &farseek.ResourceAttrDiff{
 						Old: "true",
 						New: "false",
 					},
-					"three": &tofu.ResourceAttrDiff{
+					"three": &farseek.ResourceAttrDiff{
 						Old:        "true",
 						New:        "false",
 						NewRemoved: true,
@@ -2502,7 +2502,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 			Name:   "tainted in state w/ no attr changes is still a replacement",
 			Schema: map[string]*Schema{},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"id": "someid",
 				},
@@ -2511,8 +2511,8 @@ func TestSchemaMap_Diff(t *testing.T) {
 
 			Config: map[string]interface{}{},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes:     map[string]*tofu.ResourceAttrDiff{},
+			Diff: &farseek.InstanceDiff{
+				Attributes:     map[string]*farseek.ResourceAttrDiff{},
 				DestroyTainted: true,
 			},
 
@@ -2533,7 +2533,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"ports.#": "3",
 					"ports.1": "1",
@@ -2546,26 +2546,26 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"ports": []interface{}{5, 2, 1},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old: "3",
 						New: "3",
 					},
-					"ports.1": &tofu.ResourceAttrDiff{
+					"ports.1": &farseek.ResourceAttrDiff{
 						Old: "1",
 						New: "1",
 					},
-					"ports.2": &tofu.ResourceAttrDiff{
+					"ports.2": &farseek.ResourceAttrDiff{
 						Old: "2",
 						New: "2",
 					},
-					"ports.5": &tofu.ResourceAttrDiff{
+					"ports.5": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "5",
 						RequiresNew: true,
 					},
-					"ports.4": &tofu.ResourceAttrDiff{
+					"ports.4": &farseek.ResourceAttrDiff{
 						Old:         "4",
 						New:         "0",
 						NewRemoved:  true,
@@ -2585,7 +2585,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"description": "foo",
 				},
@@ -2593,9 +2593,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 
 			Config: map[string]interface{}{},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"description": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"description": &farseek.ResourceAttrDiff{
 						Old:         "foo",
 						New:         "",
 						RequiresNew: true,
@@ -2619,15 +2619,15 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{},
+			State: &farseek.InstanceState{},
 
 			Config: map[string]interface{}{
 				"foo": hcl2shim.UnknownVariableValue,
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"foo": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"foo": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "false",
 						NewComputed: true,
@@ -2653,7 +2653,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"ports.#": "3",
 					"ports.1": "1",
@@ -2666,9 +2666,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"ports": []interface{}{hcl2shim.UnknownVariableValue, 2, 1},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old:         "3",
 						New:         "",
 						NewComputed: true,
@@ -2691,7 +2691,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"config.#": "2",
 					"config.0": "a",
@@ -2703,9 +2703,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				"config": []interface{}{hcl2shim.UnknownVariableValue, hcl2shim.UnknownVariableValue},
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"config.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"config.#": &farseek.ResourceAttrDiff{
 						Old:         "2",
 						New:         "",
 						RequiresNew: true,
@@ -2743,9 +2743,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				return nil
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"availability_zone": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"availability_zone": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "bar",
 						RequiresNew: true,
@@ -2784,9 +2784,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				return nil
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"availability_zone": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"availability_zone": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "bar",
 						RequiresNew: true,
@@ -2822,9 +2822,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				return nil
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"availability_zone": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"availability_zone": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "bar",
 						RequiresNew: true,
@@ -2861,13 +2861,13 @@ func TestSchemaMap_Diff(t *testing.T) {
 				return nil
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ami_id": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ami_id": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "foo",
 					},
-					"instance_id": &tofu.ResourceAttrDiff{
+					"instance_id": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "bar",
 					},
@@ -2891,7 +2891,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"ports.#": "3",
 					"ports.1": "1",
@@ -2914,26 +2914,26 @@ func TestSchemaMap_Diff(t *testing.T) {
 				return nil
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"ports.#": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"ports.#": &farseek.ResourceAttrDiff{
 						Old: "3",
 						New: "3",
 					},
-					"ports.1": &tofu.ResourceAttrDiff{
+					"ports.1": &farseek.ResourceAttrDiff{
 						Old: "1",
 						New: "1",
 					},
-					"ports.2": &tofu.ResourceAttrDiff{
+					"ports.2": &farseek.ResourceAttrDiff{
 						Old: "2",
 						New: "2",
 					},
-					"ports.5": &tofu.ResourceAttrDiff{
+					"ports.5": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         "5",
 						RequiresNew: true,
 					},
-					"ports.4": &tofu.ResourceAttrDiff{
+					"ports.4": &farseek.ResourceAttrDiff{
 						Old:         "4",
 						New:         "0",
 						NewRemoved:  true,
@@ -2947,7 +2947,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 			Name:   "tainted resource does not run CustomizeDiffFunc",
 			Schema: map[string]*Schema{},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"id": "someid",
 				},
@@ -2960,8 +2960,8 @@ func TestSchemaMap_Diff(t *testing.T) {
 				return errors.New("diff customization should not have run")
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes:     map[string]*tofu.ResourceAttrDiff{},
+			Diff: &farseek.InstanceDiff{
+				Attributes:     map[string]*farseek.ResourceAttrDiff{},
 				DestroyTainted: true,
 			},
 
@@ -2982,7 +2982,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"etag":       "foo",
 					"version_id": "1",
@@ -3000,13 +3000,13 @@ func TestSchemaMap_Diff(t *testing.T) {
 				return nil
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"etag": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"etag": &farseek.ResourceAttrDiff{
 						Old: "foo",
 						New: "bar",
 					},
-					"version_id": &tofu.ResourceAttrDiff{
+					"version_id": &farseek.ResourceAttrDiff{
 						Old:         "1",
 						New:         "",
 						NewComputed: true,
@@ -3026,7 +3026,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"foo": "",
 				},
@@ -3040,9 +3040,9 @@ func TestSchemaMap_Diff(t *testing.T) {
 				return nil
 			},
 
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"foo": &tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"foo": &farseek.ResourceAttrDiff{
 						NewComputed: true,
 					},
 				},
@@ -3061,7 +3061,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"foo": "bar",
 				},
@@ -3092,7 +3092,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"attr": "bar",
 				},
@@ -3122,7 +3122,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 
-			State: &tofu.InstanceState{
+			State: &farseek.InstanceState{
 				Attributes: map[string]string{
 					"unrelated_set.#":  "0",
 					"stream_enabled":   "true",
@@ -3140,8 +3140,8 @@ func TestSchemaMap_Diff(t *testing.T) {
 				}
 				return nil
 			},
-			Diff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
+			Diff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
 					"stream_enabled": {
 						Old: "true",
 						New: "false",
@@ -3153,7 +3153,7 @@ func TestSchemaMap_Diff(t *testing.T) {
 
 	for i, tc := range cases {
 		t.Run(fmt.Sprintf("%d-%s", i, tc.Name), func(t *testing.T) {
-			c := tofu.NewResourceConfigRaw(tc.Config)
+			c := farseek.NewResourceConfigRaw(tc.Config)
 
 			d, err := schemaMap(tc.Schema).Diff(tc.State, c, tc.CustomizeDiff, nil, true)
 			if err != nil != tc.Err {
@@ -3313,10 +3313,10 @@ func TestSchemaMap_Input(t *testing.T) {
 			tc.Config = make(map[string]interface{})
 		}
 
-		input := new(tofu.MockUIInput)
+		input := new(farseek.MockUIInput)
 		input.InputReturnMap = tc.Input
 
-		rc := tofu.NewResourceConfigRaw(tc.Config)
+		rc := farseek.NewResourceConfigRaw(tc.Config)
 		rc.Config = make(map[string]interface{})
 
 		actual, err := schemaMap(tc.Schema).Input(input, rc)
@@ -3332,11 +3332,11 @@ func TestSchemaMap_Input(t *testing.T) {
 
 func TestSchemaMap_InputDefault(t *testing.T) {
 	emptyConfig := make(map[string]interface{})
-	rc := tofu.NewResourceConfigRaw(emptyConfig)
+	rc := farseek.NewResourceConfigRaw(emptyConfig)
 	rc.Config = make(map[string]interface{})
 
-	input := new(tofu.MockUIInput)
-	input.InputFn = func(opts *tofu.InputOpts) (string, error) {
+	input := new(farseek.MockUIInput)
+	input.InputFn = func(opts *farseek.InputOpts) (string, error) {
 		t.Fatalf("InputFn should not be called on: %#v", opts)
 		return "", nil
 	}
@@ -3362,11 +3362,11 @@ func TestSchemaMap_InputDefault(t *testing.T) {
 
 func TestSchemaMap_InputDeprecated(t *testing.T) {
 	emptyConfig := make(map[string]interface{})
-	rc := tofu.NewResourceConfigRaw(emptyConfig)
+	rc := farseek.NewResourceConfigRaw(emptyConfig)
 	rc.Config = make(map[string]interface{})
 
-	input := new(tofu.MockUIInput)
-	input.InputFn = func(opts *tofu.InputOpts) (string, error) {
+	input := new(farseek.MockUIInput)
+	input.InputFn = func(opts *farseek.InputOpts) (string, error) {
 		t.Fatalf("InputFn should not be called on: %#v", opts)
 		return "", nil
 	}
@@ -3805,9 +3805,9 @@ func TestSchemaMap_InternalValidate(t *testing.T) {
 func TestSchemaMap_DiffSuppress(t *testing.T) {
 	cases := map[string]struct {
 		Schema       map[string]*Schema
-		State        *tofu.InstanceState
+		State        *farseek.InstanceState
 		Config       map[string]interface{}
-		ExpectedDiff *tofu.InstanceDiff
+		ExpectedDiff *farseek.InstanceDiff
 		Err          bool
 	}{
 		"#0 - Suppress otherwise valid diff by returning true": {
@@ -3851,8 +3851,8 @@ func TestSchemaMap_DiffSuppress(t *testing.T) {
 				"availability_zone": "foo",
 			},
 
-			ExpectedDiff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
+			ExpectedDiff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
 					"availability_zone": {
 						Old: "",
 						New: "foo",
@@ -3900,8 +3900,8 @@ func TestSchemaMap_DiffSuppress(t *testing.T) {
 
 			Config: map[string]interface{}{},
 
-			ExpectedDiff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
+			ExpectedDiff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
 					"availability_zone": {
 						Old: "",
 						New: "foo",
@@ -3961,21 +3961,21 @@ func TestSchemaMap_DiffSuppress(t *testing.T) {
 				},
 			},
 
-			ExpectedDiff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"outer.#": &tofu.ResourceAttrDiff{
+			ExpectedDiff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"outer.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "1",
 					},
-					"outer.~1.outer_str": &tofu.ResourceAttrDiff{
+					"outer.~1.outer_str": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "foo",
 					},
-					"outer.~1.inner.#": &tofu.ResourceAttrDiff{
+					"outer.~1.inner.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "1",
 					},
-					"outer.~1.inner.~2.inner_str": &tofu.ResourceAttrDiff{
+					"outer.~1.inner.~2.inner_str": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         hcl2shim.UnknownVariableValue,
 						NewComputed: true,
@@ -4032,21 +4032,21 @@ func TestSchemaMap_DiffSuppress(t *testing.T) {
 				},
 			},
 
-			ExpectedDiff: &tofu.InstanceDiff{
-				Attributes: map[string]*tofu.ResourceAttrDiff{
-					"outer.#": &tofu.ResourceAttrDiff{
+			ExpectedDiff: &farseek.InstanceDiff{
+				Attributes: map[string]*farseek.ResourceAttrDiff{
+					"outer.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "1",
 					},
-					"outer.~1.outer_str": &tofu.ResourceAttrDiff{
+					"outer.~1.outer_str": &farseek.ResourceAttrDiff{
 						Old: "",
 						New: "foo",
 					},
-					"outer.~1.inner.#": &tofu.ResourceAttrDiff{
+					"outer.~1.inner.#": &farseek.ResourceAttrDiff{
 						Old: "0",
 						New: "1",
 					},
-					"outer.~1.inner.0.inner_str": &tofu.ResourceAttrDiff{
+					"outer.~1.inner.0.inner_str": &farseek.ResourceAttrDiff{
 						Old:         "",
 						New:         hcl2shim.UnknownVariableValue,
 						NewComputed: true,
@@ -4060,7 +4060,7 @@ func TestSchemaMap_DiffSuppress(t *testing.T) {
 
 	for tn, tc := range cases {
 		t.Run(tn, func(t *testing.T) {
-			c := tofu.NewResourceConfigRaw(tc.Config)
+			c := farseek.NewResourceConfigRaw(tc.Config)
 
 			d, err := schemaMap(tc.Schema).Diff(tc.State, c, nil, nil, true)
 			if err != nil != tc.Err {
@@ -5314,7 +5314,7 @@ func TestSchemaMap_Validate(t *testing.T) {
 
 	for tn, tc := range cases {
 		t.Run(tn, func(t *testing.T) {
-			c := tofu.NewResourceConfigRaw(tc.Config)
+			c := farseek.NewResourceConfigRaw(tc.Config)
 
 			ws, es := schemaMap(tc.Schema).Validate(c)
 			if len(es) > 0 != tc.Err {
@@ -5349,10 +5349,10 @@ func TestSchemaMap_Validate(t *testing.T) {
 func TestSchemaSet_ValidateMaxItems(t *testing.T) {
 	cases := map[string]struct {
 		Schema          map[string]*Schema
-		State           *tofu.InstanceState
+		State           *farseek.InstanceState
 		Config          map[string]interface{}
 		ConfigVariables map[string]string
-		Diff            *tofu.InstanceDiff
+		Diff            *farseek.InstanceDiff
 		Err             bool
 		Errors          []error
 	}{
@@ -5411,7 +5411,7 @@ func TestSchemaSet_ValidateMaxItems(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		c := tofu.NewResourceConfigRaw(tc.Config)
+		c := farseek.NewResourceConfigRaw(tc.Config)
 		_, es := schemaMap(tc.Schema).Validate(c)
 
 		if len(es) > 0 != tc.Err {
@@ -5437,10 +5437,10 @@ func TestSchemaSet_ValidateMaxItems(t *testing.T) {
 func TestSchemaSet_ValidateMinItems(t *testing.T) {
 	cases := map[string]struct {
 		Schema          map[string]*Schema
-		State           *tofu.InstanceState
+		State           *farseek.InstanceState
 		Config          map[string]interface{}
 		ConfigVariables map[string]string
-		Diff            *tofu.InstanceDiff
+		Diff            *farseek.InstanceDiff
 		Err             bool
 		Errors          []error
 	}{
@@ -5499,7 +5499,7 @@ func TestSchemaSet_ValidateMinItems(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		c := tofu.NewResourceConfigRaw(tc.Config)
+		c := farseek.NewResourceConfigRaw(tc.Config)
 		_, es := schemaMap(tc.Schema).Validate(c)
 
 		if len(es) > 0 != tc.Err {

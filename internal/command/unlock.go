@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -15,7 +15,7 @@ import (
 	"github.com/mitchellh/cli"
 
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // UnlockCommand is a cli.Command implementation that manually unlocks
@@ -81,7 +81,6 @@ func (c *UnlockCommand) Run(args []string) int {
 	}
 
 	// unlocking is read only when looking at state data
-	c.ignoreRemoteVersionConflict(b)
 
 	env, err := c.Workspace(ctx)
 	if err != nil {
@@ -117,7 +116,7 @@ func (c *UnlockCommand) Run(args []string) int {
 			"This will allow local Farseek commands to modify this state, even though it\n" +
 			"may still be in use. Only 'yes' will be accepted to confirm."
 
-		v, err := c.UIInput().Input(context.Background(), &tofu.InputOpts{
+		v, err := c.UIInput().Input(context.Background(), &farseek.InputOpts{
 			Id:          "force-unlock",
 			Query:       "Do you really want to force-unlock?",
 			Description: desc,

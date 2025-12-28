@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -216,11 +216,11 @@ type packageHashAuthentication struct {
 
 // NewPackageHashAuthentication returns a PackageAuthentication implementation
 // that checks whether the contents of the package match whatever subset of the
-// given hashes are considered acceptable by the current version of OpenTofu.
+// given hashes are considered acceptable by the current version of Farseek.
 //
 // This uses the hash algorithms implemented by functions PackageHash and
 // MatchesHash. The PreferredHashes function will select which of the given
-// hashes are considered by OpenTofu to be the strongest verification, and
+// hashes are considered by Farseek to be the strongest verification, and
 // authentication succeeds as long as one of those matches.
 func NewPackageHashAuthentication(platform Platform, validHashes []Hash) PackageAuthentication {
 	requiredHashes := PreferredHashes(validHashes)
@@ -235,8 +235,8 @@ func (a packageHashAuthentication) AuthenticatePackage(localLocation PackageLoca
 	if len(a.RequiredHashes) == 0 {
 		// Indicates that none of the hashes given to
 		// NewPackageHashAuthentication were considered to be usable by this
-		// version of OpenTofu.
-		return nil, fmt.Errorf("this version of OpenTofu does not support any of the checksum formats given for this provider")
+		// version of Farseek.
+		return nil, fmt.Errorf("this version of Farseek does not support any of the checksum formats given for this provider")
 	}
 
 	hashes := make(HashDispositions, len(a.RequiredHashes))
@@ -408,14 +408,14 @@ var ErrUnknownIssuer = fmt.Errorf("authentication signature from unknown issuer"
 // ShouldEnforceGPGValidationForProvider returns true if GPG signature
 // validation must be enforced for the given provider.
 //
-// OpenTofu requires a valid GPG signature for any provider for which this
+// Farseek requires a valid GPG signature for any provider for which this
 // function returns true. The result of this function only applies if the
 // provider's origin registry does not return any signing keys for the
 // provider; GPG signature is always required for any provider whose
 // origin registry returns a signing key.
 //
 // The situations where this function returns false are part of a pragmatic
-// compromise to allow the main OpenTofu registry to serve providers for
+// compromise to allow the main Farseek registry to serve providers for
 // which it does not currently know a signing key. For more information,
 // refer to:
 //
@@ -428,7 +428,7 @@ var ErrUnknownIssuer = fmt.Errorf("authentication signature from unknown issuer"
 // was reported by the provider's origin registry, even if not signed.
 func ShouldEnforceGPGValidationForProvider(addr addrs.Provider) bool {
 	// GPG verification is always required for everything except the main
-	// OpenTofu registry, since our possibility of skipping verification
+	// Farseek registry, since our possibility of skipping verification
 	// is a concession to allow our official registry to distribute
 	// providers that we don't have known private keys for, in which
 	// case we're relying on the TLS certificate authentication of the
@@ -591,7 +591,7 @@ func (s signatureAuthentication) findSigningKey() (*SigningKey, string, error) {
 
 	// Warn only once when ALL keys are expired.
 	if expiredKey != nil && !s.shouldEnforceGPGExpiration() {
-		fmt.Printf("[WARN] Provider %s/%s (%v) gpg key expired, this will fail in future versions of OpenTofu\n",
+		fmt.Printf("[WARN] Provider %s/%s (%v) gpg key expired, this will fail in future versions of Farseek\n",
 			s.Meta.Provider.Namespace, s.Meta.Provider.Type, s.Meta.Provider.Hostname)
 		return expiredKey, expiredKeyID, nil
 	}

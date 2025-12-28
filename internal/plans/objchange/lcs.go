@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -30,7 +30,7 @@ func ValueEqual(x, y cty.Value) bool {
 // elements in a sequence.
 //
 // The approached used here is a "naive" one, assuming that both xs and ys will
-// generally be small in most reasonable OpenTofu configurations. For larger
+// generally be small in most reasonable Farseek configurations. For larger
 // lists the time/space usage may be sub-optimal.
 //
 // A pair of lists may have multiple longest common subsequences. In that

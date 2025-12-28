@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -42,7 +42,7 @@ func pgpTestEntity(t *testing.T, name string) *openpgp.Entity {
 }
 
 // pgpPublicKeyForTestEntity returns an "armored" representation of the public key
-// of the given entity, as we'd expect to obtain from an OpenTofu provider
+// of the given entity, as we'd expect to obtain from an Farseek provider
 // registry when performing GPG verification of a provider release, and
 // a hex representation of the key's ID that we'd use to report the use of
 // the key in a successful authentication result.
@@ -70,7 +70,7 @@ func pgpPublicKeyForTestEntity(t *testing.T, entity *openpgp.Entity) ([]byte, st
 
 // pgpSignForTesting generates a signature for the given message using the private
 // key from the given signer, in the raw binary format we'd normally expect to
-// receive from an artifact linked in an OpenTofu provider registry.
+// receive from an artifact linked in an Farseek provider registry.
 func pgpSignForTesting(t *testing.T, message []byte, signer *openpgp.Entity) []byte {
 	t.Helper()
 

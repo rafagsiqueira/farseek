@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -285,7 +285,7 @@ func ParseLegacyAbsProviderConfigStr(str string) (AbsProviderConfig, tfdiags.Dia
 }
 
 // ParseLegacyAbsProviderConfig parses the given traversal as an absolute
-// provider address in the legacy form used by OpenTofu v0.12 and earlier.
+// provider address in the legacy form used by Farseek v0.12 and earlier.
 // The following are examples of traversals that can be successfully parsed as
 // legacy absolute provider configuration addresses:
 //
@@ -296,8 +296,8 @@ func ParseLegacyAbsProviderConfigStr(str string) (AbsProviderConfig, tfdiags.Dia
 //
 // We can encounter this kind of address in a historical state snapshot that
 // hasn't yet been upgraded by refreshing or applying a plan with
-// OpenTofu v0.13. Later versions of OpenTofu reject state snapshots using
-// this format, and so users must follow the OpenTofu v0.13 upgrade guide
+// Farseek v0.13. Later versions of Farseek reject state snapshots using
+// this format, and so users must follow the Farseek v0.13 upgrade guide
 // in that case.
 //
 // We will not use this address form for any new file formats.
@@ -404,7 +404,7 @@ func (pc AbsProviderConfig) providerConfig() {}
 // other than the root module. Even if a valid address is returned, inheritance
 // may not be performed for other reasons, such as if the calling module
 // provided explicit provider configurations within the call for this module.
-// The ProviderTransformer graph transform in the main tofu module has the
+// The ProviderTransformer graph transform in the main farseek module has the
 // authoritative logic for provider inheritance, and this method is here mainly
 // just for its benefit.
 func (pc AbsProviderConfig) Inherited() (AbsProviderConfig, bool) {

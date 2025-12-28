@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -23,7 +23,7 @@ import (
 	"github.com/bgentry/speakeasy"
 	"github.com/mattn/go-isatty"
 	"github.com/mitchellh/colorstring"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 var defaultInputReader io.Reader
@@ -31,7 +31,7 @@ var defaultInputWriter io.Writer
 var testInputResponse []string
 var testInputResponseMap map[string]string
 
-// UIInput is an implementation of tofu.UIInput that asks the CLI
+// UIInput is an implementation of farseek.UIInput that asks the CLI
 // for input stdin.
 type UIInput struct {
 	// Colorize will color the output.
@@ -51,7 +51,7 @@ type UIInput struct {
 	once        sync.Once
 }
 
-func (i *UIInput) Input(ctx context.Context, opts *tofu.InputOpts) (string, error) {
+func (i *UIInput) Input(ctx context.Context, opts *farseek.InputOpts) (string, error) {
 	i.once.Do(i.init)
 
 	r := i.Reader
@@ -69,7 +69,7 @@ func (i *UIInput) Input(ctx context.Context, opts *tofu.InputOpts) (string, erro
 		w = os.Stdout
 	}
 
-	// Make sure we only ask for input once at a time. OpenTofu
+	// Make sure we only ask for input once at a time. Farseek
 	// should enforce this, but it doesn't hurt to verify.
 	i.l.Lock()
 	defer i.l.Unlock()

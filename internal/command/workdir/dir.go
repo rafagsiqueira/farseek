@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 )
 
-// Dir represents a single OpenTofu working directory.
+// Dir represents a single Farseek working directory.
 //
 // "Working directory" is unfortunately a slight misnomer, because non-default
 // options can potentially stretch the definition such that multiple working
@@ -38,13 +38,13 @@ import (
 type Dir struct {
 	// mainDir is the path to the directory that we present as the
 	// "working directory" in the user model, which is typically the
-	// current working directory when running OpenTofu CLI, or the
+	// current working directory when running Farseek CLI, or the
 	// directory explicitly chosen by the user using the -chdir=...
 	// global option.
 	mainDir string
 
 	// originalDir is the path to the working directory that was
-	// selected when creating the OpenTofu CLI process, regardless of
+	// selected when creating the Farseek CLI process, regardless of
 	// -chdir=... being set. This is only for very limited purposes
 	// related to backward compatibility; most functionality should
 	// use mainDir instead.
@@ -86,7 +86,7 @@ func NewDir(mainPath string) *Dir {
 // OverrideOriginalWorkingDir records a different path as the
 // "original working directory" for the receiver.
 //
-// Use this only to record the original working directory when OpenTofu is run
+// Use this only to record the original working directory when Farseek is run
 // with the -chdir=... global option. In that case, the directory given in
 // -chdir=... is the "main path" to pass in to NewDir, while the original
 // working directory should be sent to this method.
@@ -114,10 +114,10 @@ func (d *Dir) RootModuleDir() string {
 }
 
 // OriginalWorkingDir returns the true, operating-system-originated working
-// directory that the current OpenTofu process was launched from.
+// directory that the current Farseek process was launched from.
 //
 // This is usually the same as the main working directory, but differs in the
-// special case where the user ran OpenTofu with the global -chdir=...
+// special case where the user ran Farseek with the global -chdir=...
 // option. This is here only for a few backward compatibility affordances
 // from before we had the -chdir=... option, so should typically not be used
 // for anything new.
@@ -142,7 +142,7 @@ func (d *Dir) DataDir() string {
 //
 // For directories that already exist ensureDataDir will preserve their
 // permissions, while it'll create any new directories to be owned by the user
-// running OpenTofu, readable and writable by that user, and readable by
+// running Farseek, readable and writable by that user, and readable by
 // all other users, or some approximation of that on non-Unix platforms which
 // have a different permissions model.
 func (d *Dir) ensureDataDir() error {

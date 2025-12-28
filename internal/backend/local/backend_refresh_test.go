@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -22,7 +22,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/terminal"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 
 	"github.com/zclconf/go-cty/cty"
 )
@@ -103,7 +103,7 @@ func TestLocal_refreshInput(t *testing.T) {
 
 	// Enable input asking since it is normally disabled by default
 	b.OpInput = true
-	b.ContextOpts.UIInput = &tofu.MockUIInput{InputReturnString: "bar"}
+	b.ContextOpts.UIInput = &farseek.MockUIInput{InputReturnString: "bar"}
 
 	op, done := testOperationRefresh(t, "./testdata/refresh-var-unset")
 	defer done(t)

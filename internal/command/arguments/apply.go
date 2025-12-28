@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -38,6 +38,9 @@ type Apply struct {
 	// SuppressForgetErrorsDuringDestroy suppresses the error that occurs when a
 	// destroy operation completes successfully but leaves forgotten instances behind.
 	SuppressForgetErrorsDuringDestroy bool
+
+	// Uncommitted includes unstaged and uncommitted local changes in the drift calculation.
+	Uncommitted bool
 }
 
 // ParseApply processes CLI arguments, returning an Apply value and errors.
@@ -56,6 +59,7 @@ func ParseApply(args []string) (*Apply, tfdiags.Diagnostics) {
 	cmdFlags.BoolVar(&apply.InputEnabled, "input", true, "input")
 	cmdFlags.BoolVar(&apply.ShowSensitive, "show-sensitive", false, "displays sensitive values")
 	cmdFlags.BoolVar(&apply.SuppressForgetErrorsDuringDestroy, "suppress-forget-errors", false, "suppress errors in destroy mode due to resources being forgotten")
+	cmdFlags.BoolVar(&apply.Uncommitted, "uncommitted", false, "include uncommitted changes in drift calculation")
 
 	var json bool
 	cmdFlags.BoolVar(&json, "json", false, "json")

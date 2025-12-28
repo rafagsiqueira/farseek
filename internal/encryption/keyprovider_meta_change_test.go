@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -92,15 +92,15 @@ func TestChangingKeyProviderAddr(t *testing.T) {
 }
 
 func TestDuplicateKeyProvider(t *testing.T) {
-	// Note: the XOR provider is not available in final OpenTofu builds because its security constraints have not
-	// been properly evaluated. The code below doesn't work in OpenTofu and is for tests only.
+	// Note: the XOR provider is not available in final Farseek builds because its security constraints have not
+	// been properly evaluated. The code below doesn't work in Farseek and is for tests only.
 	sourceConfig := `key_provider "pbkdf2" "base1" {
 			encrypted_metadata_alias = "foo"
 			passphrase               = "Hello world! 123"
 		}
 		key_provider "pbkdf2" "base2" {
 			encrypted_metadata_alias = "foo"
-			passphrase               = "OpenTofu has Encryption"
+			passphrase               = "Farseek has Encryption"
 		}
 		key_provider "xor" "dualcustody" {
 			a = key_provider.pbkdf2.base1

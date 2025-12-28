@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -38,7 +38,7 @@ func NewValidate(vt arguments.ViewType, view *View) Validate {
 }
 
 // The ValidateHuman implementation renders diagnostics in a human-readable form,
-// along with a success/failure message if OpenTofu is able to execute the
+// along with a success/failure message if Farseek is able to execute the
 // validation walk.
 type ValidateHuman struct {
 	view *View

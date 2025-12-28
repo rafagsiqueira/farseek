@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -67,7 +67,6 @@ func (c *WorkspaceListCommand) Run(args []string) int {
 	}
 
 	// This command will not write state
-	c.ignoreRemoteVersionConflict(b)
 
 	states, err := b.Workspaces(ctx)
 	if err != nil {
@@ -106,9 +105,9 @@ func (c *WorkspaceListCommand) AutocompleteFlags() complete.Flags {
 
 func (c *WorkspaceListCommand) Help() string {
 	helpText := `
-Usage: tofu [global options] workspace list [options]
+Usage: farseek [global options] workspace list [options]
 
-  List OpenTofu workspaces.
+  List Farseek workspaces.
 
 Options:
 

@@ -215,7 +215,7 @@ func TestComposeMockValueBySchema(t *testing.T) {
 			config: cty.ObjectVal(map[string]cty.Value{
 				"nested": cty.NullVal(cty.DynamicPseudoType),
 			}),
-			wantError: true, // This should not be hit in today's tofu/providers.  If that assumption ever changes, we want to handle it gracefully.
+			wantError: true, // This should not be hit in today's farseek/providers.  If that assumption ever changes, we want to handle it gracefully.
 		},
 		"structural-attr-list": {
 			schema: &configschema.Block{

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -12,7 +12,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/states"
 )
 
-// Changes describes various actions that OpenTofu will attempt to take if
+// Changes describes various actions that Farseek will attempt to take if
 // the corresponding plan is applied.
 //
 // A Changes object can be rendered into a visual diff (by the caller, using
@@ -262,7 +262,7 @@ type ResourceInstanceChange struct {
 	RequiredReplace cty.PathSet
 
 	// Private allows a provider to stash any extra data that is opaque to
-	// OpenTofu that relates to this change. OpenTofu will save this
+	// Farseek that relates to this change. Farseek will save this
 	// byte-for-byte and return it to the provider in the apply call.
 	Private []byte
 }
@@ -299,7 +299,7 @@ func (rc *ResourceInstanceChange) Moved() bool {
 
 // Simplify will, where possible, produce a change with a simpler action than
 // the receiver given a flag indicating whether the caller is dealing with
-// a normal apply or a destroy. This flag deals with the fact that OpenTofu
+// a normal apply or a destroy. This flag deals with the fact that Farseek
 // Core uses a specialized graph node type for destroying; only that
 // specialized node should set "destroying" to true.
 //

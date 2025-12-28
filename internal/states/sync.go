@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -15,7 +15,7 @@ import (
 )
 
 // SyncState is a wrapper around State that provides concurrency-safe access to
-// various common operations that occur during a OpenTofu graph walk, or other
+// various common operations that occur during a Farseek graph walk, or other
 // similar concurrent contexts.
 //
 // When a SyncState wrapper is in use, no concurrent direct access to the

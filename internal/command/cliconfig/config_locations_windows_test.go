@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -36,8 +36,8 @@ func TestConfigFileLocations(t *testing.T) {
 	tests := []locationTest{
 		{
 			locationTestParameters: locationTestParameters{
-				name:  "tofu.rc only",
-				files: []string{filepath.Join(configDir, "tofu.rc")},
+				name:  "farseek.rc only",
+				files: []string{filepath.Join(configDir, "farseek.rc")},
 			},
 			expected: map[string]*ConfigHost{
 				"config0.example.com": {
@@ -62,8 +62,8 @@ func TestConfigFileLocations(t *testing.T) {
 		},
 		{
 			locationTestParameters: locationTestParameters{
-				name:  "tofu.rc and terraform.rc",
-				files: []string{filepath.Join(configDir, "terraform.rc"), filepath.Join(configDir, "tofu.rc")},
+				name:  "farseek.rc and terraform.rc",
+				files: []string{filepath.Join(configDir, "terraform.rc"), filepath.Join(configDir, "farseek.rc")},
 			},
 			expected: map[string]*ConfigHost{
 				"config1.example.com": {

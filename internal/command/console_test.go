@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -112,9 +112,9 @@ func TestConsole_tfvars(t *testing.T) {
 }
 
 func TestConsole_unsetRequiredVars(t *testing.T) {
-	// This test is verifying that it's possible to run "tofu console"
+	// This test is verifying that it's possible to run "farseek console"
 	// without providing values for all required variables, without
-	// "tofu console" producing an interactive prompt for those variables
+	// "farseek console" producing an interactive prompt for those variables
 	// or producing errors. Instead, it should allow evaluation in that
 	// partial context but see the unset variables values as being unknown.
 	//

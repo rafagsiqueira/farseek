@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -17,7 +17,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/e2e"
 )
 
-type tofuResult struct {
+type farseekResult struct {
 	t *testing.T
 
 	stdout string
@@ -25,7 +25,7 @@ type tofuResult struct {
 	err    error
 }
 
-func (r tofuResult) Success() tofuResult {
+func (r farseekResult) Success() farseekResult {
 	if r.stderr != "" {
 		debug.PrintStack()
 		r.t.Fatalf("unexpected stderr output:\n%s", r.stderr)
@@ -38,7 +38,7 @@ func (r tofuResult) Success() tofuResult {
 	return r
 }
 
-func (r tofuResult) Failure() tofuResult {
+func (r farseekResult) Failure() farseekResult {
 	if r.err == nil {
 		debug.PrintStack()
 		r.t.Fatal("expected error")
@@ -57,7 +57,7 @@ func SanitizeStderr(msg string) string {
 	return msg
 }
 
-func (r tofuResult) StderrContains(msg string) tofuResult {
+func (r farseekResult) StderrContains(msg string) farseekResult {
 	stdErrSanitized := SanitizeStderr(r.stderr)
 	if !strings.Contains(stdErrSanitized, msg) {
 		debug.PrintStack()
@@ -66,7 +66,7 @@ func (r tofuResult) StderrContains(msg string) tofuResult {
 	return r
 }
 
-func (r tofuResult) Contains(msg string) tofuResult {
+func (r farseekResult) Contains(msg string) farseekResult {
 	if !strings.Contains(r.stdout, msg) {
 		debug.PrintStack()
 		r.t.Fatalf("expected output %q:\n%s", msg, r.stdout)
@@ -86,9 +86,9 @@ func TestEncryptionFlow(t *testing.T) {
 	// There is a lot of setup / helpers defined.  Actual test logic is below.
 
 	fixturePath := filepath.Join("testdata", "encryption-flow")
-	tf := e2e.NewBinary(t, tofuBin, fixturePath)
+	tf := e2e.NewBinary(t, farseekBin, fixturePath)
 
-	// tofu init
+	// farseek init
 	_, stderr, err := tf.Run("init")
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
@@ -99,11 +99,11 @@ func TestEncryptionFlow(t *testing.T) {
 
 	iter := 0
 
-	run := func(args ...string) tofuResult {
+	run := func(args ...string) farseekResult {
 		stdout, stderr, err := tf.Run(args...)
-		return tofuResult{t, stdout, stderr, err}
+		return farseekResult{t, stdout, stderr, err}
 	}
-	apply := func(args ...string) tofuResult {
+	apply := func(args ...string) farseekResult {
 		iter += 1
 		finalArgs := []string{"apply"}
 		finalArgs = append(finalArgs, fmt.Sprintf("-var=iter=%v", iter), "-auto-approve")
@@ -111,12 +111,12 @@ func TestEncryptionFlow(t *testing.T) {
 		return run(finalArgs...)
 	}
 
-	createPlan := func(planfile string, args ...string) tofuResult {
+	createPlan := func(planfile string, args ...string) farseekResult {
 		iter += 1
 		args = append([]string{"plan", fmt.Sprintf("-var=iter=%v", iter), "-out=" + planfile}, args...)
 		return run(args...)
 	}
-	applyPlan := func(planfile string, args ...string) tofuResult {
+	applyPlan := func(planfile string, args ...string) farseekResult {
 		finalArgs := []string{"apply", "-auto-approve"}
 		finalArgs = append(finalArgs, args...)
 		finalArgs = append(finalArgs, planfile)
@@ -172,7 +172,7 @@ func TestEncryptionFlow(t *testing.T) {
 
 		// Save an unencrypted plan
 		createPlan(unencryptedPlan, withVarArg("passphrase", correctPassphrase)).Success()
-		// Validate that OpenTofu does not allow different -var value for a variable between creation of the plan and its execution.
+		// Validate that Farseek does not allow different -var value for a variable between creation of the plan and its execution.
 		applyPlan(unencryptedPlan, withVarArg("passphrase", "different-value-than-the-one-saved-in-the-planfile")).
 			StderrContains(`Value saved in the plan file for variable "passphrase" is different from the one given to the current command`)
 		// Validate unencrypted plan

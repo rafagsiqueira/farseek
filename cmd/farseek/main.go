@@ -358,7 +358,7 @@ func realMain() int {
 	if cmd := cliRunner.Subcommand(); cmd != "" && !autoComplete {
 		// Due to the design of cli.CLI, this special error message only works
 		// for typos of top-level commands. For a subcommand typo, like
-		// "tofu state push", cmd would be "state" here and thus would
+		// "farseek state push", cmd would be "state" here and thus would
 		// be considered to exist, and it would print out its own usage message.
 		if _, exists := commands[cmd]; !exists {
 			suggestions := make([]string, 0, len(commands))
@@ -373,7 +373,6 @@ func realMain() int {
 			return 1
 		}
 	}
-
 	exitCode, err := cliRunner.Run()
 	if err != nil {
 		Ui.Error(fmt.Sprintf("Error executing CLI: %s", err.Error()))

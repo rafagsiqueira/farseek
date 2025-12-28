@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -11,7 +11,7 @@ import (
 	"sync"
 
 	"github.com/rafagsiqueira/farseek/internal/states"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // NewFullFake returns a full state manager that really only supports transient
@@ -72,7 +72,7 @@ func (m *fakeFull) RefreshState(_ context.Context) error {
 	return m.t.WriteState(m.fakeP.State())
 }
 
-func (m *fakeFull) PersistState(_ context.Context, schemas *tofu.Schemas) error {
+func (m *fakeFull) PersistState(_ context.Context, schemas *farseek.Schemas) error {
 	return m.fakeP.WriteState(m.t.State())
 }
 
@@ -142,7 +142,7 @@ func (m *fakeErrorFull) RefreshState(_ context.Context) error {
 	return errors.New("fake state manager error")
 }
 
-func (m *fakeErrorFull) PersistState(_ context.Context, schemas *tofu.Schemas) error {
+func (m *fakeErrorFull) PersistState(_ context.Context, schemas *farseek.Schemas) error {
 	return errors.New("fake state manager error")
 }
 

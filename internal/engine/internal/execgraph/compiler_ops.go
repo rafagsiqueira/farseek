@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -77,7 +77,7 @@ func (c *compiler) compileOpManagedFinalPlan(operands *compilerOperands) nodeExe
 			// Should not get here: there's no reason to be applying changes
 			// for a resource instance that has neither a desired state nor
 			// a prior state.
-			diags = diags.Append(fmt.Errorf("attempting to apply final plan for resource instance that has neither desired nor prior state (this is a bug in OpenTofu)"))
+			diags = diags.Append(fmt.Errorf("attempting to apply final plan for resource instance that has neither desired nor prior state (this is a bug in Farseek)"))
 			return nil, false, diags
 		}
 

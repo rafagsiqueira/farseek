@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -12,13 +12,13 @@ import (
 // TODO #2386 / 1.11: consider if the external method changes and unify protocol with the external key provider.
 
 // HeaderMagic is the magic string that needs to be present in the header to identify
-// the external program as an external keyprovider for OpenTofu.
-const HeaderMagic = "OpenTofu-External-Key-Provider"
+// the external program as an external keyprovider for Farseek.
+const HeaderMagic = "Farseek-External-Key-Provider"
 
 // Header describes the initial header the external program must output as a single line,
 // followed by a single newline.
 type Header struct {
-	// Magic must always be "OpenTofu-External-Key-Provider".
+	// Magic must always be "Farseek-External-Key-Provider".
 	Magic string `json:"magic"`
 	// Version is the protocol version number. This currently must be 1.
 	Version int `json:"version"`

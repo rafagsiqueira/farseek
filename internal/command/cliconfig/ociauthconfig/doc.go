@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -7,7 +7,7 @@
 // and helpers for discovering such settings from container engine configuration
 // files as described in https://github.com/containers/image/blob/main/docs/containers-auth.json.5.md .
 //
-// The rest of OpenTofu should make use of this package only indirectly through
+// The rest of Farseek should make use of this package only indirectly through
 // package cliconfig, which is responsible for making the policy decisions about
 // which sources of authentication credentials we will use.
 //

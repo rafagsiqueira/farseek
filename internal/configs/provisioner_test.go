@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -46,7 +46,7 @@ func TestProvisionerBlock_decode(t *testing.T) {
 				DeclRange: blockRange,
 			},
 		},
-		"refer tofu.workspace when destroy": {
+		"refer farseek.workspace when destroy": {
 			input: &hcl.Block{
 				Type:   "provisioner",
 				Labels: []string{"local-exec"},
@@ -58,7 +58,7 @@ func TestProvisionerBlock_decode(t *testing.T) {
 						},
 						"command": {
 							Name: "command",
-							Expr: hcltest.MockExprTraversalSrc("tofu.workspace"),
+							Expr: hcltest.MockExprTraversalSrc("farseek.workspace"),
 						},
 					},
 				}),

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -16,7 +16,7 @@ import (
 )
 
 // VersionConstraint represents a version constraint on some resource
-// (e.g. OpenTofu Core, a provider, a module, ...) that carries with it
+// (e.g. Farseek Core, a provider, a module, ...) that carries with it
 // a source range so that a helpful diagnostic can be printed in the event
 // that a particular constraint does not match.
 type VersionConstraint struct {

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -18,7 +18,7 @@ import (
 )
 
 // OutputCommand is a Command implementation that reads an output
-// from a OpenTofu state and prints it.
+// from a Farseek state and prints it.
 type OutputCommand struct {
 	Meta
 }
@@ -88,7 +88,6 @@ func (c *OutputCommand) Outputs(ctx context.Context, statePath string, enc encry
 	}
 
 	// This is a read-only command
-	c.ignoreRemoteVersionConflict(b)
 
 	env, err := c.Workspace(ctx)
 	if err != nil {
@@ -130,9 +129,9 @@ func (c *OutputCommand) GatherVariables(args *arguments.Vars) {
 
 func (c *OutputCommand) Help() string {
 	helpText := `
-Usage: tofu [global options] output [options] [NAME]
+Usage: farseek [global options] output [options] [NAME]
 
-  Reads an output variable from a OpenTofu state file and prints
+  Reads an output variable from a Farseek state file and prints
   the value. With no additional arguments, output will display all
   the outputs for the root module.  If NAME is not specified, all
   outputs are printed.

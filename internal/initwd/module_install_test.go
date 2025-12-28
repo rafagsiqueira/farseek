@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -979,7 +979,7 @@ func TestIsSubDirNonExistent(t *testing.T) {
 }
 
 // TestModuleInstaller_nonExistentSubmodule ensures that the error message returned when a module does not exist in an existing module
-// is not that it's a bug in OpenTofu. See issue https://github.com/rafagsiqueira/farseek/issues/3142 for more information
+// is not that it's a bug in Farseek. See issue https://github.com/rafagsiqueira/farseek/issues/3142 for more information
 //
 // Code is taken from tests above
 func TestModuleInstaller_nonExistentSubmodule(t *testing.T) {

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -89,7 +89,7 @@ func TestGet_update(t *testing.T) {
 }
 
 func TestGet_cancel(t *testing.T) {
-	// This test runs `tofu get` against a server that stalls indefinitely
+	// This test runs `farseek get` against a server that stalls indefinitely
 	// instead of responding, and then requests shutdown in the same way
 	// as package main would in response to SIGINT (or similar on other
 	// platforms). This ensures that slow requests can be interrupted.

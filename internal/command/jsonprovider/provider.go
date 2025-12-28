@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 
 	"github.com/rafagsiqueira/farseek/internal/providers"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // FormatVersion represents the version of the json format and will be
@@ -43,7 +43,7 @@ func newProviders() *Providers {
 // schema into the public structured JSON versions.
 //
 // This is a format that can be read by the structured plan renderer.
-func MarshalForRenderer(s *tofu.Schemas) map[string]*Provider {
+func MarshalForRenderer(s *farseek.Schemas) map[string]*Provider {
 	schemas := make(map[string]*Provider, len(s.Providers))
 	for k, v := range s.Providers {
 		schemas[k.String()] = marshalProvider(v)
@@ -51,7 +51,7 @@ func MarshalForRenderer(s *tofu.Schemas) map[string]*Provider {
 	return schemas
 }
 
-func Marshal(s *tofu.Schemas) ([]byte, error) {
+func Marshal(s *farseek.Schemas) ([]byte, error) {
 	providers := newProviders()
 	providers.Schemas = MarshalForRenderer(s)
 	ret, err := json.Marshal(providers)

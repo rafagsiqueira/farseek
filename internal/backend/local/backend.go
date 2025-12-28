@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -22,7 +22,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/logging"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -34,7 +34,7 @@ const (
 )
 
 // Local is an implementation of EnhancedBackend that performs all operations
-// locally. This is the "default" backend and implements normal OpenTofu
+// locally. This is the "default" backend and implements normal Farseek
 // behavior as it is well known.
 type Local struct {
 	// The State* paths are set from the backend config, and may be left blank
@@ -68,9 +68,9 @@ type Local struct {
 	// here as they're loaded.
 	states map[string]statemgr.Full
 
-	// OpenTofu context. Many of these will be overridden or merged by
+	// Farseek context. Many of these will be overridden or merged by
 	// Operation. See Operation for more details.
-	ContextOpts *tofu.ContextOpts
+	ContextOpts *farseek.ContextOpts
 
 	// OpInput will ask for necessary input prior to performing any operations.
 	//
@@ -277,7 +277,7 @@ func (b *Local) StateMgr(ctx context.Context, name string) (statemgr.Full, error
 
 // Operation implements backend.Enhanced
 //
-// This will initialize an in-memory tofu.Context to perform the
+// This will initialize an in-memory farseek.Context to perform the
 // operation within this process.
 //
 // The given operation parameter will be merged with the ContextOpts on
@@ -300,8 +300,8 @@ func (b *Local) Operation(ctx context.Context, op *backend.Operation) (*backend.
 	default:
 		return nil, fmt.Errorf(
 			"unsupported operation type: %s\n\n"+
-				"This is a bug in OpenTofu and should be reported. The local backend\n"+
-				"is built-in to OpenTofu and should always support all operations.",
+				"This is a bug in Farseek and should be reported. The local backend\n"+
+				"is built-in to Farseek and should always support all operations.",
 			op.Type)
 	}
 
@@ -354,7 +354,7 @@ func (b *Local) opWait(
 	doneCh <-chan struct{},
 	stopCtx context.Context,
 	cancelCtx context.Context,
-	tfCtx *tofu.Context,
+	tfCtx *farseek.Context,
 	opStateMgr statemgr.Persister,
 	view views.Operation) (canceled bool) {
 	// Wait for the operation to finish or for us to be interrupted so
@@ -507,4 +507,4 @@ func (b *Local) stateWorkspaceDir() string {
 
 const earlyStateWriteErrorFmt = `Error: %s
 
-OpenTofu encountered an error attempting to save the state before cancelling the current operation. Once the operation is complete another attempt will be made to save the final state.`
+Farseek encountered an error attempting to save the state before cancelling the current operation. Once the operation is complete another attempt will be made to save the final state.`

@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -17,7 +17,7 @@ import (
 	"github.com/mitchellh/cli"
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
 	"github.com/rafagsiqueira/farseek/internal/providers"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -77,7 +77,7 @@ func TestProvidersSchema_output(t *testing.T) {
 			// flush the init output from the mock ui
 			ui.OutputWriter.Reset()
 
-			// `tofu provider schemas` command
+			// `farseek provider schemas` command
 			pc := &ProvidersSchemaCommand{Meta: m}
 			if code := pc.Run([]string{"-json"}); code != 0 {
 				t.Fatalf("wrong exit status %d; want 0\nstderr: %s", code, ui.ErrorWriter.String())
@@ -123,7 +123,7 @@ type providerSchema struct {
 
 // testProvider returns a mock provider that is configured for basic
 // operation with the configuration in testdata/providers-schema.
-func providersSchemaFixtureProvider() *tofu.MockProvider {
+func providersSchemaFixtureProvider() *farseek.MockProvider {
 	p := testProvider()
 	p.GetProviderSchemaResponse = providersSchemaFixtureSchema()
 	return p

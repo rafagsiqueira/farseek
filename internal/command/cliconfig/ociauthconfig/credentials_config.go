@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -16,8 +16,8 @@ import (
 // This package has its own implementaion of this interface in terms of a
 // Docker CLI-style credentials configuration file, accessible through
 // [FindDockerCLIStyleCredentialsConfigs] and [FixedDockerCLIStyleCredentialsConfigs],
-// but package cliconfig also implements this separately for OpenTofu's own
-// OCI credentials config language included as part of the OpenTofu CLI
+// but package cliconfig also implements this separately for Farseek's own
+// OCI credentials config language included as part of the Farseek CLI
 // configuration.
 type CredentialsConfig interface {
 	CredentialsSourcesForRepository(ctx context.Context, registryDomain string, repositoryPath string) iter.Seq2[CredentialsSource, error]

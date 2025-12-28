@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -9,9 +9,9 @@ import (
 	regaddr "github.com/opentofu/registry-address/v2"
 )
 
-// A ModulePackage represents a physical location where OpenTofu can retrieve
+// A ModulePackage represents a physical location where Farseek can retrieve
 // a module package, which is an archive, repository, or other similar
-// container which delivers the source code for one or more OpenTofu modules.
+// container which delivers the source code for one or more Farseek modules.
 //
 // A ModulePackage is a string in go-getter's address syntax. By convention,
 // we use ModulePackage-typed values only for the result of successfully

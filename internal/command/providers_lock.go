@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -28,7 +28,7 @@ const (
 )
 
 // ProvidersLockCommand is a Command implementation that implements the
-// "tofu providers lock" command, which creates or updates the current
+// "farseek providers lock" command, which creates or updates the current
 // configuration's dependency lock file using information from upstream
 // registries, regardless of the provider installation configuration that
 // is configured for normal provider installation.
@@ -115,7 +115,7 @@ func (c *ProvidersLockCommand) Run(args []string) int {
 	//
 	// This is so that folks who use a local mirror for everyday use can
 	// use this command to populate their lock files from upstream so
-	// subsequent "tofu init" calls can then verify the local mirror
+	// subsequent "farseek init" calls can then verify the local mirror
 	// against the upstream checksums.
 	var source getproviders.Source
 	switch {
@@ -204,10 +204,10 @@ func (c *ProvidersLockCommand) Run(args []string) int {
 
 	// Our general strategy here is to install the requested providers into
 	// a separate temporary directory -- thus ensuring that the results won't
-	// ever be inadvertently executed by other OpenTofu commands -- and then
+	// ever be inadvertently executed by other Farseek commands -- and then
 	// use the results of that installation to update the lock file for the
 	// current working directory. Because we throwaway the packages we
-	// downloaded after completing our work, a subsequent "tofu init" will
+	// downloaded after completing our work, a subsequent "farseek init" will
 	// then respect the CLI configuration's provider installation strategies
 	// but will verify the packages against the hashes we found upstream.
 
@@ -250,7 +250,7 @@ func (c *ProvidersLockCommand) Run(args []string) int {
 						tfdiags.Error,
 						"Inconsistent provider versions",
 						fmt.Sprintf(
-							"The version constraint for %s selected inconsistent versions for different platforms, which is unexpected.\n\nThe upstream registry may have changed its available versions during OpenTofu's work. If so, re-running this command may produce a successful result.",
+							"The version constraint for %s selected inconsistent versions for different platforms, which is unexpected.\n\nThe upstream registry may have changed its available versions during Farseek's work. If so, re-running this command may produce a successful result.",
 							provider,
 						),
 					))
@@ -280,7 +280,7 @@ func (c *ProvidersLockCommand) Run(args []string) int {
 			diags = diags.Append(tfdiags.Sourceless(
 				tfdiags.Error,
 				"Could not retrieve providers for locking",
-				fmt.Sprintf("OpenTofu failed to fetch the requested providers for %s in order to calculate their checksums: %s.", platform, err),
+				fmt.Sprintf("Farseek failed to fetch the requested providers for %s in order to calculate their checksums: %s.", platform, err),
 			))
 			break
 		}
@@ -367,20 +367,20 @@ func (c *ProvidersLockCommand) Run(args []string) int {
 	}
 
 	if madeAnyChange {
-		c.Ui.Output(c.Colorize().Color("\n[bold][green]Success![reset] [bold]OpenTofu has updated the lock file.[reset]"))
+		c.Ui.Output(c.Colorize().Color("\n[bold][green]Success![reset] [bold]Farseek has updated the lock file.[reset]"))
 		c.Ui.Output("\nReview the changes in .farseek.lock.hcl and then commit to your\nversion control system to retain the new checksums.\n")
 	} else {
-		c.Ui.Output(c.Colorize().Color("\n[bold][green]Success![reset] [bold]OpenTofu has validated the lock file and found no need for changes.[reset]"))
+		c.Ui.Output(c.Colorize().Color("\n[bold][green]Success![reset] [bold]Farseek has validated the lock file and found no need for changes.[reset]"))
 	}
 	return 0
 }
 
 func (c *ProvidersLockCommand) Help() string {
 	return `
-Usage: tofu [global options] providers lock [options] [providers...]
+Usage: farseek [global options] providers lock [options] [providers...]
 
   Normally the dependency lock file (.farseek.lock.hcl) is updated
-  automatically by "tofu init", but the information available to the
+  automatically by "farseek init", but the information available to the
   normal provider installer can be constrained when you're installing providers
   from filesystem or network mirrors, and so the generated lock file can end
   up incomplete.
@@ -405,7 +405,7 @@ Options:
                      This would be necessary to generate lock file entries for
                      a provider that is available only via a mirror, and not
                      published in an upstream registry. In this case, the set
-                     of valid checksums will be limited only to what OpenTofu
+                     of valid checksums will be limited only to what Farseek
                      can learn from the data in the mirror directory.
 
   -net-mirror=url    Consult the given network mirror (given as a base URL)
@@ -415,13 +415,13 @@ Options:
                      This would be necessary to generate lock file entries for
                      a provider that is available only via a mirror, and not
                      published in an upstream registry. In this case, the set
-                     of valid checksums will be limited only to what OpenTofu
+                     of valid checksums will be limited only to what Farseek
                      can learn from the data in the mirror indices.
 
   -platform=os_arch  Choose a target platform to request package checksums
                      for.
 
-                     By default OpenTofu will request package checksums
+                     By default Farseek will request package checksums
                      suitable only for the platform where you run this
                      command. Use this option multiple times to include
                      checksums for multiple target systems.

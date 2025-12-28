@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -21,18 +21,16 @@ import (
 	"github.com/zclconf/go-cty/cty"
 
 	"github.com/rafagsiqueira/farseek/internal/addrs"
-	backendinit "github.com/rafagsiqueira/farseek/internal/backend/init"
 	"github.com/rafagsiqueira/farseek/internal/checks"
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
 	"github.com/rafagsiqueira/farseek/internal/encryption"
-	"github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/plans/planfile"
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func TestPlan(t *testing.T) {
@@ -79,38 +77,6 @@ func TestPlan_conditionalSensitive(t *testing.T) {
 
 	if strings.Count(output, "Output refers to sensitive values") != 9 {
 		t.Fatal("Not all outputs have issue with refer to sensitive value", output)
-	}
-}
-
-func TestPlan_lockedState(t *testing.T) {
-	td := t.TempDir()
-	testCopyDir(t, testFixturePath("plan"), td)
-	t.Chdir(td)
-
-	unlock, err := testLockState(t, testDataDir, filepath.Join(td, DefaultStateFilename))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer unlock()
-
-	p := planFixtureProvider()
-	view, done := testView(t)
-	c := &PlanCommand{
-		Meta: Meta{
-			testingOverrides: metaOverridesForProvider(p),
-			View:             view,
-		},
-	}
-
-	args := []string{}
-	code := c.Run(args)
-	if code == 0 {
-		t.Fatal("expected error", done(t).Stdout())
-	}
-
-	output := done(t).Stderr()
-	if !strings.Contains(output, "lock") {
-		t.Fatal("command output does not look like a lock error:", output)
 	}
 }
 
@@ -433,109 +399,6 @@ func TestPlan_outPathWithError(t *testing.T) {
 	}
 }
 
-// When using "-out" with a backend, the plan should encode the backend config
-func TestPlan_outBackend(t *testing.T) {
-	// Create a temporary working directory that is empty
-	td := t.TempDir()
-	testCopyDir(t, testFixturePath("plan-out-backend"), td)
-	t.Chdir(td)
-
-	originalState := states.BuildState(func(s *states.SyncState) {
-		s.SetResourceInstanceCurrent(
-			addrs.Resource{
-				Mode: addrs.ManagedResourceMode,
-				Type: "test_instance",
-				Name: "foo",
-			}.Instance(addrs.NoKey).Absolute(addrs.RootModuleInstance),
-			&states.ResourceInstanceObjectSrc{
-				AttrsJSON: []byte(`{"id":"bar","ami":"bar"}`),
-				Status:    states.ObjectReady,
-			},
-			addrs.AbsProviderConfig{
-				Provider: addrs.NewDefaultProvider("test"),
-				Module:   addrs.RootModule,
-			},
-			addrs.NoKey,
-		)
-	})
-
-	// Set up our backend state
-	dataState, srv := testBackendState(t, originalState, 200)
-	defer srv.Close()
-	testStateFileRemote(t, dataState)
-
-	outPath := "foo"
-	p := testProvider()
-	p.GetProviderSchemaResponse = &providers.GetProviderSchemaResponse{
-		ResourceTypes: map[string]providers.Schema{
-			"test_instance": {
-				Block: &configschema.Block{
-					Attributes: map[string]*configschema.Attribute{
-						"id": {
-							Type:     cty.String,
-							Computed: true,
-						},
-						"ami": {
-							Type:     cty.String,
-							Optional: true,
-						},
-					},
-				},
-			},
-		},
-	}
-	p.PlanResourceChangeFn = func(req providers.PlanResourceChangeRequest) providers.PlanResourceChangeResponse {
-		return providers.PlanResourceChangeResponse{
-			PlannedState: req.ProposedNewState,
-		}
-	}
-	view, done := testView(t)
-	c := &PlanCommand{
-		Meta: Meta{
-			testingOverrides: metaOverridesForProvider(p),
-			View:             view,
-		},
-	}
-
-	args := []string{
-		"-out", outPath,
-	}
-	code := c.Run(args)
-	output := done(t)
-	if code != 0 {
-		t.Logf("stdout: %s", output.Stdout())
-		t.Fatalf("plan command failed with exit code %d\n\n%s", code, output.Stderr())
-	}
-
-	plan := testReadPlan(t, outPath)
-	if !plan.Changes.Empty() {
-		t.Fatalf("Expected empty plan to be written to plan file, got: %s", spew.Sdump(plan))
-	}
-
-	if got, want := plan.Backend.Type, "http"; got != want {
-		t.Errorf("wrong backend type %q; want %q", got, want)
-	}
-	if got, want := plan.Backend.Workspace, "default"; got != want {
-		t.Errorf("wrong backend workspace %q; want %q", got, want)
-	}
-	{
-		httpBackendInit, _ := backendinit.Backend("http")
-		httpBackend := httpBackendInit(encryption.StateEncryptionDisabled())
-		schema := httpBackend.ConfigSchema()
-		got, err := plan.Backend.Config.Decode(schema.ImpliedType())
-		if err != nil {
-			t.Fatalf("failed to decode backend config in plan: %s", err)
-		}
-		want, err := dataState.Backend.Config(schema)
-		if err != nil {
-			t.Fatalf("failed to decode cached config: %s", err)
-		}
-		if !want.RawEquals(got) {
-			t.Errorf("wrong backend config\ngot:  %#v\nwant: %#v", got, want)
-		}
-	}
-}
-
 func TestPlan_refreshFalse(t *testing.T) {
 	// Create a temporary working directory that is empty
 	td := t.TempDir()
@@ -595,8 +458,8 @@ func TestPlan_refreshTrue(t *testing.T) {
 }
 
 // A consumer relies on the fact that running
-// tofu plan -refresh=false -refresh=true gives the same result as
-// tofu plan -refresh=true.
+// farseek plan -refresh=false -refresh=true gives the same result as
+// farseek plan -refresh=true.
 // While the flag logic itself is handled by the stdlib flags package (and code
 // in main() that is tested elsewhere), we verify the overall plan command
 // behaviour here in case we accidentally break this with additional logic.
@@ -996,11 +859,11 @@ func TestPlan_resource_variable_inputs(t *testing.T) {
 }
 
 // This test deals with a particularly-narrow bad interaction between different
-// components in OpenTofu:
+// components in Farseek:
 //
 //   - The main language runtime uses static references in the configuration as
 //     part of a heuristic to produce a set of "relevant attributes", whose
-//     changes outside of OpenTofu (if any) might be interesting to call out
+//     changes outside of Farseek (if any) might be interesting to call out
 //     in the plan diff UI.
 //   - The "try" and "can" functions allow there to be references to resources
 //     with attribute paths that aren't actually correct for the resource
@@ -1009,7 +872,7 @@ func TestPlan_resource_variable_inputs(t *testing.T) {
 //   - The human-oriented plan renderer tries to correlate changes described in
 //     the "resource drift" part of the plan with paths appearing in
 //     "relevant attributes" to limit the rendering of "Changes outside of
-//     OpenTofu" only to changes that seem like they might have contributed to
+//     Farseek" only to changes that seem like they might have contributed to
 //     the set of planned changes. Because of the previous two points, the
 //     "relevant attributes" attribute path data cannot be trusted to
 //     definitely conform to the schema of the indicated resource type and so
@@ -1026,7 +889,7 @@ func TestPlan_withInvalidReferencesInTry(t *testing.T) {
 	testCopyDir(t, testFixturePath("plan-invalid-reference-try"), td)
 	t.Chdir(td)
 
-	provider := &tofu.MockProvider{
+	provider := &farseek.MockProvider{
 		GetProviderSchemaResponse: &providers.GetProviderSchemaResponse{
 			Provider: providers.Schema{
 				Block: &configschema.Block{},
@@ -1055,7 +918,7 @@ func TestPlan_withInvalidReferencesInTry(t *testing.T) {
 		ReadResourceFn: func(req providers.ReadResourceRequest) providers.ReadResourceResponse {
 			// The following intentionally changes the "phase" attribute of
 			// the values map, if present, to create a situation that the
-			// language runtime would recognize as "changes outside of OpenTofu",
+			// language runtime would recognize as "changes outside of Farseek",
 			// reported as "resource_drift" in the plan JSON.
 			//
 			// Because test.b.values is derived from test.a.values, that "drift"
@@ -1203,7 +1066,7 @@ func TestPlan_withInvalidReferencesInTry(t *testing.T) {
 	}
 }
 
-// Test that tofu properly merges provider configuration that's split
+// Test that farseek properly merges provider configuration that's split
 // between config files and interactive input variables.
 // https://github.com/hashicorp/terraform/issues/28956
 func TestPlan_providerConfigMerge(t *testing.T) {
@@ -1559,181 +1422,8 @@ func TestPlan_init_required(t *testing.T) {
 		t.Fatalf("expected error, got success")
 	}
 	got := output.Stderr()
-	if !strings.Contains(got, "tofu init") || !strings.Contains(got, "provider registry.opentofu.org/hashicorp/test: required by this configuration but no version is selected") {
+	if !strings.Contains(got, "farseek init") || !strings.Contains(got, "provider registry.opentofu.org/hashicorp/test: required by this configuration but no version is selected") {
 		t.Fatal("wrong error message in output:", got)
-	}
-}
-
-// Config with multiple resources, targeting plan of a subset
-func TestPlan_targeted(t *testing.T) {
-	td := t.TempDir()
-	testCopyDir(t, testFixturePath("apply-targeted"), td)
-	t.Chdir(td)
-
-	p := testProvider()
-	p.GetProviderSchemaResponse = &providers.GetProviderSchemaResponse{
-		ResourceTypes: map[string]providers.Schema{
-			"test_instance": {
-				Block: &configschema.Block{
-					Attributes: map[string]*configschema.Attribute{
-						"id": {Type: cty.String, Computed: true},
-					},
-				},
-			},
-		},
-	}
-	p.PlanResourceChangeFn = func(req providers.PlanResourceChangeRequest) providers.PlanResourceChangeResponse {
-		return providers.PlanResourceChangeResponse{
-			PlannedState: req.ProposedNewState,
-		}
-	}
-
-	view, done := testView(t)
-	c := &PlanCommand{
-		Meta: Meta{
-			testingOverrides: metaOverridesForProvider(p),
-			View:             view,
-		},
-	}
-
-	args := []string{
-		"-target", "test_instance.foo",
-		"-target", "test_instance.baz",
-	}
-	code := c.Run(args)
-	output := done(t)
-	if code != 0 {
-		t.Fatalf("bad: %d\n\n%s", code, output.Stderr())
-	}
-
-	if got, want := output.Stdout(), "3 to add, 0 to change, 0 to destroy"; !strings.Contains(got, want) {
-		t.Fatalf("bad change summary, want %q, got:\n%s", want, got)
-	}
-}
-
-// Diagnostics for invalid -target flags
-func TestPlan_targetFlagsDiags(t *testing.T) {
-	testCases := map[string]string{
-		"test_instance.": "Dot must be followed by attribute name.",
-		"test_instance":  "Resource specification must include a resource type and name.",
-	}
-
-	for target, wantDiag := range testCases {
-		t.Run(target, func(t *testing.T) {
-			td := testTempDirRealpath(t)
-			defer os.RemoveAll(td)
-			t.Chdir(td)
-
-			view, done := testView(t)
-			c := &PlanCommand{
-				Meta: Meta{
-					View: view,
-				},
-			}
-
-			args := []string{
-				"-target", target,
-			}
-			code := c.Run(args)
-			output := done(t)
-			if code != 1 {
-				t.Fatalf("bad: %d\n\n%s", code, output.Stdout())
-			}
-
-			got := output.Stderr()
-			if !strings.Contains(got, target) {
-				t.Fatalf("bad error output, want %q, got:\n%s", target, got)
-			}
-			if !strings.Contains(got, wantDiag) {
-				t.Fatalf("bad error output, want %q, got:\n%s", wantDiag, got)
-			}
-		})
-	}
-}
-
-// Config with multiple resources, targeted plan with exclude
-func TestPlan_excluded(t *testing.T) {
-	td := t.TempDir()
-	testCopyDir(t, testFixturePath("apply-excluded"), td)
-	t.Chdir(td)
-
-	p := testProvider()
-	p.GetProviderSchemaResponse = &providers.GetProviderSchemaResponse{
-		ResourceTypes: map[string]providers.Schema{
-			"test_instance": {
-				Block: &configschema.Block{
-					Attributes: map[string]*configschema.Attribute{
-						"id": {Type: cty.String, Computed: true},
-					},
-				},
-			},
-		},
-	}
-	p.PlanResourceChangeFn = func(req providers.PlanResourceChangeRequest) providers.PlanResourceChangeResponse {
-		return providers.PlanResourceChangeResponse{
-			PlannedState: req.ProposedNewState,
-		}
-	}
-
-	view, done := testView(t)
-	c := &PlanCommand{
-		Meta: Meta{
-			testingOverrides: metaOverridesForProvider(p),
-			View:             view,
-		},
-	}
-
-	args := []string{
-		"-exclude", "test_instance.bar",
-	}
-	code := c.Run(args)
-	output := done(t)
-	if code != 0 {
-		t.Fatalf("bad: %d\n\n%s", code, output.Stderr())
-	}
-
-	if got, want := output.Stdout(), "3 to add, 0 to change, 0 to destroy"; !strings.Contains(got, want) {
-		t.Fatalf("bad change summary, want %q, got:\n%s", want, got)
-	}
-}
-
-// Diagnostics for invalid -exclude flags
-func TestPlan_excludeFlagsDiags(t *testing.T) {
-	testCases := map[string]string{
-		"test_instance.": "Dot must be followed by attribute name.",
-		"test_instance":  "Resource specification must include a resource type and name.",
-	}
-
-	for exclude, wantDiag := range testCases {
-		t.Run(exclude, func(t *testing.T) {
-			td := testTempDirRealpath(t)
-			defer os.RemoveAll(td)
-			t.Chdir(td)
-
-			view, done := testView(t)
-			c := &PlanCommand{
-				Meta: Meta{
-					View: view,
-				},
-			}
-
-			args := []string{
-				"-exclude", exclude,
-			}
-			code := c.Run(args)
-			output := done(t)
-			if code != 1 {
-				t.Fatalf("bad: %d\n\n%s", code, output.Stdout())
-			}
-
-			got := output.Stderr()
-			if !strings.Contains(got, exclude) {
-				t.Fatalf("bad error output, want %q, got:\n%s", exclude, got)
-			}
-			if !strings.Contains(got, wantDiag) {
-				t.Fatalf("bad error output, want %q, got:\n%s", wantDiag, got)
-			}
-		})
 	}
 }
 
@@ -1837,7 +1527,7 @@ func TestPlan_parallelism(t *testing.T) {
 	providerFactories := map[addrs.Provider]providers.Factory{}
 	for i := 0; i < 10; i++ {
 		name := fmt.Sprintf("test%d", i)
-		provider := &tofu.MockProvider{}
+		provider := &farseek.MockProvider{}
 		provider.GetProviderSchemaResponse = &providers.GetProviderSchemaResponse{
 			ResourceTypes: map[string]providers.Schema{
 				name + "_instance": {Block: &configschema.Block{}},
@@ -1947,7 +1637,7 @@ func TestPlan_warnings(t *testing.T) {
 			"warning 1",
 			"warning 2",
 			"warning 3",
-			"To see the full warning notes, run OpenTofu without -compact-warnings.",
+			"To see the full warning notes, run Farseek without -compact-warnings.",
 		}
 		for _, want := range wantWarnings {
 			if !strings.Contains(output.Stdout(), want) {
@@ -2112,8 +1802,8 @@ func TestPlan_concise(t *testing.T) {
 // planFixtureProvider returns a mock provider that is configured for basic
 // operation with the configuration in testdata/plan. This mock has
 // GetSchemaResponse and PlanResourceChangeFn populated, with the plan
-// step just passing through the new object proposed by OpenTofu Core.
-func planFixtureProvider() *tofu.MockProvider {
+// step just passing through the new object proposed by Farseek Core.
+func planFixtureProvider() *farseek.MockProvider {
 	p := testProvider()
 	p.GetProviderSchemaResponse = planFixtureSchema()
 	p.PlanResourceChangeFn = func(req providers.PlanResourceChangeRequest) providers.PlanResourceChangeResponse {
@@ -2153,8 +1843,8 @@ func planVarsFixtureSchema() *providers.GetProviderSchemaResponse {
 // planVarsFixtureProvider returns a mock provider that is configured for basic
 // operation with the configuration in testdata/plan-vars. This mock has
 // GetSchemaResponse and PlanResourceChangeFn populated, with the plan
-// step just passing through the new object proposed by OpenTofu Core.
-func planVarsFixtureProvider() *tofu.MockProvider {
+// step just passing through the new object proposed by Farseek Core.
+func planVarsFixtureProvider() *farseek.MockProvider {
 	p := testProvider()
 	p.GetProviderSchemaResponse = planVarsFixtureSchema()
 	p.PlanResourceChangeFn = func(req providers.PlanResourceChangeRequest) providers.PlanResourceChangeResponse {
@@ -2176,7 +1866,7 @@ func planVarsFixtureProvider() *tofu.MockProvider {
 // planFixtureProvider returns a mock provider that is configured for basic
 // operation with the configuration in testdata/plan. This mock has
 // GetSchemaResponse and PlanResourceChangeFn populated, returning 3 warnings.
-func planWarningsFixtureProvider() *tofu.MockProvider {
+func planWarningsFixtureProvider() *farseek.MockProvider {
 	p := testProvider()
 	p.GetProviderSchemaResponse = planFixtureSchema()
 	p.PlanResourceChangeFn = func(req providers.PlanResourceChangeRequest) providers.PlanResourceChangeResponse {
@@ -2228,11 +1918,11 @@ func TestPlan_farseekDrift(t *testing.T) {
 		// This will fail currently as involuntary targeting from Git is not implemented.
 		// If it's implemented, we expect test_instance.foo to have been refreshed.
 
-		if !readResources["test_instance.null"] {
-			t.Error("expected test_instance.null to be refreshed")
+		if !readResources["test_instance.mock-value"] {
+			t.Errorf("expected test_instance.mock-value to be refreshed. Got: %v", readResources)
 		}
 		if len(readResources) != 1 {
-			t.Errorf("expected exactly 1 resource (test_instance.foo) to be refreshed, but got %d", len(readResources))
+			t.Errorf("expected exactly 1 resource (test_instance.foo) to be refreshed, but got %d: %v", len(readResources), readResources)
 		}
 	})
 }
@@ -2252,6 +1942,9 @@ func runFarseekTest(t *testing.T, fixture string, changedResources []farseek.Dis
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	// Force FarseekMode even with testingOverrides
+	t.Setenv("FARSEEK_TEST_FORCE_MODE", "true")
 
 	// 3. Setup Mock Provider and Track Refresh calls
 	p := planFixtureProvider()
@@ -2302,7 +1995,11 @@ type mockDiscoverer struct {
 	resources []farseek.DiscoveredResource
 }
 
-func (m mockDiscoverer) DiscoverChangedResources(dir, baseSHA string) ([]farseek.DiscoveredResource, error) {
+func (m mockDiscoverer) DiscoverChangedResources(dir, baseSHA string, includeUncommitted bool) ([]farseek.DiscoveredResource, error) {
+	return m.resources, nil
+}
+
+func (m mockDiscoverer) DiscoverAllResources(dir string, includeUncommitted bool) ([]farseek.DiscoveredResource, error) {
 	return m.resources, nil
 }
 

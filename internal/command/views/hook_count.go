@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -13,7 +13,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/addrs"
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/states"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // countHook is a hook that counts the number of resources
@@ -33,10 +33,10 @@ type countHook struct {
 	sync.Mutex
 	pending map[string]plans.Action
 
-	tofu.NilHook
+	farseek.NilHook
 }
 
-var _ tofu.Hook = (*countHook)(nil)
+var _ farseek.Hook = (*countHook)(nil)
 
 func (h *countHook) Reset() {
 	h.Lock()
@@ -50,7 +50,7 @@ func (h *countHook) Reset() {
 	h.Forgotten = 0
 }
 
-func (h *countHook) PreApply(addr addrs.AbsResourceInstance, gen states.Generation, action plans.Action, priorState, plannedNewState cty.Value) (tofu.HookAction, error) {
+func (h *countHook) PreApply(addr addrs.AbsResourceInstance, gen states.Generation, action plans.Action, priorState, plannedNewState cty.Value) (farseek.HookAction, error) {
 	h.Lock()
 	defer h.Unlock()
 
@@ -60,10 +60,10 @@ func (h *countHook) PreApply(addr addrs.AbsResourceInstance, gen states.Generati
 
 	h.pending[addr.String()] = action
 
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }
 
-func (h *countHook) PostApply(addr addrs.AbsResourceInstance, gen states.Generation, newState cty.Value, err error) (tofu.HookAction, error) {
+func (h *countHook) PostApply(addr addrs.AbsResourceInstance, gen states.Generation, newState cty.Value, err error) (farseek.HookAction, error) {
 	h.Lock()
 	defer h.Unlock()
 
@@ -89,16 +89,16 @@ func (h *countHook) PostApply(addr addrs.AbsResourceInstance, gen states.Generat
 		}
 	}
 
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }
 
-func (h *countHook) PostDiff(addr addrs.AbsResourceInstance, gen states.Generation, action plans.Action, priorState, plannedNewState cty.Value) (tofu.HookAction, error) {
+func (h *countHook) PostDiff(addr addrs.AbsResourceInstance, gen states.Generation, action plans.Action, priorState, plannedNewState cty.Value) (farseek.HookAction, error) {
 	h.Lock()
 	defer h.Unlock()
 
 	// We don't count anything for data resources and neither for the ephemeral ones.
 	if addr.Resource.Resource.Mode == addrs.DataResourceMode || addr.Resource.Resource.Mode == addrs.EphemeralResourceMode {
-		return tofu.HookActionContinue, nil
+		return farseek.HookActionContinue, nil
 	}
 
 	switch action {
@@ -112,21 +112,21 @@ func (h *countHook) PostDiff(addr addrs.AbsResourceInstance, gen states.Generati
 		h.ToChange += 1
 	}
 
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }
 
-func (h *countHook) PostApplyImport(addr addrs.AbsResourceInstance, importing plans.ImportingSrc) (tofu.HookAction, error) {
+func (h *countHook) PostApplyImport(addr addrs.AbsResourceInstance, importing plans.ImportingSrc) (farseek.HookAction, error) {
 	h.Lock()
 	defer h.Unlock()
 
 	h.Imported++
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }
 
-func (h *countHook) PostApplyForget(_ addrs.AbsResourceInstance) (tofu.HookAction, error) {
+func (h *countHook) PostApplyForget(_ addrs.AbsResourceInstance) (farseek.HookAction, error) {
 	h.Lock()
 	defer h.Unlock()
 
 	h.Forgotten++
-	return tofu.HookActionContinue, nil
+	return farseek.HookActionContinue, nil
 }

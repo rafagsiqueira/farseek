@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/rafagsiqueira/farseek/internal/legacy/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )
 
 func TestMultiLevelFieldReaderReadFieldExact(t *testing.T) {
@@ -105,9 +105,9 @@ func TestMultiLevelFieldReaderReadFieldMerge(t *testing.T) {
 						}),
 					},
 
-					Diff: &tofu.InstanceDiff{
-						Attributes: map[string]*tofu.ResourceAttrDiff{
-							"availability_zone": &tofu.ResourceAttrDiff{
+					Diff: &farseek.InstanceDiff{
+						Attributes: map[string]*farseek.ResourceAttrDiff{
+							"availability_zone": &farseek.ResourceAttrDiff{
 								Old:         "foo",
 								New:         "bar",
 								RequiresNew: true,
@@ -152,9 +152,9 @@ func TestMultiLevelFieldReaderReadFieldMerge(t *testing.T) {
 						}),
 					},
 
-					Diff: &tofu.InstanceDiff{
-						Attributes: map[string]*tofu.ResourceAttrDiff{
-							"availability_zone": &tofu.ResourceAttrDiff{
+					Diff: &farseek.InstanceDiff{
+						Attributes: map[string]*farseek.ResourceAttrDiff{
+							"availability_zone": &farseek.ResourceAttrDiff{
 								Old:         "foo",
 								New:         "bar",
 								NewComputed: true,
@@ -199,9 +199,9 @@ func TestMultiLevelFieldReaderReadFieldMerge(t *testing.T) {
 						}),
 					},
 
-					Diff: &tofu.InstanceDiff{
-						Attributes: map[string]*tofu.ResourceAttrDiff{
-							"config_vars.0.bar": &tofu.ResourceAttrDiff{
+					Diff: &farseek.InstanceDiff{
+						Attributes: map[string]*farseek.ResourceAttrDiff{
+							"config_vars.0.bar": &farseek.ResourceAttrDiff{
 								NewRemoved: true,
 							},
 						},

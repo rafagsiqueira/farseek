@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -218,7 +218,7 @@ func validateMoveStatementGraph(g *dag.AcyclicGraph) tfdiags.Diagnostics {
 				tfdiags.Error,
 				"Self reference in move statements",
 				fmt.Sprintf(
-					"The move statement %s refers to itself the move dependency graph, which is invalid. This is a bug in OpenTofu; please report it!",
+					"The move statement %s refers to itself the move dependency graph, which is invalid. This is a bug in Farseek; please report it!",
 					src.(*MoveStatement).Name(),
 				),
 			))

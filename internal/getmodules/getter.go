@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -19,14 +19,14 @@ import (
 )
 
 // We configure our own go-getter detector and getter sets here, because
-// the set of sources we support is part of OpenTofu's documentation and
+// the set of sources we support is part of Farseek's documentation and
 // so we don't want any new sources introduced in go-getter to sneak in here
 // and work even though they aren't documented. This also insulates us from
 // any meddling that might be done by other go-getter callers linked into our
 // executable.
 //
 // Note that over time we've found go-getter's design to be not wholly fit
-// for OpenTofu's purposes in various ways, and so we're continuing to use
+// for Farseek's purposes in various ways, and so we're continuing to use
 // it here because our backward compatibility with earlier versions depends
 // on it, but we use go-getter very carefully and always only indirectly via
 // the public API of this package so that we can get the subset of the

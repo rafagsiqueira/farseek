@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -7,9 +7,6 @@ package command
 
 import (
 	"fmt"
-	"log"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -17,7 +14,6 @@ import (
 	"github.com/zclconf/go-cty/cty"
 
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
-	"github.com/rafagsiqueira/farseek/internal/copy"
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
 )
@@ -161,190 +157,6 @@ func TestImport_providerConfig(t *testing.T) {
 	}
 
 	testStateOutput(t, statePath, testImportStr)
-}
-
-// "remote" state provided by the "local" backend
-func TestImport_remoteState(t *testing.T) {
-	td := t.TempDir()
-	testCopyDir(t, testFixturePath("import-provider-remote-state"), td)
-	t.Chdir(td)
-
-	statePath := "imported.tfstate"
-
-	providerSource, close := newMockProviderSource(t, map[string][]string{
-		"test": []string{"1.2.3"},
-	})
-	defer close()
-
-	// init our backend
-	ui := cli.NewMockUi()
-	view, _ := testView(t)
-	m := Meta{
-		testingOverrides: metaOverridesForProvider(testProvider()),
-		Ui:               ui,
-		View:             view,
-		ProviderSource:   providerSource,
-	}
-
-	ic := &InitCommand{
-		Meta: m,
-	}
-
-	// (Using log here rather than t.Log so that these messages interleave with other trace logs)
-	log.Print("[TRACE] TestImport_remoteState running: tofu init")
-	if code := ic.Run([]string{}); code != 0 {
-		t.Fatalf("init failed\n%s", ui.ErrorWriter)
-	}
-
-	p := testProvider()
-	ui = new(cli.MockUi)
-	c := &ImportCommand{
-		Meta: Meta{
-			testingOverrides: metaOverridesForProvider(p),
-			Ui:               ui,
-			View:             view,
-		},
-	}
-
-	p.ImportResourceStateFn = nil
-	p.ImportResourceStateResponse = &providers.ImportResourceStateResponse{
-		ImportedResources: []providers.ImportedResource{
-			{
-				TypeName: "test_instance",
-				State: cty.ObjectVal(map[string]cty.Value{
-					"id": cty.StringVal("yay"),
-				}),
-			},
-		},
-	}
-	p.GetProviderSchemaResponse = &providers.GetProviderSchemaResponse{
-		Provider: providers.Schema{
-			Block: &configschema.Block{
-				Attributes: map[string]*configschema.Attribute{
-					"foo": {Type: cty.String, Optional: true},
-				},
-			},
-		},
-		ResourceTypes: map[string]providers.Schema{
-			"test_instance": {
-				Block: &configschema.Block{
-					Attributes: map[string]*configschema.Attribute{
-						"id": {Type: cty.String, Optional: true, Computed: true},
-					},
-				},
-			},
-		},
-	}
-
-	configured := false
-	p.ConfigureProviderFn = func(req providers.ConfigureProviderRequest) providers.ConfigureProviderResponse {
-		var diags tfdiags.Diagnostics
-		configured = true
-		if got, want := req.Config.GetAttr("foo"), cty.StringVal("bar"); !want.RawEquals(got) {
-			diags = diags.Append(fmt.Errorf("wrong \"foo\" value %#v; want %#v", got, want))
-		}
-		return providers.ConfigureProviderResponse{
-			Diagnostics: diags,
-		}
-	}
-
-	args := []string{
-		"test_instance.foo",
-		"bar",
-	}
-	log.Printf("[TRACE] TestImport_remoteState running: tofu import %s %s", args[0], args[1])
-	if code := c.Run(args); code != 0 {
-		fmt.Println(ui.OutputWriter)
-		t.Fatalf("bad: %d\n\n%s", code, ui.ErrorWriter.String())
-	}
-
-	// verify that the local state was unlocked after import
-	if _, err := os.Stat(filepath.Join(td, fmt.Sprintf(".%s.lock.info", statePath))); !os.IsNotExist(err) {
-		t.Fatal("state left locked after import")
-	}
-
-	// Verify that we were called
-	if !configured {
-		t.Fatal("Configure should be called")
-	}
-
-	if !p.ImportResourceStateCalled {
-		t.Fatal("ImportResourceState should be called")
-	}
-
-	testStateOutput(t, statePath, testImportStr)
-}
-
-// early failure on import should not leave stale lock
-func TestImport_initializationErrorShouldUnlock(t *testing.T) {
-	td := t.TempDir()
-	testCopyDir(t, testFixturePath("import-provider-remote-state"), td)
-	t.Chdir(td)
-
-	statePath := "imported.tfstate"
-
-	providerSource, close := newMockProviderSource(t, map[string][]string{
-		"test": []string{"1.2.3"},
-	})
-	defer close()
-
-	// init our backend
-	ui := cli.NewMockUi()
-	view, _ := testView(t)
-	m := Meta{
-		testingOverrides: metaOverridesForProvider(testProvider()),
-		Ui:               ui,
-		View:             view,
-		ProviderSource:   providerSource,
-	}
-
-	ic := &InitCommand{
-		Meta: m,
-	}
-
-	// (Using log here rather than t.Log so that these messages interleave with other trace logs)
-	log.Print("[TRACE] TestImport_initializationErrorShouldUnlock running: tofu init")
-	if code := ic.Run([]string{}); code != 0 {
-		t.Fatalf("init failed\n%s", ui.ErrorWriter)
-	}
-
-	// overwrite the config with one including a resource from an invalid provider
-	if err := copy.CopyFile(filepath.Join(testFixturePath("import-provider-invalid"), "main.tf"), filepath.Join(td, "main.tf")); err != nil {
-		t.Fatal(err)
-	}
-
-	p := testProvider()
-	ui = new(cli.MockUi)
-	c := &ImportCommand{
-		Meta: Meta{
-			testingOverrides: metaOverridesForProvider(p),
-			Ui:               ui,
-			View:             view,
-		},
-	}
-
-	args := []string{
-		"unknown_instance.baz",
-		"bar",
-	}
-	log.Printf("[TRACE] TestImport_initializationErrorShouldUnlock running: tofu import %s %s", args[0], args[1])
-
-	// this should fail
-	if code := c.Run(args); code != 1 {
-		fmt.Println(ui.OutputWriter)
-		t.Fatalf("bad: %d\n\n%s", code, ui.ErrorWriter.String())
-	}
-
-	// specifically, it should fail due to a missing provider
-	msg := strings.ReplaceAll(ui.ErrorWriter.String(), "\n", " ")
-	if want := `provider registry.opentofu.org/hashicorp/unknown: required by this configuration but no version is selected`; !strings.Contains(msg, want) {
-		t.Errorf("incorrect message\nwant substring: %s\ngot:\n%s", want, msg)
-	}
-
-	// verify that the local state was unlocked after initialization error
-	if _, err := os.Stat(filepath.Join(td, fmt.Sprintf(".%s.lock.info", statePath))); !os.IsNotExist(err) {
-		t.Fatal("state left locked after import")
-	}
 }
 
 func TestImport_providerConfigWithVar(t *testing.T) {
@@ -678,7 +490,7 @@ func TestImport_emptyConfig(t *testing.T) {
 	}
 
 	msg := ui.ErrorWriter.String()
-	if want := `No OpenTofu configuration files`; !strings.Contains(msg, want) {
+	if want := `No Farseek configuration files`; !strings.Contains(msg, want) {
 		t.Errorf("incorrect message\nwant substring: %s\ngot:\n%s", want, msg)
 	}
 }

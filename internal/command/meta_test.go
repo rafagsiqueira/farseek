@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -19,7 +19,7 @@ import (
 
 	"github.com/rafagsiqueira/farseek/internal/backend"
 	"github.com/rafagsiqueira/farseek/internal/backend/local"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func TestMetaColorize(t *testing.T) {
@@ -92,7 +92,7 @@ func TestMetaInputMode(t *testing.T) {
 		t.Fatalf("err: %s", err)
 	}
 
-	if m.InputMode() != tofu.InputModeStd {
+	if m.InputMode() != farseek.InputModeStd {
 		t.Fatalf("bad: %#v", m.InputMode())
 	}
 }
@@ -109,11 +109,11 @@ func TestMetaInputMode_envVar(t *testing.T) {
 		t.Fatalf("err: %s", err)
 	}
 
-	off := tofu.InputMode(0)
-	on := tofu.InputModeStd
+	off := farseek.InputMode(0)
+	on := farseek.InputModeStd
 	cases := []struct {
 		EnvVar   string
-		Expected tofu.InputMode
+		Expected farseek.InputMode
 	}{
 		{"false", off},
 		{"0", off},

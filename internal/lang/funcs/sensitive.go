@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -12,7 +12,7 @@ import (
 )
 
 // SensitiveFunc returns a value identical to its argument except that
-// OpenTofu will consider it to be sensitive.
+// Farseek will consider it to be sensitive.
 var SensitiveFunc = function.New(&function.Spec{
 	Params: []function.Parameter{
 		{

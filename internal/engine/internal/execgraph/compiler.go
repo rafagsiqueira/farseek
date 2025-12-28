@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -130,7 +130,7 @@ func (c *compiler) Compile() (*CompiledGraph, tfdiags.Diagnostics) {
 			c.diags = c.diags.Append(tfdiags.Sourceless(
 				tfdiags.Error,
 				"Unsupported opcode in execution graph",
-				fmt.Sprintf("Execution graph includes %s, but the compiler doesn't know how to handle it. This is a bug in OpenTofu.", opDesc.opCode),
+				fmt.Sprintf("Execution graph includes %s, but the compiler doesn't know how to handle it. This is a bug in Farseek.", opDesc.opCode),
 			))
 			continue
 		}
@@ -242,7 +242,7 @@ func (c *compiler) compileResultRef(ref AnyResultRef) nodeExecuteRaw {
 				diags = diags.Append(tfdiags.Sourceless(
 					tfdiags.Error,
 					errSummary,
-					fmt.Sprintf("The execution graph expects desired state for %s, but the evaluation system does not consider this resource instance to be \"desired\". This is a bug in OpenTofu.", resourceInstAddrs[index]),
+					fmt.Sprintf("The execution graph expects desired state for %s, but the evaluation system does not consider this resource instance to be \"desired\". This is a bug in Farseek.", resourceInstAddrs[index]),
 				))
 				return nil, false, diags
 			}
@@ -274,7 +274,7 @@ func (c *compiler) compileResultRef(ref AnyResultRef) nodeExecuteRaw {
 				diags = diags.Append(tfdiags.Sourceless(
 					tfdiags.Error,
 					errSummary,
-					fmt.Sprintf("The execution graph expects prior state for %s, but no such object exists in the state. This is a bug in OpenTofu.", name),
+					fmt.Sprintf("The execution graph expects prior state for %s, but no such object exists in the state. This is a bug in Farseek.", name),
 				))
 				return nil, false, diags
 			}
@@ -300,7 +300,7 @@ func (c *compiler) compileResultRef(ref AnyResultRef) nodeExecuteRaw {
 				diags = diags.Append(tfdiags.Sourceless(
 					tfdiags.Error,
 					errSummary,
-					fmt.Sprintf("The execution graph expects configuration for %s, but the evaluation system does not know about that provider instance. This is a bug in OpenTofu.", providerInstConfigRefs[index]),
+					fmt.Sprintf("The execution graph expects configuration for %s, but the evaluation system does not know about that provider instance. This is a bug in Farseek.", providerInstConfigRefs[index]),
 				))
 				return nil, false, diags
 			}
@@ -324,7 +324,7 @@ func (c *compiler) compileResultRef(ref AnyResultRef) nodeExecuteRaw {
 			if err != nil {
 				// An error here always means that the workgraph library has
 				// detected a problem that might have caused a deadlock, which
-				// during the apply phase is always a bug in OpenTofu because
+				// during the apply phase is always a bug in Farseek because
 				// we should've detected any user-caused problems during the
 				// planning phase.
 				diags = diags.Append(diagsForWorkgraphError(ctx, err, opResolvers))
@@ -359,7 +359,7 @@ func (c *compiler) compileResultRef(ref AnyResultRef) nodeExecuteRaw {
 		c.diags = append(c.diags, tfdiags.Sourceless(
 			tfdiags.Error,
 			errSummary,
-			fmt.Sprintf("The execution graph includes %#v, but the compiler doesn't know how to handle it. This is a bug in OpenTofu.", ref),
+			fmt.Sprintf("The execution graph includes %#v, but the compiler doesn't know how to handle it. This is a bug in Farseek.", ref),
 		))
 		return nil
 	}
@@ -458,10 +458,10 @@ func diagsForWorkgraphError(ctx context.Context, err error, operationResolvers [
 	// findRequestName makes a best effort to describe the given workgraph request
 	// in terms of operations in the execution graph, though because all of
 	// these are "should never happen" cases this focuses mainly on providing
-	// information to help OpenTofu developers with debugging, rather than
+	// information to help Farseek developers with debugging, rather than
 	// end-user-friendly information. (Any user-caused problems ought to have
 	// been detected during the planning phase, so any problem we encounter
-	// during apply is always an OpenTofu bug.)
+	// during apply is always an Farseek bug.)
 	//
 	// As usual we tolerate this being a pretty inefficient linear search
 	// over all of the requests we know about because we should only end up
@@ -501,11 +501,11 @@ func diagsForWorkgraphError(ctx context.Context, err error, operationResolvers [
 	switch err := err.(type) {
 	case workgraph.ErrSelfDependency:
 		var buf strings.Builder
-		buf.WriteString("While performing actions during the apply phase, OpenTofu detected a self-dependency cycle between the following:\n")
+		buf.WriteString("While performing actions during the apply phase, Farseek detected a self-dependency cycle between the following:\n")
 		for _, reqId := range err.RequestIDs {
 			fmt.Fprintf(&buf, "  - %s\n", findRequestName(reqId))
 		}
-		buf.WriteString("\nThis is a bug in OpenTofu.")
+		buf.WriteString("\nThis is a bug in Farseek.")
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			summary,
@@ -515,7 +515,7 @@ func diagsForWorkgraphError(ctx context.Context, err error, operationResolvers [
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			summary,
-			fmt.Sprintf("While performing actions during the apply phase, a request for %q was left unresolved. This is a bug in OpenTofu.", findRequestName(err.RequestID)),
+			fmt.Sprintf("While performing actions during the apply phase, a request for %q was left unresolved. This is a bug in Farseek.", findRequestName(err.RequestID)),
 		))
 	default:
 		// We're not expecting any other error types here so we'll just
@@ -523,7 +523,7 @@ func diagsForWorkgraphError(ctx context.Context, err error, operationResolvers [
 		diags = diags.Append(tfdiags.Sourceless(
 			tfdiags.Error,
 			summary,
-			fmt.Sprintf("While performing actions during the apply phase, OpenTofu encountered an unexpected error: %s.\n\nThis is a bug in OpenTofu.", err),
+			fmt.Sprintf("While performing actions during the apply phase, Farseek encountered an unexpected error: %s.\n\nThis is a bug in Farseek.", err),
 		))
 	}
 	return diags

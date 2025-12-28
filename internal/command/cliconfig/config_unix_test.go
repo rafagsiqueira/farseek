@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -26,10 +26,10 @@ func TestConfigFileConfigDir(t *testing.T) {
 		expect        string
 	}{
 		{
-			name:     "configFile: use home tofurc",
+			name:     "configFile: use home farseekrc",
 			testFunc: cl.configFile,
-			files:    []string{filepath.Join(homeDir, ".tofurc")},
-			expect:   filepath.Join(homeDir, ".tofurc"),
+			files:    []string{filepath.Join(homeDir, ".farseekrc")},
+			expect:   filepath.Join(homeDir, ".farseekrc"),
 		},
 		{
 			name:     "configFile: use home terraformrc",
@@ -40,20 +40,20 @@ func TestConfigFileConfigDir(t *testing.T) {
 		{
 			name:     "configFile: use default fallback",
 			testFunc: cl.configFile,
-			expect:   filepath.Join(homeDir, ".tofurc"),
+			expect:   filepath.Join(homeDir, ".farseekrc"),
 		},
 		{
-			name:          "configFile: use XDG tofurc",
+			name:          "configFile: use XDG farseekrc",
 			testFunc:      cl.configFile,
 			xdgConfigHome: filepath.Join(homeDir, "xdg"),
-			expect:        filepath.Join(homeDir, "xdg", "opentofu", "tofurc"),
+			expect:        filepath.Join(homeDir, "xdg", "opentofu", "farseekrc"),
 		},
 		{
-			name:          "configFile: prefer home tofurc",
+			name:          "configFile: prefer home farseekrc",
 			testFunc:      cl.configFile,
 			xdgConfigHome: filepath.Join(homeDir, "xdg"),
-			files:         []string{filepath.Join(homeDir, ".tofurc")},
-			expect:        filepath.Join(homeDir, ".tofurc"),
+			files:         []string{filepath.Join(homeDir, ".farseekrc")},
+			expect:        filepath.Join(homeDir, ".farseekrc"),
 		},
 		{
 			name:          "configFile: prefer home terraformrc",

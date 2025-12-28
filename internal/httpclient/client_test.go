@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -38,7 +38,7 @@ func TestNew_userAgent(t *testing.T) {
 		request  func(c *http.Client) error
 	}{
 		{
-			fmt.Sprintf("OpenTofu/%s", version.Version),
+			fmt.Sprintf("Farseek/%s", version.Version),
 			func(c *http.Client) error {
 				_, err := c.Get(ts.URL)
 				return err

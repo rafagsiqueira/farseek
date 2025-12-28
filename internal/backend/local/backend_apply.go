@@ -1,4 +1,4 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -17,14 +17,14 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/addrs"
 	"github.com/rafagsiqueira/farseek/internal/backend"
 	"github.com/rafagsiqueira/farseek/internal/command/views"
-	"github.com/rafagsiqueira/farseek/internal/farseek"
+
 	"github.com/rafagsiqueira/farseek/internal/logging"
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	"github.com/rafagsiqueira/farseek/internal/tofu"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // test hook called between plan+apply during opApply
@@ -80,7 +80,7 @@ func (b *Local) opApply(
 			"No configuration files",
 			"Apply requires configuration to be present. Applying without a configuration "+
 				"would mark everything for destruction, which is normally not what is desired. "+
-				"If you would like to destroy everything, run 'tofu destroy' instead.",
+				"If you would like to destroy everything, run 'farseek destroy' instead.",
 		))
 		op.ReportResult(runningOp, diags)
 		return
@@ -109,65 +109,57 @@ func (b *Local) opApply(
 	}()
 
 	if op.FarseekMode {
+		log.Printf("[DEBUG] backend/local: Farseek stateless mode enabled. Discovered: %d", len(op.DiscoveredResources))
 		// We explicitly ignore the local state to ensure it's truly stateless.
 		lr.InputState = states.NewState()
 
-		// Inject deleted resources into InputState to force a Destroy plan during Apply's implicit plan
-		if op.FarseekBaseSHA != "" {
-			for _, dr := range op.DiscoveredResources {
-				// If Config is nil, it means it's deleted (missing from HEAD)
-				if dr.Config == nil {
-					log.Printf("[DEBUG] Farseek: Injecting deleted resource %s into state", dr.Address)
+		// Inject relevant discovered resources into the state.
+		for _, dr := range op.DiscoveredResources {
+			if dr.IsNew {
+				// Truly new resources should NOT be in the state, so Farseek plans to create them.
+				log.Printf("[DEBUG] backend/local: Farseek skipping injection for new resource %s", dr.Address)
+				continue
+			}
 
-					// 1. Get Attributes from SHA
-					nameVal, _ := farseek.Discovery.GetResourceAttributeFromSHA(op.ConfigDir, op.FarseekBaseSHA, dr.Filename, dr.Address, "name")
-					idVal, _ := farseek.Discovery.GetResourceAttributeFromSHA(op.ConfigDir, op.FarseekBaseSHA, dr.Filename, dr.Address, "id")
+			// For resources that existed in history, we inject them into state so Farseek refreshes/destroys them.
+			addr, diags := addrs.ParseAbsResourceInstanceStr(dr.Address)
+			if diags.HasErrors() {
+				log.Printf("[WARN] backend/local: Farseek failed to parse address %s: %s", dr.Address, diags.Err())
+				continue
+			}
 
-					if nameVal == "" && idVal == "" {
-						log.Printf("[WARN] Farseek: Could not recover 'name' or 'id' for deleted resource %s. Skipping destruction.", dr.Address)
-						continue
-					}
+			log.Printf("[DEBUG] backend/local: Farseek injecting resource %s into input state", addr)
+			mod := lr.InputState.EnsureModule(addr.Module)
+			providerAddr := addrs.AbsProviderConfig{
+				Module:   addr.Module.Module(),
+				Provider: addrs.ImpliedProviderForUnqualifiedType(addr.Resource.Resource.ImpliedProvider()),
+			}
 
-					// Determine ID for the state key
-					id := idVal
-					if id == "" {
-						id = nameVal
-					}
+			// Try to recover attributes (id/name) from history to help the provider identify the resource.
+			jsonAttrs := "{}"
+			if op.FarseekBaseSHA != "" {
+				nameVal, _ := farseek.Discovery.GetResourceAttributeFromSHA(op.ConfigDir, op.FarseekBaseSHA, dr.Filename, dr.Address, "name")
+				idVal, _ := farseek.Discovery.GetResourceAttributeFromSHA(op.ConfigDir, op.FarseekBaseSHA, dr.Filename, dr.Address, "id")
 
-					// 2. Add to state
-					addr, diags := addrs.ParseAbsResourceInstanceStr(dr.Address)
-					if diags.HasErrors() {
-						log.Printf("[WARN] Farseek: Invalid address format for %s: %s", dr.Address, diags.Err())
-						continue
-					}
+				id := idVal
+				if id == "" {
+					id = nameVal
+				}
 
-					// 3. Create Object Src
-					// We construct JSON attributes including "name" if present, as some providers (like Google)
-					// require the "name" attribute in the state to function correctly during refresh/read.
-					jsonAttrs := fmt.Sprintf(`{"id":%q}`, id)
+				if id != "" {
 					if nameVal != "" {
 						jsonAttrs = fmt.Sprintf(`{"id":%q, "name":%q}`, id, nameVal)
+					} else {
+						jsonAttrs = fmt.Sprintf(`{"id":%q}`, id)
 					}
-
-					src := &states.ResourceInstanceObjectSrc{
-						Status:    states.ObjectReady,
-						AttrsJSON: []byte(jsonAttrs),
-					}
-
-					// 4. Set in state
-					// We need to ensure the module exists in the state
-					mod := lr.InputState.EnsureModule(addr.Module)
-
-					// Construct provider config address
-					// We assume the provider is in the same module as the resource
-					providerAddr := addrs.AbsProviderConfig{
-						Module:   addr.Module.Module(),
-						Provider: addrs.ImpliedProviderForUnqualifiedType(addr.Resource.Resource.ImpliedProvider()),
-					}
-
-					mod.SetResourceInstanceCurrent(addr.Resource, src, providerAddr, addrs.NoKey)
 				}
 			}
+
+			src := &states.ResourceInstanceObjectSrc{
+				Status:    states.ObjectReady,
+				AttrsJSON: []byte(jsonAttrs),
+			}
+			mod.SetResourceInstanceCurrent(addr.Resource, src, providerAddr, addrs.NoKey)
 		}
 	}
 	runningOp.State = lr.InputState
@@ -201,8 +193,8 @@ func (b *Local) opApply(
 
 		diags = diags.Append(moreDiags)
 		if moreDiags.HasErrors() {
-			// If OpenTofu Core generated a partial plan despite the errors
-			// then we'll make the best effort to render it. OpenTofu Core
+			// If Farseek Core generated a partial plan despite the errors
+			// then we'll make the best effort to render it. Farseek Core
 			// promises that if it returns a non-nil plan along with errors
 			// then the plan won't necessarily contain all the needed
 			// actions but that any it does include will be properly-formed.
@@ -245,15 +237,15 @@ func (b *Local) opApply(
 				} else {
 					query = "Do you really want to destroy all resources?"
 				}
-				desc = "OpenTofu will destroy all your managed infrastructure, as shown above.\n" +
+				desc = "Farseek will destroy all your managed infrastructure, as shown above.\n" +
 					"There is no undo. Only 'yes' will be accepted to confirm."
 			case plans.RefreshOnlyMode:
 				if op.Workspace != "default" {
-					query = "Would you like to update the OpenTofu state for \"" + op.Workspace + "\" to reflect these detected changes?"
+					query = "Would you like to update the Farseek state for \"" + op.Workspace + "\" to reflect these detected changes?"
 				} else {
-					query = "Would you like to update the OpenTofu state to reflect these detected changes?"
+					query = "Would you like to update the Farseek state to reflect these detected changes?"
 				}
-				desc = "OpenTofu will write these changes to the state without modifying any real infrastructure.\n" +
+				desc = "Farseek will write these changes to the state without modifying any real infrastructure.\n" +
 					"There is no undo. Only 'yes' will be accepted to confirm."
 			default:
 				if op.Workspace != "default" {
@@ -261,7 +253,7 @@ func (b *Local) opApply(
 				} else {
 					query = "Do you want to perform these actions?"
 				}
-				desc = "OpenTofu will perform the actions described above.\n" +
+				desc = "Farseek will perform the actions described above.\n" +
 					"Only 'yes' will be accepted to approve."
 			}
 
@@ -272,7 +264,7 @@ func (b *Local) opApply(
 				diags = nil // reset so we won't show the same diagnostics again later
 			}
 
-			v, err := op.UIIn.Input(stopCtx, &tofu.InputOpts{
+			v, err := op.UIIn.Input(stopCtx, &farseek.InputOpts{
 				Id:          "approve",
 				Query:       "\n" + query,
 				Description: desc,
@@ -321,7 +313,7 @@ func (b *Local) opApply(
 			diags = diags.Append(tfdiags.Sourceless(
 				tfdiags.Error,
 				"Cannot apply incomplete plan",
-				"OpenTofu encountered an error when generating this plan, so it cannot be applied.",
+				"Farseek encountered an error when generating this plan, so it cannot be applied.",
 			))
 			op.ReportResult(runningOp, diags)
 			return
@@ -363,7 +355,7 @@ func (b *Local) opApply(
 
 	// Store the final state
 	runningOp.State = applyState
-	if !op.FarseekMode {
+	if true {
 		err := statemgr.WriteAndPersist(context.TODO(), opState, applyState, schemas)
 		if err != nil {
 			// Export the state file from the state manager and assign the new
@@ -444,29 +436,29 @@ func (b *Local) backupStateForError(stateFile *statefile.File, err error, view v
 	return diags
 }
 
-const stateWriteBackedUpError = `The error shown above has prevented OpenTofu from writing the updated state to the configured backend. To allow for recovery, the state has been written to the file "errored.tfstate" in the current working directory.
+const stateWriteBackedUpError = `The error shown above has prevented Farseek from writing the updated state to the configured backend. To allow for recovery, the state has been written to the file "errored.tfstate" in the current working directory.
 
-Running "tofu apply" again at this point will create a forked state, making it harder to recover.
+Running "farseek apply" again at this point will create a forked state, making it harder to recover.
 
 To retry writing this state, use the following command:
-    tofu state push errored.tfstate
+    farseek state push errored.tfstate
 `
 
-const stateWriteConsoleFallbackError = `The errors shown above prevented OpenTofu from writing the updated state to
+const stateWriteConsoleFallbackError = `The errors shown above prevented Farseek from writing the updated state to
 the configured backend and from creating a local backup file. As a fallback,
 the raw state data is printed above as a JSON object.
 
 To retry writing this state, copy the state data (from the first { to the last } inclusive) and save it into a local file called errored.tfstate, then run the following command:
-    tofu state push errored.tfstate
+    farseek state push errored.tfstate
 `
 
 const stateWriteFatalErrorFmt = `Failed to save state after apply.
 
 Error serializing state: %s
 
-A catastrophic error has prevented OpenTofu from persisting the state file or creating a backup. Unfortunately this means that the record of any resources created during this apply has been lost, and such resources may exist outside of OpenTofu's management.
+A catastrophic error has prevented Farseek from persisting the state file or creating a backup. Unfortunately this means that the record of any resources created during this apply has been lost, and such resources may exist outside of Farseek's management.
 
 For resources that support import, it is possible to recover by manually importing each resource using its id from the target system.
 
-This is a serious bug in OpenTofu and should be reported.
+This is a serious bug in Farseek and should be reported.
 `
