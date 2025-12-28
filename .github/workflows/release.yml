@@ -141,8 +141,8 @@ jobs:
         uses: computology/packagecloud-github-action@v0.6
         with:
                 PACKAGE-NAME: dist/*.deb
-                PACKAGECLOUD-USERNAME: opentofu
-                PACKAGECLOUD-REPONAME: tofu
+                PACKAGECLOUD-USERNAME: farseek
+                PACKAGECLOUD-REPONAME: farseek
                 PACKAGECLOUD-DISTRO: any/any
                 PACKAGECLOUD-TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
       - name: Upload RPM packages to PackageCloud
@@ -150,7 +150,7 @@ jobs:
         uses: computology/packagecloud-github-action@v0.6
         with:
                 PACKAGE-NAME: dist/*.rpm
-                PACKAGECLOUD-USERNAME: opentofu
-                PACKAGECLOUD-REPONAME: tofu
+                PACKAGECLOUD-USERNAME: farseek
+                PACKAGECLOUD-REPONAME: farseek
                 PACKAGECLOUD-DISTRO: rpm_any/rpm_any
                 PACKAGECLOUD-TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}

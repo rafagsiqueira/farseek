@@ -8,7 +8,7 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
-    if: github.repository_owner == 'opentofu'
+    if: github.repository_owner == 'rafagsiqueira'
     permissions:
       contents: read
       issues: write
@@ -25,4 +25,4 @@ jobs:
       run: |
         cd .github/scripts/update_top_issues_ranking
         go mod download
-        go run main.go opentofu opentofu 1496
+        go run main.go rafagsiqueira farseek 1496

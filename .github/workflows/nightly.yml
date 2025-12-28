@@ -24,7 +24,7 @@ jobs:
         with:
           go-version-file: "go.mod"
 
-      # Prepare the nightly version to be able to have it returned correctly when running `tofu --version`.
+      # Prepare the nightly version to be able to have it returned correctly when running `farseek --version`.
       - name: Prepare version file
         run: |
           commit_created_at=`git show --no-patch --format=%cd --date=format:%Y%m%d%H%M%S ${GITHUB_SHA}`

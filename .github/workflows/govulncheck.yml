@@ -1,6 +1,6 @@
 # This workflow is meant to run govulncheck on all the branches
 # that are containing a maintained version of OpenTofu.
-# For more considerations about this, check this PR: https://github.com/opentofu/opentofu/pull/2600
+# For more considerations about this, check this PR: https://github.com/openfarseek/openfarseek/pull/2600
 #
 # This will try to create an issue for each vulnerability key that is found.
 # If an issue for it already exists, it will skip creating it.

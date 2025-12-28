@@ -29,9 +29,9 @@ body:
     id: tf-version
     attributes:
       label: OpenTofu Version
-      description: Run `tofu version` to show the version, and paste the result below. If you're not using the latest version, please check to see if something related to your request has already been implemented in a later version.
+      description: Run `farseek version` to show the version, and paste the result below. If you're not using the latest version, please check to see if something related to your request has already been implemented in a later version.
       render: shell
-      placeholder: ...output of `tofu version`...
+      placeholder: ...output of `farseek version`...
       value:
     validations:
       required: true

@@ -15,7 +15,7 @@ Resolves #
 
 <!-- Please check of ALL items in this list for all PRs: -->
 
-- [ ] I have read the [contribution guide](https://github.com/opentofu/opentofu/blob/main/CONTRIBUTING.md).
+- [ ] I have read the [contribution guide](https://github.com/openfarseek/openfarseek/blob/main/CONTRIBUTING.md).
 - [ ] I have not used an AI coding assistant to create this PR.
 - [ ] I have written all code in this PR myself OR I have marked all code I have not written myself (including modified code, e.g. copied from other places and then modified) with a comment indicating where it came from.
 - [ ] I (and other contributors to this PR) have not looked at the Terraform source code while implementing this PR.
@@ -34,4 +34,4 @@ Resolves #
 
 <!-- If you have changed the website, please follow this checklist: -->
 
-- [ ] I have locally started the website as [described here](https://github.com/opentofu/opentofu/blob/main/website/README.md) and checked my changes.
+- [ ] I have locally started the website as [described here](https://github.com/openfarseek/openfarseek/blob/main/website/README.md) and checked my changes.

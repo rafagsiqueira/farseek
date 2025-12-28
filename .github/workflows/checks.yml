@@ -102,11 +102,11 @@ jobs:
       # it for select packages.
       - name: "Race detector"
         run: |
-          go test -race ./internal/tofu ./internal/command ./internal/states
+          go test -race ./internal/farseek ./internal/command ./internal/states
 
   e2e-tests:
     # This is an intentionally-limited form of our E2E test run which only
-    # covers OpenTofu running on Linux. The build.yml workflow runs these
+    # covers Farseek running on Linux. The build.yml workflow runs these
     # tests across various other platforms in order to catch the rare exception
     # that might leak through this.
     name: "End-to-end Tests"
@@ -126,8 +126,8 @@ jobs:
       - name: "End-to-end tests"
         run: |
           # This also includes some acceptance tests elsewhere that have
-          # similar dependencies on the OpenTofu Registry and on some
-          # OpenTofu-controlled GitHub repositories, just because this
+          # similar dependencies on the Farseek Registry and on some
+          # Farseek-controlled GitHub repositories, just because this
           # particular job is already expected to have that kind of external
           # dependency. Note that this is appropriate only for tests that
           # make _unauthenticated_ requests to external network services,

@@ -1,4 +1,4 @@
-# Copyright (c) The OpenTofu Authors
+# Copyright (c) The Farseek Authors
 # SPDX-License-Identifier: MPL-2.0
 # Copyright (c) 2023 HashiCorp, Inc.
 # SPDX-License-Identifier: MPL-2.0
@@ -23,7 +23,7 @@ builds:
 
     ldflags:
       - "-s -w"
-      - "-X 'github.com/opentofu/opentofu/version.dev=no'"
+      - "-X 'github.com/rafagsiqueira/farseek/version.dev=no'"
 
     goos:
       - linux
@@ -77,17 +77,17 @@ dockers:
       - "--pull"
       - "--platform=linux/amd64"
       - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.vendor=OpenTofu"
-      - "--label=org.opencontainers.image.description=OpenTofu {{ .Version }}"
-      - "--label=org.opencontainers.image.url=https://github.com/opentofu/opentofu"
-      - "--label=org.opencontainers.image.documentation=https://github.com/opentofu/opentofu/blob/main/README.md"
-      - "--label=org.opencontainers.image.source=https://github.com/opentofu/opentofu"
+      - "--label=org.opencontainers.image.vendor=Farseek"
+      - "--label=org.opencontainers.image.description=Farseek {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/rafagsiqueira/farseek"
+      - "--label=org.opencontainers.image.documentation=https://github.com/rafagsiqueira/farseek/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/rafagsiqueira/farseek"
       - "--label=org.opencontainers.image.licenses=MPL-2.0"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
       - "--label=org.opencontainers.image.created={{ time \"2006-01-02T15:04:05Z07:00\" }}"
     image_templates:
-      - "ghcr.io/opentofu/opentofu:{{ .Version }}-amd64"
+      - "ghcr.io/farseek/farseek:{{ .Version }}-amd64"
 
   - use: buildx
     goarch: amd64
@@ -96,17 +96,17 @@ dockers:
       - "--pull"
       - "--platform=linux/amd64"
       - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.vendor=OpenTofu"
-      - "--label=org.opencontainers.image.description=OpenTofu {{ .Version }}"
-      - "--label=org.opencontainers.image.url=https://github.com/opentofu/opentofu"
-      - "--label=org.opencontainers.image.documentation=https://github.com/opentofu/opentofu/blob/main/README.md"
-      - "--label=org.opencontainers.image.source=https://github.com/opentofu/opentofu"
+      - "--label=org.opencontainers.image.vendor=Farseek"
+      - "--label=org.opencontainers.image.description=Farseek {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/rafagsiqueira/farseek"
+      - "--label=org.opencontainers.image.documentation=https://github.com/rafagsiqueira/farseek/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/rafagsiqueira/farseek"
       - "--label=org.opencontainers.image.licenses=MPL-2.0"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
       - "--label=org.opencontainers.image.created={{ time \"2006-01-02T15:04:05Z07:00\" }}"
     image_templates:
-      - "ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-amd64"
+      - "ghcr.io/farseek/farseek:{{ .Version }}-minimal-amd64"
 
   - use: buildx
     goarch: arm64
@@ -114,17 +114,17 @@ dockers:
       - "--pull"
       - "--platform=linux/arm64"
       - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.vendor=OpenTofu"
-      - "--label=org.opencontainers.image.description=OpenTofu {{ .Version }}"
-      - "--label=org.opencontainers.image.url=https://github.com/opentofu/opentofu"
-      - "--label=org.opencontainers.image.documentation=https://github.com/opentofu/opentofu/blob/main/README.md"
-      - "--label=org.opencontainers.image.source=https://github.com/opentofu/opentofu"
+      - "--label=org.opencontainers.image.vendor=Farseek"
+      - "--label=org.opencontainers.image.description=Farseek {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/rafagsiqueira/farseek"
+      - "--label=org.opencontainers.image.documentation=https://github.com/rafagsiqueira/farseek/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/rafagsiqueira/farseek"
       - "--label=org.opencontainers.image.licenses=MPL-2.0"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
       - "--label=org.opencontainers.image.created={{ time \"2006-01-02T15:04:05Z07:00\" }}"
     image_templates:
-      - "ghcr.io/opentofu/opentofu:{{ .Version }}-arm64"
+      - "ghcr.io/farseek/farseek:{{ .Version }}-arm64"
 
   - use: buildx
     goarch: arm64
@@ -133,17 +133,17 @@ dockers:
       - "--pull"
       - "--platform=linux/arm64"
       - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.vendor=OpenTofu"
-      - "--label=org.opencontainers.image.description=OpenTofu {{ .Version }}"
-      - "--label=org.opencontainers.image.url=https://github.com/opentofu/opentofu"
-      - "--label=org.opencontainers.image.documentation=https://github.com/opentofu/opentofu/blob/main/README.md"
-      - "--label=org.opencontainers.image.source=https://github.com/opentofu/opentofu"
+      - "--label=org.opencontainers.image.vendor=Farseek"
+      - "--label=org.opencontainers.image.description=Farseek {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/rafagsiqueira/farseek"
+      - "--label=org.opencontainers.image.documentation=https://github.com/rafagsiqueira/farseek/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/rafagsiqueira/farseek"
       - "--label=org.opencontainers.image.licenses=MPL-2.0"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
       - "--label=org.opencontainers.image.created={{ time \"2006-01-02T15:04:05Z07:00\" }}"
     image_templates:
-      - "ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-arm64"
+      - "ghcr.io/farseek/farseek:{{ .Version }}-minimal-arm64"
 
   - use: buildx
     goarch: arm
@@ -151,17 +151,17 @@ dockers:
       - "--pull"
       - "--platform=linux/arm"
       - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.vendor=OpenTofu"
-      - "--label=org.opencontainers.image.description=OpenTofu {{ .Version }}"
-      - "--label=org.opencontainers.image.url=https://github.com/opentofu/opentofu"
-      - "--label=org.opencontainers.image.documentation=https://github.com/opentofu/opentofu/blob/main/README.md"
-      - "--label=org.opencontainers.image.source=https://github.com/opentofu/opentofu"
+      - "--label=org.opencontainers.image.vendor=Farseek"
+      - "--label=org.opencontainers.image.description=Farseek {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/rafagsiqueira/farseek"
+      - "--label=org.opencontainers.image.documentation=https://github.com/rafagsiqueira/farseek/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/rafagsiqueira/farseek"
       - "--label=org.opencontainers.image.licenses=MPL-2.0"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
       - "--label=org.opencontainers.image.created={{ time \"2006-01-02T15:04:05Z07:00\" }}"
     image_templates:
-      - "ghcr.io/opentofu/opentofu:{{ .Version }}-arm"
+      - "ghcr.io/farseek/farseek:{{ .Version }}-arm"
 
   - use: buildx
     goarch: arm
@@ -170,17 +170,17 @@ dockers:
       - "--pull"
       - "--platform=linux/arm"
       - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.vendor=OpenTofu"
-      - "--label=org.opencontainers.image.description=OpenTofu {{ .Version }}"
-      - "--label=org.opencontainers.image.url=https://github.com/opentofu/opentofu"
-      - "--label=org.opencontainers.image.documentation=https://github.com/opentofu/opentofu/blob/main/README.md"
-      - "--label=org.opencontainers.image.source=https://github.com/opentofu/opentofu"
+      - "--label=org.opencontainers.image.vendor=Farseek"
+      - "--label=org.opencontainers.image.description=Farseek {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/rafagsiqueira/farseek"
+      - "--label=org.opencontainers.image.documentation=https://github.com/rafagsiqueira/farseek/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/rafagsiqueira/farseek"
       - "--label=org.opencontainers.image.licenses=MPL-2.0"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
       - "--label=org.opencontainers.image.created={{ time \"2006-01-02T15:04:05Z07:00\" }}"
     image_templates:
-      - "ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-arm"
+      - "ghcr.io/farseek/farseek:{{ .Version }}-minimal-arm"
 
   - use: buildx
     goarch: "386"
@@ -188,17 +188,17 @@ dockers:
       - "--pull"
       - "--platform=linux/386"
       - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.vendor=OpenTofu"
-      - "--label=org.opencontainers.image.description=OpenTofu {{ .Version }}"
-      - "--label=org.opencontainers.image.url=https://github.com/opentofu/opentofu"
-      - "--label=org.opencontainers.image.documentation=https://github.com/opentofu/opentofu/blob/main/README.md"
-      - "--label=org.opencontainers.image.source=https://github.com/opentofu/opentofu"
+      - "--label=org.opencontainers.image.vendor=Farseek"
+      - "--label=org.opencontainers.image.description=Farseek {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/rafagsiqueira/farseek"
+      - "--label=org.opencontainers.image.documentation=https://github.com/rafagsiqueira/farseek/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/rafagsiqueira/farseek"
       - "--label=org.opencontainers.image.licenses=MPL-2.0"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
       - "--label=org.opencontainers.image.created={{ time \"2006-01-02T15:04:05Z07:00\" }}"
     image_templates:
-      - "ghcr.io/opentofu/opentofu:{{ .Version }}-386"
+      - "ghcr.io/farseek/farseek:{{ .Version }}-386"
 
   - use: buildx
     goarch: "386"
@@ -207,87 +207,87 @@ dockers:
       - "--pull"
       - "--platform=linux/386"
       - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.vendor=OpenTofu"
-      - "--label=org.opencontainers.image.description=OpenTofu {{ .Version }}"
-      - "--label=org.opencontainers.image.url=https://github.com/opentofu/opentofu"
-      - "--label=org.opencontainers.image.documentation=https://github.com/opentofu/opentofu/blob/main/README.md"
-      - "--label=org.opencontainers.image.source=https://github.com/opentofu/opentofu"
+      - "--label=org.opencontainers.image.vendor=Farseek"
+      - "--label=org.opencontainers.image.description=Farseek {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/rafagsiqueira/farseek"
+      - "--label=org.opencontainers.image.documentation=https://github.com/rafagsiqueira/farseek/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/rafagsiqueira/farseek"
       - "--label=org.opencontainers.image.licenses=MPL-2.0"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
       - "--label=org.opencontainers.image.created={{ time \"2006-01-02T15:04:05Z07:00\" }}"
     image_templates:
-      - "ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-386"
+      - "ghcr.io/farseek/farseek:{{ .Version }}-minimal-386"
 
 docker_manifests:
-  - name_template: ghcr.io/opentofu/opentofu:{{ .Version }}
+  - name_template: ghcr.io/farseek/farseek:{{ .Version }}
     image_templates:
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-amd64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-arm64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-arm
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-386
+      - ghcr.io/farseek/farseek:{{ .Version }}-amd64
+      - ghcr.io/farseek/farseek:{{ .Version }}-arm64
+      - ghcr.io/farseek/farseek:{{ .Version }}-arm
+      - ghcr.io/farseek/farseek:{{ .Version }}-386
 
-  - name_template: ghcr.io/opentofu/opentofu:{{ .Version }}-minimal
+  - name_template: ghcr.io/farseek/farseek:{{ .Version }}-minimal
     image_templates:
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-amd64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-arm64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-arm
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-386
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-amd64
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-arm64
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-arm
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-386
 
-  - name_template: ghcr.io/opentofu/opentofu:{{ .Major }}.{{ .Minor }}
+  - name_template: ghcr.io/farseek/farseek:{{ .Major }}.{{ .Minor }}
     image_templates:
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-amd64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-arm64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-arm
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-386
+      - ghcr.io/farseek/farseek:{{ .Version }}-amd64
+      - ghcr.io/farseek/farseek:{{ .Version }}-arm64
+      - ghcr.io/farseek/farseek:{{ .Version }}-arm
+      - ghcr.io/farseek/farseek:{{ .Version }}-386
     skip_push: auto # Skips the push on pre-release versions, like 1.6.1-alpha1. See https://goreleaser.com/customization/docker_manifest/#customization
 
-  - name_template: ghcr.io/opentofu/opentofu:{{ .Major }}.{{ .Minor }}-minimal
+  - name_template: ghcr.io/farseek/farseek:{{ .Major }}.{{ .Minor }}-minimal
     image_templates:
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-amd64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-arm64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-arm
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-386
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-amd64
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-arm64
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-arm
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-386
     skip_push: auto # Skips the push on pre-release versions, like 1.6.1-alpha1. See https://goreleaser.com/customization/docker_manifest/#customization
 
-  - name_template: ghcr.io/opentofu/opentofu:{{ .Major }}
+  - name_template: ghcr.io/farseek/farseek:{{ .Major }}
     image_templates:
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-amd64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-arm64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-arm
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-386
+      - ghcr.io/farseek/farseek:{{ .Version }}-amd64
+      - ghcr.io/farseek/farseek:{{ .Version }}-arm64
+      - ghcr.io/farseek/farseek:{{ .Version }}-arm
+      - ghcr.io/farseek/farseek:{{ .Version }}-386
     skip_push: auto # Skips the push on pre-release versions, like 1.6.1-alpha1. See https://goreleaser.com/customization/docker_manifest/#customization
 
-  - name_template: ghcr.io/opentofu/opentofu:{{ .Major }}-minimal
+  - name_template: ghcr.io/farseek/farseek:{{ .Major }}-minimal
     image_templates:
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-amd64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-arm64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-arm
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-386
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-amd64
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-arm64
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-arm
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-386
     skip_push: auto # Skips the push on pre-release versions, like 1.6.1-alpha1. See https://goreleaser.com/customization/docker_manifest/#customization
 
-  - name_template: ghcr.io/opentofu/opentofu:latest
+  - name_template: ghcr.io/farseek/farseek:latest
     image_templates:
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-amd64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-arm64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-arm
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-386
+      - ghcr.io/farseek/farseek:{{ .Version }}-amd64
+      - ghcr.io/farseek/farseek:{{ .Version }}-arm64
+      - ghcr.io/farseek/farseek:{{ .Version }}-arm
+      - ghcr.io/farseek/farseek:{{ .Version }}-386
     skip_push: auto # Skips the push on pre-release versions, like 1.6.1-alpha1. See https://goreleaser.com/customization/docker_manifest/#customization
 
-  - name_template: ghcr.io/opentofu/opentofu:minimal
+  - name_template: ghcr.io/farseek/farseek:minimal
     image_templates:
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-amd64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-arm64
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-arm
-      - ghcr.io/opentofu/opentofu:{{ .Version }}-minimal-386
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-amd64
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-arm64
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-arm
+      - ghcr.io/farseek/farseek:{{ .Version }}-minimal-386
     skip_push: auto # Skips the push on pre-release versions, like 1.6.1-alpha1. See https://goreleaser.com/customization/docker_manifest/#customization
 
 nfpms:
   - file_name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Arch }}'
-    maintainer: 'https://github.com/orgs/opentofu/teams/opentofu-core-team'
-    homepage: https://opentofu.org
+    maintainer: 'https://github.com/orgs/farseek/teams/farseek-core-team'
+    homepage: https://farseek.org
     description: >-
-      OpenTofu lets you declaratively manage your cloud infrastructure.
+      Farseek lets you declaratively manage your cloud infrastructure.
     license: "MPL-2.0"
     formats:
       - deb
@@ -297,7 +297,7 @@ nfpms:
     section: default
     contents:
       - src: ./LICENSE
-        dst: /usr/share/doc/opentofu/copyright
+        dst: /usr/share/doc/farseek/copyright
         file_info:
           mode: 0444
     rpm:
@@ -308,12 +308,12 @@ nfpms:
         key_file: "{{ if index .Env \"GPG_KEY_FILE\"  }}{{.Env.GPG_KEY_FILE}}{{ end }}"
 
 snapcrafts:
-  - name: opentofu
+  - name: farseek
     publish: true
-    summary: OpenTofu lets you declaratively manage your cloud infrastructure.
+    summary: Farseek lets you declaratively manage your cloud infrastructure.
     description: |
-      OpenTofu is an OSS tool for building, changing, and versioning infrastructure
-      safely and efficiently. OpenTofu can manage existing and popular service
+      Farseek is an OSS tool for building, changing, and versioning infrastructure
+      safely and efficiently. Farseek can manage existing and popular service
       providers as well as custom in-house solutions.
     disable: '{{ if eq .Env.RELEASE_FLAG_LATEST "false" }}true{{ else }}false{{ end }}'
     channel_templates:
@@ -323,9 +323,9 @@ snapcrafts:
     license: MPL-2.0
     base: core22
     apps:
-      tofu:
-        command: tofu
-        aliases: [tofu]
+      farseek:
+        command: farseek
+        aliases: [farseek]
 
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"

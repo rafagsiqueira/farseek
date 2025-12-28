@@ -49,7 +49,7 @@ jobs:
 
       - name: Build the OpenTofu binary
         run: |
-          go build -o ./bin/tofu ./cmd/tofu
+          go build -o ./bin/farseek ./cmd/farseek
 
       - name: Run the equivalence tests
         run: |
@@ -57,7 +57,7 @@ jobs:
             --tests=testing/equivalence-tests/tests \
             --goldens=testing/equivalence-tests/outputs \
             --rewrites=testing/rewrites.jsonc \
-            --binary=./bin/tofu \
+            --binary=./bin/farseek \
 
       - name: Ensure there is no diff
         shell: bash

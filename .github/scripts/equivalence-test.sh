@@ -12,7 +12,7 @@ Usage: ./equivalence-test.sh <command> [<args>] [<options>]
 
 Description:
   This script will handle various commands related to the execution of the
-  tofu equivalence tests.
+  farseek equivalence tests.
 
 Commands:
   download_equivalence_test_binary <version> <target> <os> <arch>
@@ -37,7 +37,7 @@ function download_equivalence_test_binary {
 
   curl \
     -H "Accept: application/vnd.github+json" \
-    "https://api.github.com/repos/opentofu/equivalence-testing/releases" > releases.json
+    "https://api.github.com/repos/openfarseek/equivalence-testing/releases" > releases.json
 
   ASSET="equivalence-testing_v${VERSION}_${OS}_${ARCH}.zip"
   ASSET_ID=$(jq -r --arg VERSION "v$VERSION" --arg ASSET "$ASSET" '.[] | select(.name == $VERSION) | .assets[] | select(.name == $ASSET) | .id' releases.json)
@@ -45,7 +45,7 @@ function download_equivalence_test_binary {
   mkdir -p zip
   curl -L \
     -H "Accept: application/octet-stream" \
-    "https://api.github.com/repos/opentofu/equivalence-testing/releases/assets/$ASSET_ID" > "zip/$ASSET"
+    "https://api.github.com/repos/openfarseek/equivalence-testing/releases/assets/$ASSET_ID" > "zip/$ASSET"
 
   mkdir -p bin
   unzip -p "zip/$ASSET" equivalence-testing > "$TARGET"

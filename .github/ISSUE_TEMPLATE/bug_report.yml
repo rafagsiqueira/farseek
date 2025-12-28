@@ -12,7 +12,7 @@ body:
       value: |
         # Thank you for opening an issue.
         
-        The [OpenTofu](https://github.com/opentofu/opentofu) issue tracker is reserved for bug reports relating to the core OpenTofu CLI application and configuration language.
+        The [OpenTofu](https://github.com/openfarseek/openfarseek) issue tracker is reserved for bug reports relating to the core OpenTofu CLI application and configuration language.
         
         ## Filing a bug report
         
@@ -21,7 +21,7 @@ body:
         * A short example can be directly copy-pasteable; longer examples should be in separate git repositories, especially if multiple files are needed
         * Please include all needed context. For example, if you figured out that an expression can cause a crash, put the expression in a variable definition or a resource
         * Set defaults on (or omit) any variables. The person reproducing it should not need to invent variable settings
-        * If multiple steps are required, such as running tofu twice, consider scripting it in a simple shell script. Providing a script can be easier than explaining what changes to make to the config between runs.
+        * If multiple steps are required, such as running farseek twice, consider scripting it in a simple shell script. Providing a script can be easier than explaining what changes to make to the config between runs.
         * Omit any unneeded complexity: remove variables, conditional statements, functions, modules, providers, and resources that are not needed to trigger the bug
   - type: textarea
     id: community-note
@@ -35,9 +35,9 @@ body:
     id: tf-version
     attributes:
       label: OpenTofu Version
-      description: Run `tofu version` to show the version, and paste the result below. If you are not running the latest version of OpenTofu, please try upgrading because your issue may have already been fixed.
+      description: Run `farseek version` to show the version, and paste the result below. If you are not running the latest version of OpenTofu, please try upgrading because your issue may have already been fixed.
       render: shell
-      placeholder: ...output of `tofu version`...
+      placeholder: ...output of `farseek version`...
       value:
     validations:
       required: true
@@ -50,7 +50,7 @@ body:
       placeholder:
       value: |
         ```hcl
-        ...tofu config...
+        ...farseek config...
         ```
     validations:
       required: true
@@ -94,11 +94,11 @@ body:
       label: Steps to Reproduce
       description: |
         Please list the full steps required to reproduce the issue, for example:
-          1. `tofu init`
-          2. `tofu apply`
+          1. `farseek init`
+          2. `farseek apply`
       placeholder: |
-        1. `tofu init`
-        2. `tofu apply`
+        1. `farseek init`
+        2. `farseek apply`
       value:
     validations:
       required: true

@@ -48,9 +48,9 @@ jobs:
         with:
           go-version-file: 'go.mod'
 
-      - name: "Build tofu executable"
+      - name: "Build farseek executable"
         run: |
-          go build ./cmd/tofu
+          go build ./cmd/farseek
 
   e2e-tests:
     strategy:
