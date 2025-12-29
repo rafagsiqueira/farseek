@@ -1,3 +1,5 @@
+//go:build ignore
+
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) The Opentofu Authors
