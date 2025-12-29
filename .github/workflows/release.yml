@@ -19,7 +19,6 @@ jobs:
   release:
     name: Release
     runs-on: larger-runners
-    environment: gpg
     permissions:
       contents: write
       id-token: write
@@ -137,20 +136,21 @@ jobs:
           path: dist
 
       - name: Upload Debian packages to PackageCloud
-        if: startsWith(inputs.tag, 'v') && "${{ inputs.prerelease }}" != "true"
+        if: startsWith(inputs.tag, 'v') && !inputs.prerelease
         uses: computology/packagecloud-github-action@v0.6
         with:
-                PACKAGE-NAME: dist/*.deb
-                PACKAGECLOUD-USERNAME: farseek
-                PACKAGECLOUD-REPONAME: farseek
-                PACKAGECLOUD-DISTRO: any/any
-                PACKAGECLOUD-TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+          package-name: dist/*.deb
+          packagecloud-username: farseek
+          packagecloud-reponame: farseek
+          packagecloud-distro: any/any
+          packagecloud-token: ${{ secrets.PACKAGECLOUD_TOKEN }}
+
       - name: Upload RPM packages to PackageCloud
-        if: startsWith(inputs.tag, 'v') && "${{ inputs.prerelease }}" != "true"
+        if: startsWith(inputs.tag, 'v') && !inputs.prerelease
         uses: computology/packagecloud-github-action@v0.6
         with:
-                PACKAGE-NAME: dist/*.rpm
-                PACKAGECLOUD-USERNAME: farseek
-                PACKAGECLOUD-REPONAME: farseek
-                PACKAGECLOUD-DISTRO: rpm_any/rpm_any
-                PACKAGECLOUD-TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+          package-name: dist/*.rpm
+          packagecloud-username: farseek
+          packagecloud-reponame: farseek
+          packagecloud-distro: rpm_any/rpm_any
+          packagecloud-token: ${{ secrets.PACKAGECLOUD_TOKEN }}

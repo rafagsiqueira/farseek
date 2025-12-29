@@ -1,24 +1,10 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-// find-dep-upgrades is a utility for finding the available upgrades for our
-// Go module dependencies and proposing an order to upgrade them in so that
-// as far as possible each upgrade touches only one upstream module at a time.
-//
-// This is because upgrading dependencies, particularly to newer minor versions,
-// can potentially change OpenTofu's end-user-observable behavior and so we
-// may need to document such behavior changes in our changelog. The analysis
-// required to do that gets far more complicated when upgrading many different
-// dependencies at once, but by upgrading "leaf" dependencies first and only
-// then upgrading what they depend on we can minimize the scope of each upgrade.
-//
-// Run this from the root of your work tree for the OpenTofu repository so
-// that it can find the project's "go.mod" file in the current working
-// directory:
-//
-//	go run ./tools/find-dep-upgrades
 package main
 
 import (

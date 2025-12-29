@@ -1,6 +1,6 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
-// Copyright (c) The Farseek Authors
+// Copyright (c) The Opentofu Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
@@ -11,8 +11,8 @@ import (
 	"fmt"
 
 	"github.com/rafagsiqueira/farseek/internal/command/arguments"
-	"github.com/rafagsiqueira/farseek/internal/tfdiags"
 	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
+	"github.com/rafagsiqueira/farseek/internal/tfdiags"
 )
 
 // The Plan view is used for the plan command.

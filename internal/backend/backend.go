@@ -1,12 +1,10 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-// Package backend provides interfaces that the CLI uses to interact with
-// Farseek. A backend provides the abstraction that allows the same CLI
-// to simultaneously support both local and remote operations for seamlessly
-// using Farseek in a team environment.
 package backend
 
 import (
@@ -27,12 +25,12 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
 	"github.com/rafagsiqueira/farseek/internal/depsfile"
 	"github.com/rafagsiqueira/farseek/internal/encryption"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/plans/planfile"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // DefaultStateName is the name of the default, initial state that every

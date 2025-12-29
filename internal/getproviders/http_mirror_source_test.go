@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -17,9 +19,9 @@ import (
 	"github.com/apparentlymart/go-versions/versions"
 	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/go-retryablehttp"
-	"github.com/rafagsiqueira/farseek/internal/httpclient"
 	"github.com/opentofu/svchost"
 	"github.com/opentofu/svchost/svcauth"
+	"github.com/rafagsiqueira/farseek/internal/httpclient"
 
 	"github.com/rafagsiqueira/farseek/internal/addrs"
 )

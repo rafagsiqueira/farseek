@@ -1,7 +1,5 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
-// Copyright (c) 2023 HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
 
 package farseek
 
@@ -100,7 +98,7 @@ func (tc *TestContext) evaluate(state *states.SyncState, changes *plans.ChangesS
 			PlanTimestamp:      tc.Plan.Timestamp,
 			// InstanceExpander is intentionally nil for test contexts
 			// The GetModule function will fall back to using state/changes when it's nil
-			InstanceExpander:   nil,
+			InstanceExpander: nil,
 		},
 		ModulePath:      nil, // nil for the root module
 		InstanceKeyData: EvalDataForNoInstanceKey,

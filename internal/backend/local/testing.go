@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -17,10 +19,10 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/backend"
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
 	"github.com/rafagsiqueira/farseek/internal/encryption"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
-	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // TestLocal returns a configured Local struct with temporary paths and

@@ -1,7 +1,5 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
-// Copyright (c) 2023 HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
 
 package farseek
 
@@ -153,7 +151,7 @@ func (b *PlanGraphBuilder) Steps() []GraphTransformer {
 			// We only want to generate config during a plan operation.
 			generateConfigPathForImportTargets: b.GenerateConfigPath,
 			forceAddImportTargets:              b.Operation == walkValidate,
-			FarseekMode:                       b.FarseekMode,
+			FarseekMode:                        b.FarseekMode,
 		},
 
 		// Add dynamic values
@@ -182,10 +180,10 @@ func (b *PlanGraphBuilder) Steps() []GraphTransformer {
 
 		// Add orphan resources
 		&OrphanResourceInstanceTransformer{
-			Concrete:     b.ConcreteResourceOrphan,
-			State:        b.State,
-			Config:       b.Config,
-			skip:         b.Operation == walkPlanDestroy,
+			Concrete:    b.ConcreteResourceOrphan,
+			State:       b.State,
+			Config:      b.Config,
+			skip:        b.Operation == walkPlanDestroy,
 			FarseekMode: b.FarseekMode,
 		},
 
@@ -305,7 +303,7 @@ func (b *PlanGraphBuilder) initPlan() {
 			skipPlanChanges:      b.skipPlanChanges,
 			preDestroyRefresh:    b.preDestroyRefresh,
 			forceReplace:         b.ForceReplace,
-			FarseekMode:         b.FarseekMode,
+			FarseekMode:          b.FarseekMode,
 		}
 	}
 
@@ -315,7 +313,7 @@ func (b *PlanGraphBuilder) initPlan() {
 			skipRefresh:                  b.skipRefresh,
 			skipPlanChanges:              b.skipPlanChanges,
 			RemoveStatements:             b.RemoveStatements,
-			FarseekMode:                 b.FarseekMode,
+			FarseekMode:                  b.FarseekMode,
 		}
 	}
 
@@ -327,7 +325,7 @@ func (b *PlanGraphBuilder) initPlan() {
 			skipRefresh:      b.skipRefresh,
 			skipPlanChanges:  b.skipPlanChanges,
 			RemoveStatements: b.RemoveStatements,
-			FarseekMode:     b.FarseekMode,
+			FarseekMode:      b.FarseekMode,
 		}
 	}
 }

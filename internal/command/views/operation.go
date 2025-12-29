@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -19,10 +21,10 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/command/jsonprovider"
 	viewsjson "github.com/rafagsiqueira/farseek/internal/command/views/json"
 	"github.com/rafagsiqueira/farseek/internal/encryption"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 type Operation interface {

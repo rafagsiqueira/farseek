@@ -1,19 +1,10 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-// schema is a high-level framework for easily writing new providers
-// for Farseek. Usage of schema is recommended over attempting to write
-// to the low-level plugin interfaces manually.
-//
-// schema breaks down provider creation into simple CRUD operations for
-// resources. The logic of diffing, destroying before creating, updating
-// or creating, etc. is all handled by the framework. The plugin author
-// only needs to implement a configuration schema and the CRUD operations and
-// everything else is meant to just work.
-//
-// A good starting point is to view the Provider structure.
 package schema
 
 import (
@@ -29,8 +20,8 @@ import (
 
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/mitchellh/copystructure"
-	"github.com/rafagsiqueira/farseek/internal/legacy/hcl2shim"
 	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
+	"github.com/rafagsiqueira/farseek/internal/legacy/hcl2shim"
 )
 
 // Name of ENV variable which (if not empty) prefers panic over error

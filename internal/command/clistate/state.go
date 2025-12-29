@@ -1,12 +1,10 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-// Package state exposes common helpers for working with state from the CLI.
-//
-// This is a separate package so that backends can use this for consistent
-// messaging without creating a circular reference to the command package.
 package clistate
 
 import (

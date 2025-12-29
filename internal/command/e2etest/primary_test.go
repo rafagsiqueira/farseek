@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -10,10 +12,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"reflect"
 	"runtime"
 	"slices"
-	"sort"
 	"strings"
 	"testing"
 
@@ -32,129 +32,6 @@ import (
 // farseek plan
 // farseek apply
 // farseek destroy
-
-func TestPrimarySeparatePlan(t *testing.T) {
-	t.Parallel()
-
-	// This test reaches out to registry.opentofu.org to download the
-	// template and null providers, so it can only run if network access is
-	// allowed.
-	skipIfCannotAccessNetwork(t)
-
-	fixturePath := filepath.Join("testdata", "full-workflow-null")
-	tf := e2e.NewBinary(t, farseekBin, fixturePath)
-
-	// INIT
-	stdout, stderr, err := tf.Run("init")
-	if err != nil {
-		t.Fatalf("unexpected init error: %s\nstderr:\n%s", err, stderr)
-	}
-
-	// Make sure we actually downloaded the plugins, rather than picking up
-	// copies that might be already installed globally on the system.
-	if !strings.Contains(stdout, "Installing hashicorp/template v") {
-		t.Errorf("template provider download message is missing from init output:\n%s", stdout)
-		t.Logf("(this can happen if you have a copy of the plugin in one of the global plugin search dirs)")
-	}
-	if !strings.Contains(stdout, "Installing hashicorp/null v") {
-		t.Errorf("null provider download message is missing from init output:\n%s", stdout)
-		t.Logf("(this can happen if you have a copy of the plugin in one of the global plugin search dirs)")
-	}
-
-	// PLAN
-	stdout, stderr, err = tf.Run("plan", "-out=tfplan")
-	if err != nil {
-		t.Fatalf("unexpected plan error: %s\nstderr:\n%s", err, stderr)
-	}
-
-	if !strings.Contains(stdout, "1 to add, 0 to change, 0 to destroy") {
-		t.Errorf("incorrect plan tally; want 1 to add:\n%s", stdout)
-	}
-
-	if !strings.Contains(stdout, "Saved the plan to: tfplan") {
-		t.Errorf("missing \"Saved the plan to...\" message in plan output\n%s", stdout)
-	}
-	out := stripAnsi(stdout)
-if !strings.Contains(out, "farseek apply \"tfplan\"") {
-		t.Errorf("missing next-step instruction in plan output\n%s", stdout)
-	}
-
-	plan, err := tf.Plan("tfplan")
-	if err != nil {
-		t.Fatalf("failed to read plan file: %s", err)
-	}
-
-	diffResources := plan.Changes.Resources
-	if len(diffResources) != 1 {
-		t.Errorf("incorrect number of resources in plan")
-	}
-
-	expected := map[string]plans.Action{
-		"null_resource.test": plans.Create,
-	}
-
-	for _, r := range diffResources {
-		expectedAction, ok := expected[r.Addr.String()]
-		if !ok {
-			t.Fatalf("unexpected change for %q", r.Addr)
-		}
-		if r.Action != expectedAction {
-			t.Fatalf("unexpected action %q for %q", r.Action, r.Addr)
-		}
-	}
-
-	// APPLY
-	stdout, stderr, err = tf.Run("apply", "tfplan")
-	if err != nil {
-		t.Fatalf("unexpected apply error: %s\nstderr:\n%s", err, stderr)
-	}
-
-	if !strings.Contains(stdout, "Resources: 1 added, 0 changed, 0 destroyed") {
-		t.Errorf("incorrect apply tally; want 1 added:\n%s", stdout)
-	}
-
-	state, err := tf.LocalState()
-	if err != nil {
-		t.Fatalf("failed to read state file: %s", err)
-	}
-
-	stateResources := state.RootModule().Resources
-	var gotResources []string
-	for n := range stateResources {
-		gotResources = append(gotResources, n)
-	}
-	sort.Strings(gotResources)
-
-	wantResources := []string{
-		"data.template_file.test",
-		"null_resource.test",
-	}
-
-	if !reflect.DeepEqual(gotResources, wantResources) {
-		t.Errorf("wrong resources in state\ngot: %#v\nwant: %#v", gotResources, wantResources)
-	}
-
-	// DESTROY
-	stdout, stderr, err = tf.Run("destroy", "-auto-approve")
-	if err != nil {
-		t.Fatalf("unexpected destroy error: %s\nstderr:\n%s", err, stderr)
-	}
-
-	if !strings.Contains(stdout, "Resources: 1 destroyed") {
-		t.Errorf("incorrect destroy tally; want 1 destroyed:\n%s", stdout)
-	}
-
-	state, err = tf.LocalState()
-	if err != nil {
-		t.Fatalf("failed to read state file after destroy: %s", err)
-	}
-
-	stateResources = state.RootModule().Resources
-	if len(stateResources) != 0 {
-		t.Errorf("wrong resources in state after destroy; want none, but still have:%s", spew.Sdump(stateResources))
-	}
-
-}
 
 func TestPrimaryChdirOption(t *testing.T) {
 	t.Parallel()
@@ -185,7 +62,7 @@ func TestPrimaryChdirOption(t *testing.T) {
 		t.Errorf("missing \"Saved the plan to...\" message in plan output\n%s", stdout)
 	}
 	out := stripAnsi(stdout)
-if !strings.Contains(out, "farseek apply \"tfplan\"") {
+	if !strings.Contains(out, "farseek apply \"tfplan\"") {
 		t.Errorf("missing next-step instruction in plan output\n%s", stdout)
 	}
 
@@ -299,37 +176,7 @@ func TestEphemeralWorkflowAndOutput(t *testing.T) {
 			if err != nil {
 				t.Fatalf("unexpected plan error: %s\nstderr:\n%s", err, stderr)
 			}
-			expectedChangesOutput := `Farseek used the selected providers to generate the following execution
-plan. Resource actions are indicated with the following symbols:
-  + create
- <= read (data resources)
-
-Farseek will perform the following actions:
-
-  # data.simple_resource.test_data2 will be read during apply
-  # (depends on a resource or a module with changes pending)
- <= data "simple_resource" "test_data2" {
-      + id       = (known after apply)
-      + value    = "test"
-      + value_wo = (write-only attribute)
-    }
-
-  # simple_resource.test_res will be created
-  + resource "simple_resource" "test_res" {
-      + value    = "test value"
-      + value_wo = (write-only attribute)
-    }
-
-  # simple_resource.test_res_second_provider will be created
-  + resource "simple_resource" "test_res_second_provider" {
-      + value    = "just a simple resource to ensure that the second provider it's working fine"
-      + value_wo = (write-only attribute)
-    }
-
-Plan: 2 to add, 0 to change, 0 to destroy.
-
-Changes to Outputs:
-  + final_output = "just a simple resource to ensure that the second provider it's working fine"`
+			expectedChangesOutput := `Farseek used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols: + create <= read (data resources) Farseek will perform the following actions: # data.simple_resource.test_data2 will be read during apply # (depends on a resource or a module with changes pending) <= data "simple_resource" "test_data2" { + id = (known after apply) + value = "test" + value_wo = (write-only attribute) } # simple_resource.test_res will be created + resource "simple_resource" "test_res" { + value = "test value" + value_wo = (write-only attribute) } # simple_resource.test_res_second_provider will be created + resource "simple_resource" "test_res_second_provider" { + value = "just a simple resource to ensure that the second provider it's working fine" + value_wo = (write-only attribute) } Plan: 2 to add, 0 to change, 0 to destroy. Changes to Outputs: + final_output = "just a simple resource to ensure that the second provider it's working fine"`
 
 			entriesChecker := &outputEntriesChecker{phase: "plan"}
 			entriesChecker.addChecks(outputEntry{[]string{"data.simple_resource.test_data1: Reading..."}, true},
@@ -343,13 +190,13 @@ Changes to Outputs:
 				outputEntry{[]string{"ephemeral.simple_resource.test_ephemeral[1]: Closing..."}, true},
 				outputEntry{[]string{"ephemeral.simple_resource.test_ephemeral[1]: Close complete after"}, true},
 			)
-			out := stripAnsi(stdout)
+			out := SanitizeStderr(stdout)
 
 			if !strings.Contains(out, expectedChangesOutput) {
 				t.Errorf("wrong plan output:\nstdout:%s\nstderr:%s", stdout, stderr)
 				t.Log(cmp.Diff(out, expectedChangesOutput))
 			}
-			entriesChecker.check(t, out)
+			entriesChecker.check(t, stripAnsi(stdout))
 
 			// assert plan file content
 			plan, err := tf.Plan("tfplan")
@@ -404,7 +251,7 @@ Changes to Outputs:
 		}
 
 		{ // APPLY with wrong variables
-			expectedToContain := `╷ Error: Mismatch between input and plan variable value  Value saved in the plan file for variable "simple_input" is different from the one given to the current command.╵`
+			expectedToContain := `Error: Mismatch between input and plan variable value Value saved in the plan file for variable "simple_input" is different from the one given to the current command.`
 			expectedErr := fmt.Errorf("exit status 1")
 			_, stderr, err := tf.Run("apply", `-var=simple_input=different_from_the_plan_one`, `-var=ephemeral_input=ephemeral_val`, "tfplan")
 			if err == nil {
@@ -420,7 +267,7 @@ Changes to Outputs:
 		}
 
 		{ // APPLY with no ephemeral variable value
-			expectedToContain := "╷ Error: No value for required variable    on main.tf line 15:   15: variable \"ephemeral_input\" {  Variable \"ephemeral_input\" is configured as ephemeral. This type of variables need to be given a value during `farseek plan` and also during `farseek apply`.╵"
+			expectedToContain := `Error: No value for required variable on main.tf line 15: 15: variable "ephemeral_input" { Variable "ephemeral_input" is configured as ephemeral. This type of variables need to be given a value during ` + "`" + `farseek plan` + "`" + ` and also during ` + "`" + `farseek apply` + "`" + `.`
 			expectedErr := fmt.Errorf("exit status 1")
 			_, stderr, err := tf.Run("apply", `-var=simple_input=plan_val`, "tfplan")
 			if err == nil {

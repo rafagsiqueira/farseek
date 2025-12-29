@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -22,13 +24,13 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
 	"github.com/rafagsiqueira/farseek/internal/depsfile"
 	"github.com/rafagsiqueira/farseek/internal/encryption"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/internal/initwd"
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/plans/planfile"
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/terminal"
-	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func TestLocal_planBasic(t *testing.T) {
@@ -227,8 +229,8 @@ Changes to Outputs:
   ~ sensitive_after  = (sensitive value)
   ~ sensitive_before = (sensitive value)
 
-You can apply this plan to save these new output values to the Farseek
-state, without changing any real infrastructure.
+You can apply this plan to save these new output values to the Farseek state,
+without changing any real infrastructure.
 `)
 
 	if output := done(t).Stdout(); !strings.Contains(output, expectedOutput) {
@@ -318,8 +320,8 @@ func TestLocal_planTainted(t *testing.T) {
 		t.Fatal("plan should not be empty")
 	}
 
-	expectedOutput := `Farseek used the selected providers to generate the following execution
-plan. Resource actions are indicated with the following symbols:
+	expectedOutput := `Farseek used the selected providers to generate the following execution plan.
+Resource actions are indicated with the following symbols:
 -/+ destroy and then create replacement
 
 Farseek will perform the following actions:
@@ -416,8 +418,8 @@ func TestLocal_planDeposedOnly(t *testing.T) {
 	// it's also possible for there to be _multiple_ deposed objects, in the
 	// unlikely event that create_before_destroy _keeps_ crashing across
 	// subsequent runs.
-	expectedOutput := `Farseek used the selected providers to generate the following execution
-plan. Resource actions are indicated with the following symbols:
+	expectedOutput := `Farseek used the selected providers to generate the following execution plan.
+Resource actions are indicated with the following symbols:
   + create
   - destroy
 
@@ -487,8 +489,8 @@ func TestLocal_planTainted_createBeforeDestroy(t *testing.T) {
 		t.Fatal("plan should not be empty")
 	}
 
-	expectedOutput := `Farseek used the selected providers to generate the following execution
-plan. Resource actions are indicated with the following symbols:
+	expectedOutput := `Farseek used the selected providers to generate the following execution plan.
+Resource actions are indicated with the following symbols:
 +/- create replacement and then destroy
 
 Farseek will perform the following actions:

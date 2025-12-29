@@ -1,12 +1,8 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Opentofu Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-// The version package provides a location to set the release versions for all
-// packages to consume, without creating import cycles.
-//
-// This package should not import any other terraform packages.
 package version
 
 import (

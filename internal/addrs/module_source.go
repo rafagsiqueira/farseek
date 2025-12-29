@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -10,8 +12,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/rafagsiqueira/farseek/internal/getmodules"
 	regaddr "github.com/opentofu/registry-address/v2"
+	"github.com/rafagsiqueira/farseek/internal/getmodules"
 )
 
 // ModuleSource is the general type for all three of the possible module source

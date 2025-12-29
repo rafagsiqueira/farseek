@@ -1,14 +1,9 @@
-// Copyright 2009 The Go Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
-// IP address manipulations
-//
-// IPv4 addresses are 4 bytes; IPv6 addresses are 16 bytes.
-// An IPv4 address can be converted to an IPv6 address by
-// adding a canonical prefix (10 zeros, 2 0xFFs).
-// This library accepts either size of byte slice but always
-// returns 16-byte addresses.
+// Copyright (c) The Farseek Authors
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) 2023 HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 
 package ipaddr
 

@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -14,6 +16,7 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/addrs"
 	"github.com/rafagsiqueira/farseek/internal/backend"
 
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/internal/genconfig"
 	"github.com/rafagsiqueira/farseek/internal/logging"
 	"github.com/rafagsiqueira/farseek/internal/plans"
@@ -22,7 +25,6 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func (b *Local) opPlan(

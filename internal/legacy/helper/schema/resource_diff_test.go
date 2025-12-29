@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -12,8 +14,8 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/rafagsiqueira/farseek/internal/legacy/hcl2shim"
 	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
+	"github.com/rafagsiqueira/farseek/internal/legacy/hcl2shim"
 )
 
 // testSetFunc is a very simple function we use to test a foo/bar complex set.

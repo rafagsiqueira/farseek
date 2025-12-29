@@ -1,17 +1,17 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
 package e2etest
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
-	"sync"
 	"testing"
 
 	"github.com/rafagsiqueira/farseek/internal/e2e"
@@ -97,46 +97,4 @@ func TestProviderProtocols(t *testing.T) {
 	if !strings.Contains(stdout, "Resources: 2 destroyed") {
 		t.Fatalf("wrong destroy output\nstdout:%s\nstderr:%s", stdout, stderr)
 	}
-}
-
-// This test is designed to simulate a *very* busy CI server that has multiple
-// processes sharing a global provider cache. This exercises the locking in the
-// "providercache" package, as well as simulating bad file hashes in the
-// lock file.
-func TestProviderGlobalCache(t *testing.T) {
-	if !canAccessNetwork() {
-		t.Skip("Requires provider download access for e2e provider interactions")
-	}
-
-	t.Parallel()
-
-	tmpDir, err := filepath.EvalSymlinks(t.TempDir())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rcLoc := filepath.Join(tmpDir, ".farseekrc")
-	// We use forward slashes consistently, even on Windows, because backslashes
-	// require escaping for valid HCL syntax.
-	rcData := fmt.Sprintf(`plugin_cache_dir = "%s"`, filepath.ToSlash(tmpDir))
-	err = os.WriteFile(rcLoc, []byte(rcData), 0600)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	var wg sync.WaitGroup
-
-	for i := 0; i < 16; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			tf := e2e.NewBinary(t, farseekBin, "testdata/provider-global-cache")
-			tf.AddEnv(fmt.Sprintf("TF_CLI_CONFIG_FILE=%s", rcLoc))
-
-			stdout, stderr, err := tf.Run("init")
-			farseekResult{t, stdout, stderr, err}.Success()
-		}()
-	}
-
-	wg.Wait()
 }

@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -17,11 +19,11 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/backend"
 	"github.com/rafagsiqueira/farseek/internal/configs"
 	"github.com/rafagsiqueira/farseek/internal/configs/configload"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
+	farseekmigrate "github.com/rafagsiqueira/farseek/internal/farseekmigrate"
 	"github.com/rafagsiqueira/farseek/internal/plans/planfile"
 	"github.com/rafagsiqueira/farseek/internal/states/statemgr"
 	"github.com/rafagsiqueira/farseek/internal/tfdiags"
-	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
-	farseekmigrate "github.com/rafagsiqueira/farseek/internal/farseekmigrate"
 )
 
 // Ensure that local.Local implements the backend.Local interface.

@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -16,8 +18,8 @@ import (
 	"github.com/rafagsiqueira/farseek/internal/addrs"
 	"github.com/rafagsiqueira/farseek/internal/configs"
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
-	"github.com/rafagsiqueira/farseek/internal/getproviders"
 	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
+	"github.com/rafagsiqueira/farseek/internal/getproviders"
 )
 
 // Config represents the complete configuration source

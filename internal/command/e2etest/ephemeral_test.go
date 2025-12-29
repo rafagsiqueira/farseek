@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -55,7 +57,7 @@ func TestEphemeralErrors_variables(t *testing.T) {
 			t.Errorf("unexpected err: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 		}
 		sanitized := SanitizeStderr(serr)
-		if !strings.Contains(sanitized, `The error expression used to explain this condition refers to ephemeral values. Farseek will not display the resulting message.  You can correct this by removing references to ephemeral values or by utilizing the builtin ephemeralasnull() function.`) {
+		if !strings.Contains(sanitized, `The error expression used to explain this condition refers to ephemeral values. Farseek will not display the resulting message. You can correct this by removing references to ephemeral values or by utilizing the builtin ephemeralasnull() function.`) {
 			t.Errorf("unexpected stderr: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 			t.Logf("sanitized serr: %s", sanitized)
 		}
@@ -66,7 +68,7 @@ func TestEphemeralErrors_variables(t *testing.T) {
 			t.Errorf("unexpected err: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 		}
 		sanitized := SanitizeStderr(serr)
-		if !strings.Contains(sanitized, `Error: Ephemeral value used in non-ephemeral context    with simple_resource.test_res`) {
+		if !strings.Contains(sanitized, `Error: Ephemeral value used in non-ephemeral context with simple_resource.test_res`) {
 			t.Errorf("unexpected stderr: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 			t.Logf("sanitized serr: %s", sanitized)
 		}
@@ -77,7 +79,7 @@ func TestEphemeralErrors_variables(t *testing.T) {
 			t.Errorf("unexpected err: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 		}
 		sanitized := SanitizeStderr(serr)
-		if !strings.Contains(sanitized, `Ephemeral value used in non-ephemeral context    with data.simple_resource.test_data1`) {
+		if !strings.Contains(sanitized, `Ephemeral value used in non-ephemeral context with data.simple_resource.test_data1`) {
 			t.Errorf("unexpected stderr: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 			t.Logf("sanitized serr: %s", sanitized)
 		}
@@ -94,7 +96,7 @@ func TestEphemeralErrors_variables(t *testing.T) {
 			t.Errorf("unexpected err: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 		}
 		sanitized := SanitizeStderr(serr)
-		if !strings.Contains(sanitized, `Variable does not allow ephemeral value    on in-non-ephemeral-mod-variable.tf line 5, in module "test"`) {
+		if !strings.Contains(sanitized, `Variable does not allow ephemeral value on in-non-ephemeral-mod-variable.tf line 5, in module "test"`) {
 			t.Errorf("unexpected stderr: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 			t.Logf("sanitized serr: %s", sanitized)
 		}
@@ -105,7 +107,7 @@ func TestEphemeralErrors_variables(t *testing.T) {
 			t.Errorf("unexpected err: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 		}
 		sanitized := SanitizeStderr(serr)
-		if !strings.Contains(sanitized, `Output does not allow ephemeral value    on in-non-ephemeral-output.tf`) {
+		if !strings.Contains(sanitized, `Output does not allow ephemeral value on in-non-ephemeral-output.tf`) {
 			t.Errorf("unexpected stderr: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 			t.Logf("sanitized serr: %s", sanitized)
 		}
@@ -146,7 +148,7 @@ func TestEphemeralErrors_outputs(t *testing.T) {
 			t.Errorf("unexpected err: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 		}
 		sanitized := SanitizeStderr(serr)
-		if !strings.Contains(sanitized, `Error: Invalid output configuration    on ephemeral_output_in_root_module.tf`) ||
+		if !strings.Contains(sanitized, `Error: Invalid output configuration on ephemeral_output_in_root_module.tf`) ||
 			!strings.Contains(sanitized, `Root modules are not allowed to have outputs defined as ephemeral`) {
 			t.Errorf("unexpected stderr: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 			t.Logf("sanitized serr: %s", sanitized)
@@ -160,7 +162,7 @@ func TestEphemeralErrors_outputs(t *testing.T) {
 			t.Errorf("unexpected err: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 		}
 		sanitized := SanitizeStderr(serr)
-		if !strings.Contains(sanitized, `Ephemeral value used in non-ephemeral context    with simple_resource.test_res`) {
+		if !strings.Contains(sanitized, `Ephemeral value used in non-ephemeral context with simple_resource.test_res`) {
 			t.Errorf("unexpected stderr: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 			t.Logf("sanitized serr: %s", sanitized)
 		}
@@ -173,7 +175,7 @@ func TestEphemeralErrors_outputs(t *testing.T) {
 			t.Errorf("unexpected err: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 		}
 		sanitized := SanitizeStderr(serr)
-		if !strings.Contains(sanitized, `Ephemeral value used in non-ephemeral context    with data.simple_resource.test_data1`) {
+		if !strings.Contains(sanitized, `Ephemeral value used in non-ephemeral context with data.simple_resource.test_data1`) {
 			t.Errorf("unexpected stderr: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 			t.Logf("sanitized serr: %s", sanitized)
 		}
@@ -187,7 +189,7 @@ func TestEphemeralErrors_outputs(t *testing.T) {
 		}
 		sanitized := SanitizeStderr(serr)
 		filename := filepath.FromSlash("__mod-with-regular-output-got-ephemeral-value/main.tf")
-		if !strings.Contains(sanitized, `Output does not allow ephemeral value    on `+filename) ||
+		if !strings.Contains(sanitized, `Output does not allow ephemeral value on `+filename) ||
 			!strings.Contains(sanitized, `The value that was generated for the output is ephemeral, but it is not configured to allow one`) {
 			t.Errorf("unexpected stderr: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 			t.Logf("sanitized serr: %s", sanitized)
@@ -203,16 +205,16 @@ func TestEphemeralErrors_outputs(t *testing.T) {
 		sanitizedSerr := SanitizeStderr(serr)
 		sanitizedSout := SanitizeStderr(sout)
 		filename := filepath.FromSlash("__mod-ephemeral-output-with-precondition/main.tf")
-		if !strings.Contains(sanitizedSerr, `Module output value precondition failed    on `+filename) ||
+		if !strings.Contains(sanitizedSerr, `Module output value precondition failed on `+filename) ||
 			!strings.Contains(sanitizedSerr, `This check failed, but has an invalid error message as described in the other accompanying messages`) ||
 			strings.Contains(sanitizedSerr, `"notdefaultvalue" -> "default value"`) {
 			t.Errorf("unexpected stderr: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
 			t.Logf("sanitized serr: %s", sanitizedSerr)
 		}
-		if !strings.Contains(sanitizedSout, `Warning: Error message refers to ephemeral values    on `+filename) ||
-			!strings.Contains(sanitizedSout, `The error expression used to explain this condition refers to ephemeral values, so Farseek will not display the resulting message.  You can correct this by removing references to ephemeral values`) {
+		if !strings.Contains(sanitizedSout, `Warning: Error message refers to ephemeral values on `+filename) ||
+			!strings.Contains(sanitizedSout, `The error expression used to explain this condition refers to ephemeral values, so Farseek will not display the resulting message. You can correct this by removing references to ephemeral values`) {
 			t.Errorf("unexpected stdout: %s;\nstderr:\n%s\nstdout:\n%s", err, serr, sout)
-			t.Logf("sanitized sout: %s", sanitizedSerr)
+			t.Logf("sanitized sout: %s", sanitizedSout)
 		}
 	})
 }

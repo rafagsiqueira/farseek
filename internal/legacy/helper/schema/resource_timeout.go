@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -11,8 +13,8 @@ import (
 	"time"
 
 	"github.com/mitchellh/copystructure"
-	"github.com/rafagsiqueira/farseek/internal/legacy/hcl2shim"
 	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
+	"github.com/rafagsiqueira/farseek/internal/legacy/hcl2shim"
 )
 
 const TimeoutKey = "e2bfb730-ecaa-11e6-8f88-34363bc7c4c0"

@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -10,8 +12,8 @@ import (
 
 	version "github.com/hashicorp/go-version"
 
-	"github.com/rafagsiqueira/farseek/internal/states"
 	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
+	"github.com/rafagsiqueira/farseek/internal/states"
 )
 
 // Persistent is a union of the Refresher and Persistent interfaces, for types

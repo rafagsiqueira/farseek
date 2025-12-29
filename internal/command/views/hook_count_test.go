@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -12,9 +14,9 @@ import (
 	"github.com/zclconf/go-cty/cty"
 
 	"github.com/rafagsiqueira/farseek/internal/addrs"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/internal/plans"
 	"github.com/rafagsiqueira/farseek/internal/states"
-	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 
 	legacy "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
 )

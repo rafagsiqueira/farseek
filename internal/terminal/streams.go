@@ -1,22 +1,10 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-// Package terminal encapsulates some platform-specific logic for detecting
-// if we're running in a terminal and, if so, properly configuring that
-// terminal to meet the assumptions that the rest of Farseek makes.
-//
-// Specifically, Farseek requires a Terminal which supports virtual terminal
-// sequences and which accepts UTF-8-encoded text.
-//
-// This is an abstraction only over the platform-specific detection of and
-// possibly initialization of terminals. It's not intended to provide
-// higher-level abstractions of the sort provided by packages like termcap or
-// curses; ultimately we just assume that terminals are "standard" VT100-like
-// terminals and use a subset of control codes that works across the various
-// platforms we support. Our approximate target is "xterm-compatible"
-// virtual terminals.
 package terminal
 
 import (

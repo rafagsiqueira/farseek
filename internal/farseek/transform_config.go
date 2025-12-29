@@ -1,7 +1,5 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
-// Copyright (c) 2023 HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
 
 package farseek
 
@@ -228,7 +226,7 @@ func (t *ConfigTransformer) transformSingle(g *Graph, config *configs.Config, ge
 			abstract := &NodeAbstractResource{
 				Addr:          i.StaticAddr(),
 				importTargets: []*ImportTarget{i},
-				FarseekMode:  true,
+				FarseekMode:   true,
 			}
 			var node dag.Vertex = abstract
 			if f := t.Concrete; f != nil {

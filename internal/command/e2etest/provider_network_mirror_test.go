@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -67,13 +69,13 @@ func TestProviderNetworkMirrorRetries(t *testing.T) {
 
 	cases := map[string]struct {
 		farseekrcRetriesConfigEntry string
-		envVars                  map[string]string
-		expectedErrMsg           string
+		envVars                     map[string]string
+		expectedErrMsg              string
 	}{
 		"no farseekrc.network_mirror.download_retry_count, no TF_PROVIDER_DOWNLOAD_RETRY, default TF_PROVIDER_DOWNLOAD_RETRY used": {
 			farseekrcRetriesConfigEntry: "",
-			envVars:                  nil,
-			expectedErrMsg:           "/example.com/test/test/terraform-provider-test_0.0.1_linux_amd64.zip giving up after 3 attempt(s)",
+			envVars:                     nil,
+			expectedErrMsg:              "/example.com/test/test/terraform-provider-test_0.0.1_linux_amd64.zip giving up after 3 attempt(s)",
 		},
 		"no farseekrc.network_mirror.download_retry_count, TF_PROVIDER_DOWNLOAD_RETRY defined, TF_PROVIDER_DOWNLOAD_RETRY used": {
 			farseekrcRetriesConfigEntry: "",
@@ -84,13 +86,13 @@ func TestProviderNetworkMirrorRetries(t *testing.T) {
 		},
 		"defined farseekrc.network_mirror.download_retry_count as 0, no TF_PROVIDER_DOWNLOAD_RETRY, farseekrc used": {
 			farseekrcRetriesConfigEntry: "download_retry_count = 0",
-			envVars:                  nil,
-			expectedErrMsg:           "/example.com/test/test/terraform-provider-test_0.0.1_linux_amd64.zip giving up after 1 attempt(s)",
+			envVars:                     nil,
+			expectedErrMsg:              "/example.com/test/test/terraform-provider-test_0.0.1_linux_amd64.zip giving up after 1 attempt(s)",
 		},
 		"defined farseekrc.network_mirror.download_retry_count as 1, no TF_PROVIDER_DOWNLOAD_RETRY, farseekrc used": {
 			farseekrcRetriesConfigEntry: "download_retry_count = 1",
-			envVars:                  nil,
-			expectedErrMsg:           "/example.com/test/test/terraform-provider-test_0.0.1_linux_amd64.zip giving up after 2 attempt(s)",
+			envVars:                     nil,
+			expectedErrMsg:              "/example.com/test/test/terraform-provider-test_0.0.1_linux_amd64.zip giving up after 2 attempt(s)",
 		},
 		"defined farseekrc.network_mirror.download_retry_count as 1, TF_PROVIDER_DOWNLOAD_RETRY defined as 2, farseekrc used": {
 			farseekrcRetriesConfigEntry: "download_retry_count = 1",

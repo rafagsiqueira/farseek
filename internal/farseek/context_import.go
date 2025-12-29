@@ -1,7 +1,5 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
-// Copyright (c) 2023 HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
 
 package farseek
 
@@ -394,7 +392,7 @@ func (c *Context) ImportStateless(ctx context.Context, config *configs.Config, p
 		Plugins:                 c.plugins,
 		Operation:               walkImport,
 		ProviderFunctionTracker: providerFunctionTracker,
-		FarseekMode:            true,
+		FarseekMode:             true,
 	}
 
 	// Build the graph

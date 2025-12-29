@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -16,10 +18,10 @@ import (
 
 	"github.com/rafagsiqueira/farseek/internal/addrs"
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/internal/lang/marks"
 	"github.com/rafagsiqueira/farseek/internal/providers"
 	"github.com/rafagsiqueira/farseek/internal/states"
-	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 func TestMarshalOutputs(t *testing.T) {

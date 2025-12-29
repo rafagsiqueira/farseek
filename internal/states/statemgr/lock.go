@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -8,8 +10,8 @@ package statemgr
 import (
 	"context"
 
-	"github.com/rafagsiqueira/farseek/internal/states"
 	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
+	"github.com/rafagsiqueira/farseek/internal/states"
 )
 
 // LockDisabled implements State and Locker but disables state locking.

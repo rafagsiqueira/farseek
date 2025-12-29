@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -12,8 +14,8 @@ import (
 	ctyjson "github.com/zclconf/go-cty/cty/json"
 
 	"github.com/rafagsiqueira/farseek/internal/configs/configschema"
-	"github.com/rafagsiqueira/farseek/internal/legacy/hcl2shim"
 	farseek "github.com/rafagsiqueira/farseek/internal/legacy/farseek"
+	"github.com/rafagsiqueira/farseek/internal/legacy/hcl2shim"
 )
 
 // DiffFromValues takes the current state and desired state as cty.Values and

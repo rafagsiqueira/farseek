@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -132,8 +134,8 @@ func TestPlanOnDeprecated(t *testing.T) {
 func TestPlanOnMultipleDeprecatedMarksSliceBug(t *testing.T) {
 	t.Parallel()
 
-	// Test for [the bug](https://github.com/rafagsiqueira/farseek/issues/3104) where modifying 
-	// pathMarks slice during iteration would cause slice bounds errors when multiple 
+	// Test for [the bug](https://github.com/rafagsiqueira/farseek/issues/3104) where modifying
+	// pathMarks slice during iteration would cause slice bounds errors when multiple
 	// deprecated marks exist
 	fixturePath := filepath.Join("testdata", "multiple-deprecated-marks-slice-bug")
 	tf := e2e.NewBinary(t, farseekBin, fixturePath)
@@ -155,7 +157,7 @@ func TestPlanOnMultipleDeprecatedMarksSliceBug(t *testing.T) {
 			"trigger = {",
 			"Value derived from a deprecated source",
 			"Use new_out1",
-			"Use new_out2", 
+			"Use new_out2",
 			"Use new_out3",
 		}
 

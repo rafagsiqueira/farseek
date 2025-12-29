@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -16,9 +18,9 @@ import (
 
 	"github.com/apparentlymart/go-versions/versions"
 	"github.com/google/go-cmp/cmp"
-	"github.com/rafagsiqueira/farseek/internal/addrs"
 	"github.com/opentofu/svchost"
 	disco "github.com/opentofu/svchost/disco"
+	"github.com/rafagsiqueira/farseek/internal/addrs"
 )
 
 // testRegistryServices starts up a local HTTP server running a fake provider registry

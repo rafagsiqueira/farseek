@@ -1,5 +1,7 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
@@ -20,10 +22,10 @@ import (
 	multierror "github.com/hashicorp/go-multierror"
 
 	"github.com/rafagsiqueira/farseek/internal/encryption"
+	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 	"github.com/rafagsiqueira/farseek/internal/flock"
 	"github.com/rafagsiqueira/farseek/internal/states"
 	"github.com/rafagsiqueira/farseek/internal/states/statefile"
-	farseek "github.com/rafagsiqueira/farseek/internal/farseek"
 )
 
 // Filesystem is a full state manager that uses a file in the local filesystem

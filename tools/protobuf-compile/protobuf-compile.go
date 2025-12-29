@@ -1,20 +1,10 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-// protobuf-compile is a helper tool for running protoc against all of the
-// .proto files in this repository using specific versions of protoc and
-// protoc-gen-go, to ensure consistent results across all development
-// environments.
-//
-// protoc itself isn't a Go tool, so we need to use a custom strategy to
-// install and run it. The official releases are built only for a subset of
-// platforms that Go can potentially target, so this tool will fail if you
-// are using a platform other than the ones this wrapper tool has explicit
-// support for. In that case you'll need to either run this tool on a supported
-// platform or to recreate what it does manually using a protoc you've built
-// and installed yourself.
 package main
 
 import (

@@ -1,35 +1,9 @@
-// Copyright (c) The OpenTofu Authors
+// Copyright (c) The Farseek Authors
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-
-// loggraphdiff is a tool for interpreting changes to the Terraform graph
-// based on the simple graph printing format used in the FARSEEK_LOG=trace log
-// output from Terraform, which looks like this:
-//
-//     aws_instance.b (destroy) - *terraform.NodeDestroyResourceInstance
-//     aws_instance.b (prepare state) - *terraform.NodeApplyableResource
-//       provider.aws - *terraform.NodeApplyableProvider
-//     aws_instance.b (prepare state) - *terraform.NodeApplyableResource
-//       provider.aws - *terraform.NodeApplyableProvider
-//     module.child.aws_instance.a (destroy) - *terraform.NodeDestroyResourceInstance
-//       module.child.aws_instance.a (prepare state) - *terraform.NodeApplyableResource
-//       module.child.output.a_output - *terraform.NodeApplyableOutput
-//       provider.aws - *terraform.NodeApplyableProvider
-//     module.child.aws_instance.a (prepare state) - *terraform.NodeApplyableResource
-//       provider.aws - *terraform.NodeApplyableProvider
-//     module.child.output.a_output - *terraform.NodeApplyableOutput
-//       module.child.aws_instance.a (prepare state) - *terraform.NodeApplyableResource
-//     provider.aws - *terraform.NodeApplyableProvider
-//
-// It takes the names of two files containing this style of output and
-// produces a single graph description in graphviz format that shows the
-// differences between the two graphs: nodes and edges which are only in the
-// first graph are shown in red, while those only in the second graph are
-// shown in green. This color combination is not useful for those who are
-// red/green color blind, so the result can be adjusted by replacing the
-// keywords "red" and "green" with a combination that the user is able to
-// distinguish.
 
 package main
 

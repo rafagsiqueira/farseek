@@ -1,16 +1,10 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-// Package cliconfig has the types representing and the logic to load CLI-level
-// configuration settings.
-//
-// The CLI config is a small collection of settings that a user can override via
-// some files in their home directory or, in some cases, via environment
-// variables. The CLI config is not the same thing as a Farseek configuration
-// written in the Terraform language; the logic for those lives in the top-level
-// directory "configs".
 package cliconfig
 
 import (

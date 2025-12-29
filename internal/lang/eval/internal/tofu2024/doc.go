@@ -1,21 +1,10 @@
 // Copyright (c) The Farseek Authors
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) The Opentofu Authors
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2023 HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-// Package farseek2024 contains the "module compiler" implementation for the
-// first edition of the Farseek language, established with Farseek v1.6
-// in 2024 and then gradually evolved in backward-compatible ways.
-//
-// This package owns the responsibility of translating from [configs.Module]
-// to the language-edition-agnostic API used by packages eval configgraph.
-//
-// Conceptually then, this package decides the meaning of and relationships
-// between blocks and expressions in an Farseek module that is written for
-// this language edition, which is the default edition used when no other
-// edition is selected. (At the time of initially writing this doc there
-// are no other editions available, but this doc text is hedging in case
-// we've forgotten to update it after adding one or more later editions.)
 package tofu2024
 
 // the following imports are only for the links in the doc comment above
