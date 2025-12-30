@@ -1,1 +1,1 @@
-tofu -version
+farseek -version

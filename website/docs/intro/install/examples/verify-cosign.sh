@@ -1,10 +1,10 @@
-OPENTOFU_VERSION_MAJORMINOR="Add your OpenTofu major and minor version here"
-IDENTITY="https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/v${OPENTOFU_VERSION_MAJORMINOR}"
+FARSEEEK_VERSION_MAJORMINOR="Add your Farseek major and minor version here"
+IDENTITY="https://github.com/rafagsiqueira/farseek/.github/workflows/release.yml@refs/heads/v${FARSEEEK_VERSION_MAJORMINOR}"
 # For alpha and beta builds use /main
 cosign \
     verify-blob \
     --certificate-identity "${IDENTITY}" \
-    --signature tofu_*.sig \
-    --certificate tofu_*.pem \
+    --signature farseek_*.sig \
+    --certificate farseek_*.pem \
     --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
-    tofu_*_SHA256SUMS
+    farseek_*_SHA256SUMS

@@ -18,24 +18,18 @@ The key features of Farseek are:
 ## Getting help and contributing
 
 - Have a question?
-  - Post it in [GitHub Discussions](https://github.com/rafagsiqueira/farseek/discussions)
   - Open a [GitHub issue](https://github.com/rafagsiqueira/farseek/issues/new/choose)
 - Want to contribute?
   - Please read the [Contribution Guide](CONTRIBUTING.md).
 
 
 ## Reporting security vulnerabilities
-If you've found a vulnerability or a potential vulnerability in OpenTofu please follow [Security Policy](https://github.com/rafagsiqueira/farseek/security/policy). We'll send a confirmation email to acknowledge your report, and we'll send an additional email when we've identified the issue positively or negatively.
+If you've found a vulnerability or a potential vulnerability in Farseek please follow [Security Policy](https://github.com/rafagsiqueira/farseek/security/policy). We'll send a confirmation email to acknowledge your report, and we'll send an additional email when we've identified the issue positively or negatively.
 
 ## Reporting possible copyright issues
 
 If you believe you have found any possible copyright or intellectual property issues, please contact liaison@farseek.org. We'll send a confirmation email to acknowledge your report.
 
-## Registry Access
-
-In an effort to comply with applicable sanctions, we block access from specific countries of origin.
-
 ## License
 
 [Mozilla Public License v2.0](https://github.com/rafagsiqueira/farseek/blob/main/LICENSE)
-
