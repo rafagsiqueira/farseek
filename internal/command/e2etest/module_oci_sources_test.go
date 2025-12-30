@@ -116,7 +116,7 @@ func TestModuleOCISources(t *testing.T) {
 			// to use a different location if future work changes how we
 			// structure the cache of remote module source packages.
 			//wantFilename := filepath.Join(dataDir, "modules", "test", "fake_module_package.farseek")
-			wantFilename := tf.Path(".farseek", "modules", "test", "fake_module_package.farseek")
+			wantFilename := tf.Path(".farseek", "modules", "test", "fake_module_package.tofu")
 			info, err := os.Lstat(wantFilename)
 			if err != nil {
 				t.Fatalf("can't stat %q after apparently-successful installation: %s", wantFilename, err)

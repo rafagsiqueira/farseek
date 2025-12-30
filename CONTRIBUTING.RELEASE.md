@@ -1,9 +1,9 @@
-# OpenTofu release manual
+# Farseek release manual
 
 > [!WARNING]
-> This manual is intended for OpenTofu core and fork maintainers. If you are looking for the normal contribution guide, see [this file](CONTRIBUTING.md).
+> This manual is intended for Farseek maintainers. If you are looking for the normal contribution guide, see [this file](CONTRIBUTING.md).
 
-This manual describes how to create an OpenTofu release. OpenTofu has two kinds of releases. Alpha and Beta releases are created
+This manual describes how to create an Farseek release. Farseek has two kinds of releases. Alpha and Beta releases are created
 from the `main` branch, while we split off a version (e.g. `v1.8`) branch before creating an `rc` or `stable`
 release.
 
