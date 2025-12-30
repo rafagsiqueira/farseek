@@ -278,7 +278,7 @@ func TestInitProviders_pluginCache(t *testing.T) {
 		t.Errorf("unexpected error: %s\nstdout: %s\nstderr: %s", err, sout, serr)
 	}
 
-	path := filepath.FromSlash(fmt.Sprintf(".terraform/providers/registry.opentofu.org/hashicorp/template/2.1.0/%s_%s/terraform-provider-template_v2.1.0_x4", runtime.GOOS, runtime.GOARCH)) + extension
+	path := filepath.FromSlash(fmt.Sprintf(".farseek/providers/registry.opentofu.org/hashicorp/template/2.1.0/%s_%s/terraform-provider-template_v2.1.0_x4", runtime.GOOS, runtime.GOARCH)) + extension
 	content, err := tf.ReadFile(path)
 	if err != nil {
 		t.Fatalf("failed to read installed plugin from %s: %s", path, err)
@@ -287,7 +287,7 @@ func TestInitProviders_pluginCache(t *testing.T) {
 		t.Errorf("template plugin was not installed from local cache")
 	}
 
-	nullLinkPath := filepath.FromSlash(fmt.Sprintf(".terraform/providers/registry.opentofu.org/hashicorp/null/2.1.0/%s_%s/terraform-provider-null", runtime.GOOS, runtime.GOARCH)) + extension
+	nullLinkPath := filepath.FromSlash(fmt.Sprintf(".farseek/providers/registry.opentofu.org/hashicorp/null/2.1.0/%s_%s/terraform-provider-null", runtime.GOOS, runtime.GOARCH)) + extension
 	if !tf.FileExists(nullLinkPath) {
 		t.Errorf("null plugin was not installed into %s", nullLinkPath)
 	}
