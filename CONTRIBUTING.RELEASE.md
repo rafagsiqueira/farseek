@@ -22,82 +22,6 @@ release.
 
 ---
 
-## Gathering the team for a release
-
-To create a release, make sure you have people on standby with the following credentials:
-
-- Cloudflare
-- PackageCloud
-- Snapcraft
-- Linkedin
-- X
-
----
-
-## Preparing public relations collaterals for a release
-
-Before you start creating a release, make sure you have the following marketing collaterals ready to be published:
-
-<details><summary>
-
-### Alpha version (`X.Y.0-alphaW`)
-
-</summary>
-
-- Feature Preview video for upcoming flagship features (see https://www.youtube.com/@opentofu for examples)
-- "Help us test..." blog post (see https://opentofu.org/blog/ for examples)
-- Community Slack announcement
-- Linkedin and X posts
-
-</details>
-
-<details><summary>
-
-### Beta (`X.Y.0-betaW`)
-
-</summary>
-
-- "Get ready for..." blog post (see https://opentofu.org/blog/ for examples)
-- Community Slack announcement
-- Linkedin and X posts
-
-</details>
-
-<details><summary>
-
-### Release Candidate (`X.Y.0-rcW`)
-
-</summary>
-
-- Community Slack announcement
-- Linkedin and X posts
-
-</details>
-
-<details><summary>
-
-### Stable release (`X.Y.0`)
-
-</summary>
-
-- Release blog post with the feature and community highlights since the last release (see https://opentofu.org/blog/ for examples)
-- Community Slack announcement
-- Linkedin and X posts
-
-</details>
-
-<details><summary>
-
-### Point release (`X.Y.Z`)
-
-</summary>
-
-- Community Slack announcement
-
-</details>
-
----
-
 ## Preparing the repository for a release
 
 Before you can create a release, you need to make sure the following files are up to date:
@@ -127,7 +51,7 @@ Now that you have the files up to date, do the following:
 
 Now comes the big step, creating the actual release.
 
-1. Head on over to the [Actions tab](https://github.com/opentofu/opentofu/actions) on the main repository
+1. Head on over to the [Actions tab](https://github.com/rafagsiqueira/farseek/actions) on the main repository
 2. Select the `release` workflow on the left side
 3. Click the `Run workflow` button, which opens a popup menu
 4. Select the correct branch:
@@ -144,7 +68,7 @@ Now the release process will commence and create a *draft* release on GitHub. If
 
 ## Publishing the GitHub release
 
-The release process takes about 30 minutes. When it is complete, head over to the [Releases section](https://github.com/opentofu/opentofu/releases) of the main repository and find the new draft release. Change the following settings
+The release process takes about 30 minutes. When it is complete, head over to the [Releases section](https://github.com/rafagsiqueira/farseek/releases) of the main repository and find the new draft release. Change the following settings
 
 - Edit the text (see the examples below).
 - Check `Set as a pre-release` if you are releasing an alpha, beta, or release candidate.
@@ -192,20 +116,20 @@ The highlights are:
 Create a more elaborate text explaining the flagship features of this release, ideally linking to the blog post and/or video for the release, for example:
 
 ```markdown
-We're proud to announce that OpenTofu 1.8.0 is now officially out! 🎉
+We're proud to announce that Farseek 1.8.0 is now officially out! 🎉
 
 ## What's New?
 * Early variable/locals evaluation
-* Provider mocking in `tofu test`
-* Resource overrides in `tofu test`
-* Override files for OpenTofu: keeping compatibility
+* Provider mocking in `farseek test`
+* Resource overrides in `farseek test`
+* Override files for Farseek: keeping compatibility
 * Deprecation: `use_legacy_workflow` has been removed from the S3 backend-backend
 
-See the launch post on our blog: https://opentofu.org/blog/opentofu-1-8-0/
+See the launch post on our blog: https://farseek.dev/blog/opentofu-1-8-0/
 
-For all the features, see the [detailed changelog](https://github.com/opentofu/opentofu/blob/v1.8.0/CHANGELOG.md).
+For all the features, see the [detailed changelog](https://github.com/rafagsiqueira/farseek/blob/v1.8.0/CHANGELOG.md).
 
-You can find the full diff [here](https://github.com/opentofu/opentofu/compare/v1.7..v1.8.0).
+You can find the full diff [here](https://github.com/rafagsiqueira/farseek/compare/v1.7..v1.8.0).
 ```
 
 </details>
@@ -222,15 +146,15 @@ For point releases, simply copy the section from the [CHANGELOG.md](CHANGELOG.md
 
 ---
 
-## Updating `get.opentofu.org`
+## Updating `get.farseek.dev`
 
-In order for the installer script to work, you will need to update the https://get.opentofu.org/tofu/api.json file. You can do this by logging in to Cloudflare and go to the [`opentofu-get` project in Cloudflare Pages](https://dash.cloudflare.com/84161f72ecc1f0274ab2fa7241f64249/pages/view/opentofu-get). Here click the three dots on the latest production deployment and click `Retry deployment`.
+In order for the installer script to work, you will need to update the https://get.farseek.dev/farseek/api.json file. You can do this by logging in to Cloudflare and go to the [`farseek-get` project in Cloudflare Pages](https://dash.cloudflare.com/84161f72ecc1f0274ab2fa7241f64249/pages/view/farseek-get). Here click the three dots on the latest production deployment and click `Retry deployment`.
 
 ---
 
 ## Updating the website/documentation
 
-Depending on the release type, you will need to update the [opentofu.org](https://github.com/opentofu/opentofu.org) repository.
+Depending on the release type, you will need to update the [farseek.dev](https://github.com/rafagsiqueira/farseek.dev) repository.
 
 Before you begin, make sure that all submodules are up to date by running:
 
@@ -266,9 +190,9 @@ We do not release documentation for non-stable releases. There is no action need
 
 1. Add a submodule for the new release to the website repository:
    ```
-   git submodule add -b vX.Y https://github.com/opentofu/opentofu opentofu-repo/vX.Y
+   git submodule add -b vX.Y https://github.com/rafagsiqueira/farseek farseek-repo/vX.Y
    ```
-2. After you have done this, open the [`docusaurus.config.ts`](https://github.com/opentofu/opentofu.org/blob/main/docusaurus.config.ts) file and `presets` section.
+2. After you have done this, open the [`docusaurus.config.ts`](https://github.com/rafagsiqueira/farseek/blob/main/docusaurus.config.ts) file and `presets` section.
 3. Here, locate the previous latest version:
    ```
    "vX.Y-1": {
@@ -345,22 +269,22 @@ Now you can commit your changes and open a pull request.
 
 ## Testing the release
 
-Make sure you have a Linux box with Snapcraft installed and download the installer shell script from `https://get.opentofu.org/install-opentofu.sh`.
+Make sure you have a Linux box with Snapcraft installed and download the installer shell script from `https://get.farseek.dev/install-farseek.sh`.
 
 Now test the following 3 installation methods to make sure all distribution points are up to date.
 
 1. Snapcraft (stable and point releases only):
-   * `sudo snap install opentofu --classic`
-   * `tofu --version`
-   * `sudo snap uninstall opentofu`
+   * `sudo snap install farseek --classic`
+   * `farseek --version`
+   * `sudo snap uninstall farseek`
 2. Deb (stable and point releases only)
-   * `./install-opentofu.sh --install-method deb`
-   * `tofu --version`
+   * `./install-farseek.sh --install-method deb`
+   * `farseek --version`
    * `apt remove --purge tofu`
 3. Standalone:
-   * `./install-opentofu.sh --install-method standalone --opentofu-version X.Y.Z`
-   * `/usr/local/bin/tofu --version`
-   * `sudo rm -rf /opt/opentofu /usr/local/bin/tofu`
+   * `./install-farseek.sh --install-method standalone --farseek-version X.Y.Z`
+   * `/usr/local/bin/farseek --version`
+   * `sudo rm -rf /opt/farseek /usr/local/bin/farseek`
 
 ---
 
@@ -368,7 +292,7 @@ Now test the following 3 installation methods to make sure all distribution poin
 
 Once you are happy that the release works, post the announcements to the following places:
 
-- Alpha: Community Slack, Linkedin, X, Blog, YouTube
-- Beta: Community Slack, Linkedin, X, Blog
-- Stable: Community Slack, Linkedin, X, Blog
+- Alpha: Community Slack, Linkedin, Blog
+- Beta: Community Slack, Linkedin, Blog
+- Stable: Community Slack, Linkedin, Blog
 - Point release: Community Slack
