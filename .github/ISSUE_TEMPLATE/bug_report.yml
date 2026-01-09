@@ -1,3 +1,5 @@
+# Copyright (c) The Farseek Authors
+# SPDX-License-Identifier: MPL-2.0
 # Copyright (c) The OpenTofu Authors
 # SPDX-License-Identifier: MPL-2.0
 # Copyright (c) 2023 HashiCorp, Inc.
@@ -12,7 +14,7 @@ body:
       value: |
         # Thank you for opening an issue.
         
-        The [OpenTofu](https://github.com/openfarseek/openfarseek) issue tracker is reserved for bug reports relating to the core OpenTofu CLI application and configuration language.
+        The [Farseek](https://github.com/rafagsiqueira/farseek) issue tracker is reserved for bug reports relating to the core Farseek CLI application and configuration language.
         
         ## Filing a bug report
         
@@ -30,12 +32,12 @@ body:
       description: Please leave this note unchanged.
       value: |
         > [!TIP]
-        > 👋 Hi there, OpenTofu community! The OpenTofu team prioritizes issues based on upvotes. Please make sure to upvote this issue and describe how it affects you in detail in the comments to show your support.
+        > 👋 Hi there, Farseek community! The Farseek team prioritizes issues based on upvotes. Please make sure to upvote this issue and describe how it affects you in detail in the comments to show your support.
   - type: textarea
     id: tf-version
     attributes:
-      label: OpenTofu Version
-      description: Run `farseek version` to show the version, and paste the result below. If you are not running the latest version of OpenTofu, please try upgrading because your issue may have already been fixed.
+      label: Farseek Version
+      description: Run `farseek version` to show the version, and paste the result below. If you are not running the latest version of Farseek, please try upgrading because your issue may have already been fixed.
       render: shell
       placeholder: ...output of `farseek version`...
       value:
@@ -45,8 +47,8 @@ body:
   - type: textarea
     id: tf-config
     attributes:
-      label: OpenTofu Configuration Files
-      description: Paste the relevant parts of your OpenTofu configuration between the ``` marks below. For OpenTofu configs larger than a few resources, or that involve multiple files, please make a GitHub repository that we can clone, rather than copy-pasting multiple files in here.
+      label: Farseek Configuration Files
+      description: Paste the relevant parts of your Farseek configuration between the ``` marks below. For Farseek configs larger than a few resources, or that involve multiple files, please make a GitHub repository that we can clone, rather than copy-pasting multiple files in here.
       placeholder:
       value: |
         ```hcl
@@ -60,11 +62,11 @@ body:
     attributes:
       label: Debug Output
       description: |
-        Full debug output can be obtained by running OpenTofu with the environment variable `FARSEEK_LOG=trace`.
+        Full debug output can be obtained by running Farseek with the environment variable `FARSEEK_LOG=trace`.
         Please create a GitHub Gist containing the debug output. Please do _not_ paste the debug output in the issue,
         since debug output is long. Debug output may contain sensitive information.
         
-        **⚠ Warning!** Carefully inspect the `TRACE` level OpenTofu logs! They may contain sensitive credentials.
+        **⚠ Warning!** Carefully inspect the `TRACE` level Farseek logs! They may contain sensitive credentials.
         When in doubt, you can omit posting the logs and provide information later.
       placeholder: ...link to gist...
       value:
@@ -108,7 +110,7 @@ body:
       label: Additional Context
       description: |
         Are there anything atypical about your situation that we should know?
-        For example: is OpenTofu running in a wrapper script or in a CI system? Are you passing any unusual command line options or environment variables to opt-in to non-default behavior?"
+        For example: is Farseek running in a wrapper script or in a CI system? Are you passing any unusual command line options or environment variables to opt-in to non-default behavior?"
       placeholder: Additional context...
       value:
     validations:
